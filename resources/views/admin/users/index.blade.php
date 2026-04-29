@@ -321,7 +321,7 @@
                     </div>
 
                     <div class="modal-body">
-                        <p class="mb-0">Esta seguro de eliminar el usuario <strong>{{ $user->name }}</strong>?</p>
+                        <p class="mb-0">¿Está seguro de eliminar el usuario <strong>{{ $user->name }}</strong>?</p>
                     </div>
 
                     <div class="modal-footer">

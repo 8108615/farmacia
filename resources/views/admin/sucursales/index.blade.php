@@ -1,19 +1,5 @@
 @extends('layouts.admin')
 
-@push('styles')
-    <style>
-        .modal .input-group .input-group-text {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal .input-group .input-group-text i {
-            line-height: 1;
-        }
-    </style>
-@endpush
-
 @section('content')
     <div class="page-heading">
         <div class="d-flex justify-content-between align-items-center">

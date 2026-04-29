@@ -1,18 +1,7 @@
 @extends('layouts.admin')
 
 @push('styles')
-    <style>
-        .input-group .input-group-text {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 44px;
-        }
 
-        .input-group .input-group-text i {
-            line-height: 1;
-        }
-    </style>
 @endpush
 
 @section('content')
@@ -626,13 +615,13 @@
         </div>
 
         <div class="modal fade" id="deleteEmpleadoModal-{{ $empleado->id }}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <form class="modal-content" method="POST"
                     action="{{ route('admin.empleados.destroy', $empleado->id) }}">
                     @csrf
                     @method('DELETE')
                     <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title">Eliminar empleado</h5>
+                        <h5 class="modal-title" style="color: white">Eliminar empleado</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>

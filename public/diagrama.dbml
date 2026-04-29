@@ -1,0 +1,189 @@
+﻿Table ajustes {
+  id int [pk, increment]
+  
+  nombre varchar(150) [not null]
+  descripcion text
+  direccion text
+  telefono varchar(50)
+  email varchar(150)
+  divisa varchar(10) [not null, default: 'USD']
+  logo varchar(255) [null]
+  web varchar(255) [null]
+}
+
+Table roles {
+  id int [pk, increment]
+  nombre varchar(100) [not null, unique]
+}
+
+Table usuarios {
+  id int [pk, increment]
+  rol_id int [ref: > roles.id]
+
+  name varchar(100) [not null]
+  email varchar(150) [not null, unique]
+  password varchar(255) [not null]
+}
+
+Table sucursales {
+  id int [pk, increment]
+  nombre varchar(150) [not null]
+  direccion text
+  telefono varchar(50)
+  estado enum('activa','inactiva') [not null, default: 'activa']
+}
+
+Table empleados {
+  id int [pk, increment]
+  usuario_id int [ref: > usuarios.id]
+  sucursal_id int [ref: > sucursales.id]
+  
+  nombres varchar(255) [not null]
+  apellidos varchar(255) [not null]
+  tipo_doc enum('CI','DNI','RUC','PASAPORTE','OTRO') [not null]
+  numero_doc varchar(50) [not null, unique] 
+  telefono varchar(50)
+  direccion text
+  profesion varchar(150)
+  fecha_nacimiento date
+  genero enum('M','F')
+  avatar varchar(255) [null]
+  estado enum('activo','inactivo') [not null, default: 'activo']
+}
+
+Table categorias {
+  id int [pk, increment]
+  nombre varchar(150) [not null, unique]
+}
+
+Table productos {
+  id int [pk, increment]
+
+  categoria_id int [ref: > categorias.id]
+
+  codigo_producto varchar(50) [unique, not null]
+  codigo_barra varchar(50) [unique, null]
+  nombre_comercial varchar(255) [not null]
+  nombre_generico varchar(255) [not null]
+  forma_farmaceutica varchar(100)
+  presentacion varchar(100)
+  concentracion varchar(100)
+  accion_terapeutica varchar(255)
+  unidad_medida varchar(50)
+  usa_receta boolean [not null, default: false]
+  laboratorio varchar(150)
+  imagen varchar(255) [null]
+}
+
+Table lotes {
+  id int [pk, increment]
+  nombre varchar(150) [not null , unique]
+}
+
+Table clientes {
+  id int [pk, increment]
+
+  ci_nit varchar(50) [not null, unique]
+  nombres_apellidos varchar(255) [not null]
+  email varchar(150)
+  telefono varchar(50)
+}
+
+Table proveedores {
+  id int [pk, increment]
+  nombre varchar(255) [not null]
+  telefono varchar(50)
+  email varchar(150)
+  direccion text
+  contacto varchar(150)
+  notas text
+}
+
+
+Table inventarios {
+  id int [pk, increment]
+  
+  sucursal_id int [not null, ref: > sucursales.id]
+  producto_id int [not null, ref: > productos.id]
+  lote_id int [not null, ref: > lotes.id]
+  
+  precio_compra_unidad decimal(12,2) [not null]
+  precio_venta_unidad decimal(12,2) [not null]
+  porcentaje_ganancia_unidad decimal(5,2) [not null]
+  cantidad int [not null]
+  stock_minimo int [not null, default: 0]
+  stock_maximo int [not null, default: 0]
+  fecha_registro datetime [not null, default: `CURRENT_TIMESTAMP`]
+  fecha_vencimiento date
+  tipo enum('compra','ajuste','traslado') [not null]
+}
+
+Table tmp_compras {
+  id int [pk, increment]
+
+  producto_id int [ref: > productos.id]
+  
+  precio_compra_unidad decimal(12,2) [not null]
+  precio_venta_unidad decimal(12,2) [not null]
+  porcentaje_ganancia_unidad decimal(5,2) [not null]
+  cantidad int [not null]
+}
+
+Table compras {
+  id int [pk, increment]
+  
+  sucursal_id int [not null, ref: > sucursales.id]
+  proveedor_id int [ref: > proveedores.id]
+  usuario_id int [ref: > usuarios.id]
+  
+  fecha_compra datetime [not null, default: `CURRENT_TIMESTAMP`]
+  total_compra decimal(12,2) [not null, default: 0.00]
+  estado enum('pendiente','recibido','cancelado') [not null, default: 'pendiente']
+  comprobante varchar(100) [null]
+  notas text
+}
+
+Table compras_detalle {
+  id int [pk, increment]
+  
+  compra_id int [ref: > compras.id]
+  producto_id int [ref: > productos.id]
+  
+  precio_compra_unidad decimal(12,2) [not null]
+  precio_venta_unidad decimal(12,2) [not null]
+  porcentaje_ganancia_unidad decimal(5,2) [not null]
+  cantidad int [not null]
+}
+
+Table tmp_ventas {
+  id int [pk, increment]
+
+  producto_id int [ref: > productos.id]
+  
+  precio_venta_unidad decimal(12,2) [not null]
+  cantidad int [not null]
+}
+
+Table ventas {
+  id int [pk, increment]
+  
+  sucursal_id int [not null, ref: > sucursales.id]
+  cliente_id int [ref: > clientes.id]
+  usuario_id int [ref: > usuarios.id]
+  
+  fecha_venta datetime [not null, default: `CURRENT_TIMESTAMP`]
+  total_venta decimal(12,2) [not null, default: 0.00]
+  estado enum('pendiente','emitida','cancelada','devuelta') [not null, default: 'emitida']
+  tipo_pago enum('efectivo','tarjeta','transferencia','mixto') [not null, default: 'efectivo']
+  notas text
+}
+
+Table ventas_detalle {
+  id int [pk, increment]
+  
+  venta_id int [ref: > ventas.id]
+  producto_id int [ref: > productos.id]
+  
+  cantidad int [not null]
+  precio_venta_unidad decimal(12,2) [not null]
+}

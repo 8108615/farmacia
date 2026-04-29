@@ -18,6 +18,21 @@
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app-dark.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/iconly.css') }}">
+
+    <style>
+        .input-group .input-group-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 46px;
+            padding: 0.375rem 0.75rem;
+        }
+
+        .input-group .input-group-text i {
+            line-height: 1;
+        }
+    </style>
+
     @stack('styles')
 </head>
 
@@ -116,6 +131,13 @@
                                 <a href="{{ route('admin.sucursales.index') }}" class='sidebar-link'>
                                     <i class="bi bi-building"></i>
                                     <span>Sucursales</span>
+                                </a>
+                            </li>
+
+                            <li class="sidebar-item {{ request()->routeIs('admin.categorias.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.categorias.index') }}" class='sidebar-link'>
+                                    <i class="bi bi-building"></i>
+                                    <span>Categorías</span>
                                 </a>
                             </li>
 

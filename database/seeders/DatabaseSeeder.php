@@ -17,10 +17,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        Sucursal::query()->firstOrCreate(
+            ['nombre' => 'LA VILLA'],
+            [
+                'direccion' => 'Vila primero de Mayo',
+                'telefono' => '76658532',
+                'estado' => true,
+            ]
+        );
+
          $this->call([
             RoleSeeder::class,
             AjusteSeeder::class,
             SucursalSeeder::class,
+            CategoriaSeeder::class,
             EmpleadoSeeder::class,
         ]);
 
@@ -36,13 +46,6 @@ class DatabaseSeeder extends Seeder
 
         $admin->syncRoles([$superAdminRole->name]);
 
-        Sucursal::query()->firstOrCreate(
-            ['nombre' => 'LA VILLA'],
-            [
-                'direccion' => 'Vila primero de Mayo',
-                'telefono' => '76658532',
-                'estado' => true,
-            ]
-        );
+
     }
 }
