@@ -1,8 +1,6 @@
 @extends('layouts.admin')
 
-@push('styles')
 
-@endpush
 
 @section('content')
     <div class="page-heading">
