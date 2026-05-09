@@ -136,7 +136,7 @@
 
                             <li class="sidebar-item {{ request()->routeIs('admin.categorias.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.categorias.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-building"></i>
+                                    <i class="bi bi-tag-fill me-2"></i>
                                     <span>Categorías</span>
                                 </a>
                             </li>
@@ -157,13 +157,17 @@
 
                             <li class="sidebar-item {{ request()->routeIs('admin.presentaciones.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.presentaciones.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-building"></i>
-                                    <span>presentaciones</span>
+                                    <i class="bi bi-box-seam"></i>
+                                    <span>Presentaciones</span>
                                 </a>
                             </li>
 
-
-
+                            <li class="sidebar-item {{ request()->routeIs('admin.productos.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.productos.index') }}" class='sidebar-link'>
+                                    <i class="bi bi-bag-fill"></i>
+                                    <span>Productos</span>
+                                </a>
+                            </li>
 
                             <li class="sidebar-item {{ request()->routeIs('admin.empleados.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.empleados.index') }}" class='sidebar-link'>

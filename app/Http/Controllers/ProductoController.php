@@ -12,7 +12,20 @@ class ProductoController extends Controller
      */
     public function index()
     {
-        //
+        $search = trim((string) request('search', ''));
+
+        $productos = Producto::query()
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where('nombre_comercial', 'like', '%' . $search . '%')
+                    ->orWhere('nombre_generico', 'like', '%' . $search . '%')
+                    ->orWhere('codigo_producto', 'like', '%' . $search . '%')
+                    ->orWhere('codigo_barra', 'like', '%' . $search . '%');
+            })
+            ->orderBy('nombre_comercial')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admin.productos.index', compact('productos', 'search'));
     }
 
     /**
