@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\laboratorio;
+use App\Models\Laboratorio;
 use Illuminate\Http\Request;
 
 class LaboratorioController extends Controller
@@ -12,7 +12,17 @@ class LaboratorioController extends Controller
      */
     public function index()
     {
-        //
+        $search = trim((string) request('search', ''));
+
+        $laboratorios = Laboratorio::query()
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where('nombre', 'like', '%' . $search . '%');
+            })
+            ->orderBy('nombre')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admin.laboratorios.index', compact('laboratorios', 'search'));
     }
 
     /**
@@ -28,13 +38,32 @@ class LaboratorioController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'nombre' => 'required|string|max:150|unique:laboratorios,nombre',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()
+                ->route('admin.laboratorios.index')
+                ->withErrors($validator)
+                ->withInput()
+                ->with('open_modal', 'createLaboratorioModal');
+        }
+
+        $laboratorio = new Laboratorio();
+        $laboratorio->nombre = mb_strtoupper($request->nombre);
+        $laboratorio->save();
+
+
+        return redirect()->route('admin.laboratorios.index')->with('success', 'Laboratorio creado correctamente.');
+
+
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(laboratorio $laboratorio)
+    public function show(Laboratorio $laboratorio)
     {
         //
     }
@@ -42,7 +71,7 @@ class LaboratorioController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(laboratorio $laboratorio)
+    public function edit(Laboratorio $laboratorio)
     {
         //
     }
@@ -50,16 +79,36 @@ class LaboratorioController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, laboratorio $laboratorio)
+    public function update(Request $request, Laboratorio $laboratorio, string $id)
     {
-        //
+        $laboratorio = Laboratorio::query()->findOrFail($id);
+
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'nombre' => 'required|string|max:150|unique:laboratorios,nombre,' . $laboratorio->id,
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()
+                ->route('admin.laboratorios.index')
+                ->withErrors($validator)
+                ->withInput()
+                ->with('open_modal', 'editLaboratorioModal-' . $laboratorio->id);
+        }
+
+        $laboratorio->nombre = mb_strtoupper($request->nombre);
+        $laboratorio->save();
+
+        return redirect()->route('admin.laboratorios.index')->with('success', 'Laboratorio actualizado correctamente.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(laboratorio $laboratorio)
+    public function destroy(Laboratorio $laboratorio, string $id)
     {
-        //
+        $laboratorio = Laboratorio::query()->findOrFail($id);
+        $laboratorio->delete();
+
+        return redirect()->route('admin.laboratorios.index')->with('success', 'Laboratorio eliminado correctamente.');
     }
 }

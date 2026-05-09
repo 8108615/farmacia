@@ -141,6 +141,29 @@
                                 </a>
                             </li>
 
+                            <li class="sidebar-item {{ request()->routeIs('admin.laboratorios.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.laboratorios.index') }}" class='sidebar-link'>
+                                    <i class="bi bi-capsule"></i>
+                                    <span>Laboratorios</span>
+                                </a>
+                            </li>
+
+                            <li class="sidebar-item {{ request()->routeIs('admin.forma_farmaceuticas.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.forma_farmaceuticas.index') }}" class='sidebar-link'>
+                                    <i class="bi bi-capsule me-2"></i>
+                                    <span>Forma Farmacéuticas</span>
+                                </a>
+                            </li>
+
+                            <li class="sidebar-item {{ request()->routeIs('admin.presentaciones.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.presentaciones.index') }}" class='sidebar-link'>
+                                    <i class="bi bi-building"></i>
+                                    <span>presentaciones</span>
+                                </a>
+                            </li>
+
+
+
 
                             <li class="sidebar-item {{ request()->routeIs('admin.empleados.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.empleados.index') }}" class='sidebar-link'>

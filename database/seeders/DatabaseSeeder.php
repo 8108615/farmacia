@@ -2,8 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\FormaFarmaceutica;
+use App\Models\Laboratorio;
 use App\Models\Sucursal;
 use App\Models\User;
+use App\Models\Presentacion;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -32,7 +35,11 @@ class DatabaseSeeder extends Seeder
             SucursalSeeder::class,
             CategoriaSeeder::class,
             EmpleadoSeeder::class,
+            PresentacionSeeder::class,
         ]);
+        Laboratorio::factory()->count(20)->create();
+        FormaFarmaceutica::factory()->count(20)->create();
+        //Presentacion::factory()->count(20)->create();
 
         $admin = User::firstOrCreate(
             ['email' => 'erick@gmail.com'],

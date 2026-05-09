@@ -60,23 +60,33 @@ Table laboratorios {
   id int [pk, increment]
   nombre varchar(150) [not null, unique]
 }
+Table forma_farmaceuticas {
+  id int [pk, increment]
+  nombre varchar(150) [not null, unique]
+}
+
+Table presentacions {
+  id int [pk, increment]
+  nombre varchar(150) [not null, unique]
+}
+
 
 Table productos {
   id int [pk, increment]
 
   categoria_id int [ref: > categorias.id]
   laboratorio_id int [ref: > laboratorios.id]
+  forma_farmaceutica_id int [ref: > forma_farmaceuticas.id]
+  presentacion_id int [ref: > presentacions.id]
   codigo_producto varchar(50) [unique, not null]
   codigo_barra varchar(50) [unique, null]
   nombre_comercial varchar(255) [not null]
   nombre_generico varchar(255) [not null]
-  forma_farmaceutica varchar(100)
-  presentacion varchar(100)
   concentracion varchar(100)
   accion_terapeutica varchar(255)
   unidad_medida varchar(50)
   usa_receta boolean [not null, default: false]
-  
+
   imagen varchar(255) [null]
 }
 
