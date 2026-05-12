@@ -4,7 +4,8 @@
     <div class="page-heading">
         <div class="d-flex justify-content-between align-items-center">
             <h3>Productos</h3>
-            <button type="button" class="btn btn-primary">
+            <button type="button" class="btn btn-primary"
+            onclick="window.location='{{ route('admin.productos.create') }}'">
                 <i class="bi bi-plus-circle"></i> Nuevo Producto
             </button>
         </div>
