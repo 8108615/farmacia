@@ -169,6 +169,13 @@
                                 </a>
                             </li>
 
+                            <li class="sidebar-item {{ request()->routeIs('admin.proveedores.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.proveedores.index') }}" class='sidebar-link'>
+                                    <i class="bi bi-truck"></i>
+                                    <span>Proveedores</span>
+                                </a>
+                            </li>
+
                             <li class="sidebar-item {{ request()->routeIs('admin.empleados.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.empleados.index') }}" class='sidebar-link'>
                                     <i class="bi bi-person-badge"></i>

@@ -48,18 +48,16 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 60px;">#</th>
-
                                         <th>Categoría</th>
                                         <th>Laboratorio</th>
                                         <th>Forma farmacéutica</th>
                                         <th>Presentación</th>
                                         <th>Código producto</th>
                                         <th>Código barra</th>
-                                        <th>Nombre comercial</th>
+                                        <th>Nombre Comercial</th>
                                         <th>Nombre genérico  </th>
                                         <th>Concentración</th>
                                         <th>Receta</th>
-
                                         <th style="width:120px">Acciones</th>
                                     </tr>
                                 </thead>
@@ -87,16 +85,21 @@
                                             </td>
 
 
-                                            <td class="py-1">
-                                                <button type="button" class="btn btn-sm btn-primary"
-                                                    title="Ver" onclick="window.location='{{ route('admin.productos.show', $producto->id) }}'">
-                                                    <i class="bi bi-eye"></i>
-                                                </button>
+                                            <td class="py-1 text-center">
+                                                <div class="d-flex align-items-center justify-content-center" style="gap:8px;">
 
-                                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                                    data-bs-target="#deleteProductoModal-{{ $producto->id }}">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
+                                                    <button type="button" class="btn btn-primary btn-sm p-0 d-inline-flex align-items-center justify-content-center me-1" title="Ver" onclick="window.location='{{ route('admin.productos.show', $producto->id) }}'" style="width:36px;height:36px;border-radius:6px;">
+                                                        <i class="bi bi-eye text-white"></i>
+                                                    </button>
+
+                                                    <button type="button" class="btn btn-success btn-sm p-0 d-inline-flex align-items-center justify-content-center me-1" title="Editar" onclick="window.location='{{ route('admin.productos.edit', $producto->id) }}'" style="width:36px;height:36px;border-radius:6px;">
+                                                        <i class="bi bi-pencil-square text-white"></i>
+                                                    </button>
+
+                                                    <button type="button" class="btn btn-danger btn-sm p-0 d-inline-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#deleteProductoModal-{{ $producto->id }}" title="Eliminar" style="width:36px;height:36px;border-radius:6px;">
+                                                        <i class="bi bi-trash text-white"></i>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     @empty

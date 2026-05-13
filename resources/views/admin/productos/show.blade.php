@@ -144,10 +144,20 @@
 					</div>
 
 
+
+
                     <br>
-                    <div class="text-end mt-2">
-							<a href="{{ route('admin.productos.index') }}" class="btn btn-sm btn-outline-secondary">Cerrar</a>
+                    <div class="col-md-3 text-end mt-2">
+						<div class="p-3 rounded ">
+                            <a href="{{ route('admin.productos.index') }}" class="btn btn-light-secondary">Cancelar</a>
+							<a href="{{ route('admin.productos.edit', $producto->id) }}" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-pencil-square"></i> Editar
+                            </a>
 						</div>
+					</div>
+                    <div class="text-end mt-2">
+						<a href="{{ route('admin.productos.index') }}" class="btn btn-sm btn-outline-secondary">Cerrar</a>
+					</div>
 				</div>
 			</div>
 		</div>
