@@ -43,24 +43,54 @@
                             </div>
                         @endif
 
-                        <div class="table-responsive">
-                            <table class="table table-striped mb-0">
+                        <div class="table-responsive" style="overflow-x:auto;">
+                            <table class="table table-striped table-sm mb-0 align-middle">
                                 <thead>
                                     <tr>
-                                        <th style="width: 80px;">#</th>
-                                        <th>Nombre</th>
-                                        <th style="width: 220px;">Acciones</th>
+                                        <th style="width: 60px;">#</th>
+
+                                        <th>Categoría</th>
+                                        <th>Laboratorio</th>
+                                        <th>Forma farmacéutica</th>
+                                        <th>Presentación</th>
+                                        <th>Código producto</th>
+                                        <th>Código barra</th>
+                                        <th>Nombre comercial</th>
+                                        <th>Nombre genérico  </th>
+                                        <th>Concentración</th>
+                                        <th>Receta</th>
+
+                                        <th style="width:120px">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse ($productos as $producto)
                                         <tr>
-                                            <td>{{ $productos->firstItem() + $loop->index }}</td>
-                                            <td>{{ $producto->nombre_comercial }}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-success"
-                                                    onclick="window.location='{{ route('admin.productos.show', $producto->id) }}'">
-                                                    <i class="bi bi-pencil-square"></i>
+                                            <td class="py-1">{{ $productos->firstItem() + $loop->index }}</td>
+
+                                            <td class="py-1">{{ $producto->categoria->nombre ?? 'No definido' }}</td>
+                                            <td class="py-1">{{ $producto->laboratorio->nombre ?? 'No definido' }}</td>
+                                            <td class="py-1">{{ optional($producto->forma_farmaceutica)->nombre ?? 'No definido' }}</td>
+                                            <td class="py-1">{{ $producto->presentacion->nombre ?? 'No definido' }}</td>
+                                            <td class="py-1">{{ $producto->codigo_producto }}</td>
+                                            <td class="py-1">{{ $producto->codigo_barra ?? 'No definido' }}</td>
+                                            <td class="py-1">{{ $producto->nombre_comercial }}</td>
+                                            <td class="py-1">{{ $producto->nombre_generico }}</td>
+                                            <td class="py-1">{{ $producto->concentracion. ' ' .$producto->unidad_medida ?? 'No definida' }}</td>
+
+                                            <td class="py-1">
+                                                @if($producto->usa_receta)
+                                                    <span class="badge bg-danger">Sí</span>
+                                                @else
+                                                    <span class="badge bg-success">No</span>
+                                                @endif
+                                            </td>
+
+
+                                            <td class="py-1">
+                                                <button type="button" class="btn btn-sm btn-primary"
+                                                    title="Ver" onclick="window.location='{{ route('admin.productos.show', $producto->id) }}'">
+                                                    <i class="bi bi-eye"></i>
                                                 </button>
 
                                                 <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
@@ -71,9 +101,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="3" class="text-center text-muted py-4">No hay Productos
-                                                registrados.
-                                            </td>
+                                            <td colspan="18" class="text-center text-muted py-4">No hay Productos registrados.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>

@@ -41,6 +41,11 @@ class DatabaseSeeder extends Seeder
         FormaFarmaceutica::factory()->count(20)->create();
         //Presentacion::factory()->count(20)->create();
 
+        // Productos: crear después de tener laboratorios y formas
+        $this->call([
+            \Database\Seeders\ProductoSeeder::class,
+        ]);
+
         $admin = User::firstOrCreate(
             ['email' => 'erick@gmail.com'],
             ['name' => 'Erick Fernando Morales Gil', 'password' => bcrypt('12345678')]
