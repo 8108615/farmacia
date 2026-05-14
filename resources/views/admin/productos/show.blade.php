@@ -1,167 +1,212 @@
 @extends('layouts.admin')
 
 @section('content')
-	<div class="page-heading mb-4">
-		<div class="d-flex justify-content-between align-items-center">
-			<div>
-				<h3 class="mb-0">Detalle del producto</h3>
-				<small class="text-muted">Ficha detallada y profesional</small>
-			</div>
-			<div>
-				<a href="{{ route('admin.productos.index') }}" class="btn btn-outline-secondary">
-					<i class="bi bi-arrow-left"></i> Volver al listado
-				</a>
-			</div>
-		</div>
-	</div>
+    @php
+        $imagenUrl = null;
 
-	<section class="section">
-		<div class="card shadow-sm" style="border-radius:14px;">
-			<div class="card-body p-4">
-				<div class="row g-4">
-					<!-- LEFT: Imagen -->
-					<div class="col-lg-4">
-						<div class="border rounded p-3" style="background:#fafbfd; min-height:320px; display:flex; align-items:center; justify-content:center;">
-							@php
-								$imgSrc = null;
-								if(!empty($producto->imagen)){
-									if(filter_var($producto->imagen, FILTER_VALIDATE_URL)){
-										$imgSrc = $producto->imagen;
-									} elseif(file_exists(public_path('storage/' . $producto->imagen))) {
-										$imgSrc = asset('storage/' . $producto->imagen);
-									} elseif(file_exists(public_path($producto->imagen))) {
-										$imgSrc = asset($producto->imagen);
-									}
-								}
-							@endphp
+        if (!empty($producto->imagen)) {
+            $imagenUrl = \Illuminate\Support\Str::startsWith($producto->imagen, ['http://', 'https://'])
+                ? $producto->imagen
+                : asset('storage/' . ltrim($producto->imagen, '/'));
+        }
+    @endphp
 
-							@if($imgSrc)
-								<img src="{{ $imgSrc }}" alt="{{ $producto->nombre_comercial }}" class="img-fluid rounded" style="max-height:280px; object-fit:contain;">
-							@else
-								<div class="text-center text-muted">Sin imagen</div>
-							@endif
-						</div>
-					</div>
+    <div class="page-heading">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h3 class="mb-0">Detalle del producto</h3>
+            <a href="{{ route('admin.productos.index') }}" class="btn btn-light-secondary">
+                <i class="bi bi-arrow-left"></i> Volver al listado
+            </a>
+        </div>
+    </div>
 
-					<!-- RIGHT: Datos -->
-					<div class="col-lg-8">
-						<div class="d-flex justify-content-between align-items-start mb-3">
-							<div>
-								<h4 class="mb-1 fw-bold">{{ $producto->nombre_comercial }}</h4>
-								<small class="text-muted">{{ $producto->nombre_generico }}</small>
-							</div>
-							<div>
-								@if($producto->usa_receta)
-									<span class="badge bg-danger">Con receta</span>
-								@else
-									<span class="badge bg-success">Venta libre</span>
-								@endif
-							</div>
-						</div>
+    <section class="section">
+        <div class="row">
+            <div class="col-12">
+                <div class="card product-show-card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom-0 pb-0">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                            <div>
+                                <h4 class="card-title mb-1">{{ $producto->nombre_comercial }}</h4>
+                                <p class="text-muted mb-0">{{ $producto->nombre_generico }}</p>
+                            </div>
+                            <span
+                                class="badge {{ $producto->usa_receta ? 'bg-warning text-dark' : 'bg-success' }} px-3 py-2">
+                                {{ $producto->usa_receta ? 'Requiere receta' : 'Venta libre' }}
+                            </span>
+                        </div>
+                    </div>
 
+                    <div class="card-body pt-3">
+                        <div class="row g-4">
+                            <div class="col-12 col-lg-4">
+                                <div class="product-image-wrapper">
+                                    @if ($imagenUrl)
+                                        <img src="{{ $imagenUrl }}" alt="{{ $producto->nombre_comercial }}"
+                                            class="img-fluid product-image">
+                                    @else
+                                        <div class="product-image-placeholder">
+                                            <i class="bi bi-image fs-2"></i>
+                                            <p class="mb-0 mt-2">Sin imagen registrada</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
 
+                            <div class="col-12 col-lg-8">
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <div class="info-block h-100">
+                                            <small class="info-label">Código de producto</small>
+                                            <p class="info-value">{{ $producto->codigo_producto }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="info-block h-100">
+                                            <small class="info-label">Código de barra</small>
+                                            <p class="info-value">{{ $producto->codigo_barra ?: 'No definido' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="info-block h-100">
+                                            <small class="info-label">Concentración</small>
+                                            <p class="info-value">{{ $producto->concentracion ?: 'No definida' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="info-block h-100">
+                                            <small class="info-label">Unidad de medida</small>
+                                            <p class="info-value">{{ $producto->unidad_medida ?: 'No definida' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="info-block h-100">
+                                            <small class="info-label">Acción terapéutica</small>
+                                            <p class="info-value">{{ $producto->accion_terapeutica ?: 'No definida' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-						<div class="row g-3">
-							<div class="col-md-6">
-								<div class="p-3 rounded" style="background:#ffffff; border:1px solid #eef1f5;">
-									<small class="text-muted">CÓDIGO DE PRODUCTO</small>
-									<div class="fw-semibold">{{ $producto->codigo_producto ?? 'No Definida' }}</div>
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="p-3 rounded" style="background:#ffffff; border:1px solid #eef1f5;">
-									<small class="text-muted">CÓDIGO DE BARRA</small>
-									<div class="fw-semibold">{{ $producto->codigo_barra ?? 'No Definida' }}</div>
-								</div>
-							</div>
+                        <hr class="my-4">
 
-							<div class="col-md-6">
-								<div class="p-3 rounded" style="background:#ffffff; border:1px solid #eef1f5;">
-									<small class="text-muted">CONCENTRACIÓN</small>
-									<div class="fw-semibold">{{ $producto->concentracion ?? 'No Definida' }}</div>
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="p-3 rounded" style="background:#ffffff; border:1px solid #eef1f5;">
-									<small class="text-muted">UNIDAD DE MEDIDA</small>
-									<div class="fw-semibold">{{ $producto->unidad_medida ?? 'No Definida' }}</div>
-								</div>
-							</div>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <div class="meta-card">
+                                    <small class="meta-label">Categoría</small>
+                                    <p class="meta-value">{{ optional($producto->categoria)->nombre ?: 'No definida' }}</p>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <div class="meta-card">
+                                    <small class="meta-label">Laboratorio</small>
+                                    <p class="meta-value">{{ optional($producto->laboratorio)->nombre ?: 'No definido' }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <div class="meta-card">
+                                    <small class="meta-label">Forma farmacéutica</small>
+                                    <p class="meta-value">
+                                        {{ optional($producto->formaFarmaceutica)->nombre ?: 'No definida' }}</p>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <div class="meta-card">
+                                    <small class="meta-label">Presentación</small>
+                                    <p class="meta-value">{{ optional($producto->presentacion)->nombre ?: 'No definida' }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <div class="meta-card">
+                                    <small class="meta-label">Fecha y hora de creación</small>
+                                    <p class="meta-value">
+                                        {{ optional($producto->created_at)->format('d/m/Y H:i:s') ?: 'No definida' }}</p>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <div class="meta-card">
+                                    <small class="meta-label">Fecha y hora de actualización</small>
+                                    <p class="meta-value">
+                                        {{ optional($producto->updated_at)->format('d/m/Y H:i:s') ?: 'No definida' }}</p>
+                                </div>
+                            </div>
+                        </div>
 
-							<div class="col-12">
-								<div class="p-3 rounded" style="border-radius:10px; background:#ffffff; border:1px solid #eef1f5;">
-									<small class="text-muted">ACCIÓN TERAPÉUTICA</small>
-									<div class="fw-semibold">{{ $producto->accion_terapeutica ?? 'No Definida' }}</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<hr class="my-4">
-
-				<!-- FILA INFERIOR: Categoria / Laboratorio / Forma / Presentacion -->
-				<div class="row g-3">
-					<div class="col-md-3">
-						<div class="p-3 rounded" style="background:#ebebeb; border:1px solid #eef1f5;">
-							<small class="text-muted">CATEGORÍA</small>
-							<div class="fw-semibold">{{ $producto->categoria->nombre ?? 'Sin categoría' }}</div>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="p-3 rounded" style="background:#ebebeb; border:1px solid #eef1f5;">
-							<small class="text-muted">LABORATORIO</small>
-							<div class="fw-semibold">{{ $producto->laboratorio->nombre ?? '-' }}</div>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="p-3 rounded" style="background:#ebebeb; border:1px solid #eef1f5;">
-							<small class="text-muted">FORMA FARMACÉUTICA</small>
-							<div class="fw-semibold">{{ optional($producto->forma_farmaceutica)->nombre ?? ($producto->forma_farmaceutica ?? '-') }}</div>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="p-3 rounded d-flex flex-column justify-content-between" style="background:#ebebeb; border:1px solid #eef1f5;">
-							<div>
-								<small class="text-muted">PRESENTACIÓN</small>
-								<div class="fw-semibold">{{ $producto->presentacion->nombre ?? '-' }}</div>
-							</div>
-						</div>
-					</div>
-
-                    <div class="col-md-3">
-						<div class="p-3 rounded" style="background:#ebebeb; border:1px solid #eef1f5;">
-							<small class="text-muted">FECHA Y HORA DE CREACIÓN:</small>
-							<div class="fw-semibold">{{ $producto->created_at ? $producto->created_at->format('d/m/Y H:i') : '-' }}</div>
-						</div>
-					</div>
-
-                    <div class="col-md-3">
-						<div class="p-3 rounded" style="background:#ebebeb; border:1px solid #eef1f5;">
-							<small class="text-muted">FECHA Y HORA DE ACTUALIZACIÓN:</small>
-							<div class="fw-semibold">{{ $producto->updated_at ? $producto->updated_at->format('d/m/Y H:i') : '-' }}</div>
-						</div>
-					</div>
-
-
-
-
-                    <br>
-                    <div class="col-md-3 text-end mt-2">
-						<div class="p-3 rounded ">
-                            <a href="{{ route('admin.productos.index') }}" class="btn btn-light-secondary">Cancelar</a>
-							<a href="{{ route('admin.productos.edit', $producto->id) }}" class="btn btn-sm btn-outline-success">
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{{ route('admin.productos.index') }}" class="btn btn-light-secondary">Cerrar</a>
+                            <a href="{{ route('admin.productos.edit', $producto->id) }}" class="btn btn-success">
                                 <i class="bi bi-pencil-square"></i> Editar
                             </a>
-						</div>
-					</div>
-                    <div class="text-end mt-2">
-						<a href="{{ route('admin.productos.index') }}" class="btn btn-sm btn-outline-secondary">Cerrar</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 @endsection
 
+@push('styles')
+    <style>
+        .product-show-card {
+            border-radius: 0.8rem;
+        }
+
+        .product-image-wrapper {
+            min-height: 280px;
+            border: 1px solid #e9ecef;
+            border-radius: 0.75rem;
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .product-image {
+            max-height: 260px;
+            width: 100%;
+            object-fit: contain;
+        }
+
+        .product-image-placeholder {
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .info-block {
+            border: 1px solid #e9ecef;
+            border-radius: 0.65rem;
+            padding: 0.8rem 1rem;
+            background-color: #ffffff;
+        }
+
+        .info-label,
+        .meta-label {
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .info-value,
+        .meta-value {
+            margin: 0.35rem 0 0;
+            color: #25396f;
+            font-size: 1rem;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .meta-card {
+            height: 100%;
+            border: 1px solid #e9ecef;
+            border-radius: 0.65rem;
+            padding: 0.8rem 0.9rem;
+            background-color: #f8f9fa;
+        }
+    </style>
+@endpush

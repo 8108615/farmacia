@@ -1,7 +1,5 @@
 @extends('layouts.admin')
 
-
-
 @section('content')
     <div class="page-heading">
         <div class="d-flex justify-content-between align-items-center">
@@ -619,7 +617,7 @@
                     @csrf
                     @method('DELETE')
                     <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title" style="color: white">Eliminar empleado</h5>
+                        <h5 class="modal-title" style="color:white">Eliminar empleado</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
@@ -668,6 +666,16 @@
                     reader.readAsDataURL(file);
                 });
             });
+
+            @if (session('open_modal'))
+                document.addEventListener('DOMContentLoaded', function() {
+                    var modalElement = document.getElementById('{{ session('open_modal') }}');
+                    if (modalElement) {
+                        var modal = new bootstrap.Modal(modalElement);
+                        modal.show();
+                    }
+                });
+            @endif
         })();
     </script>
 @endpush

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\FormaFarmaceutica;
 use Illuminate\Http\Request;
 
-
 class FormaFarmaceuticaController extends Controller
 {
     /**
@@ -31,7 +30,7 @@ class FormaFarmaceuticaController extends Controller
      */
     public function create()
     {
-        // no usado (las acciones se manejan por modales en la index)
+        //
     }
 
     /**
@@ -55,10 +54,7 @@ class FormaFarmaceuticaController extends Controller
         $formaFarmaceutica->nombre = mb_strtoupper(trim((string) $request->input('nombre')));
         $formaFarmaceutica->save();
 
-
         return redirect()->route('admin.forma_farmaceuticas.index')->with('success', 'Forma farmacéutica creada correctamente.');
-
-
     }
 
     /**
@@ -74,7 +70,7 @@ class FormaFarmaceuticaController extends Controller
      */
     public function edit(FormaFarmaceutica $formaFarmaceutica)
     {
-        // no usado (las acciones se manejan por modales en la index)
+        //
     }
 
     /**
@@ -82,11 +78,12 @@ class FormaFarmaceuticaController extends Controller
      */
     public function update(Request $request, string $id)
     {
-       $formaFarmaceutica = FormaFarmaceutica::query()->findOrFail($id);
+        $formaFarmaceutica = FormaFarmaceutica::query()->findOrFail($id);
 
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'nombre' => 'required|string|max:150|unique:forma_farmaceuticas,nombre,' . $formaFarmaceutica->id,
         ]);
+
         if ($validator->fails()) {
             return redirect()
                 ->route('admin.forma_farmaceuticas.index')
@@ -109,8 +106,6 @@ class FormaFarmaceuticaController extends Controller
         $formaFarmaceutica = FormaFarmaceutica::query()->findOrFail($id);
         $formaFarmaceutica->delete();
 
-        return redirect()
-            ->route('admin.forma_farmaceuticas.index')
-            ->with('success', 'Forma farmacéutica eliminada correctamente.');
+        return redirect()->route('admin.forma_farmaceuticas.index')->with('success', 'Forma farmacéutica eliminada correctamente.');
     }
 }

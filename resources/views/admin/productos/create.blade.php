@@ -1,235 +1,349 @@
 @extends('layouts.admin')
 
 @section('content')
-	<div class="page-heading">
-		<div class="d-flex justify-content-between align-items-center">
-			<h3>Crear Producto</h3>
-			<a href="{{ route('admin.productos.index') }}" class="btn btn-light-secondary">
-				<i class="bi bi-arrow-left"></i> Volver
-			</a>
-		</div>
-	</div>
+    <div class="page-heading">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3>Productos</h3>
+            <a href="{{ route('admin.productos.index') }}" class="btn btn-light-secondary">
+                <i class="bi bi-arrow-left"></i> Volver al listado
+            </a>
+        </div>
+    </div>
 
-	<section class="section">
-		<div class="row">
-			<div class="col-12">
-				<div class="card">
-					<div class="card-header">
-						<h4 class="card-title mb-0">Nuevo Producto</h4>
-					</div>
-					<div class="card-body">
-						<form method="POST" action="{{ route('admin.productos.store') }}" enctype="multipart/form-data">
-							@csrf
-							<div class="row g-3">
-								<div class="col-md-4">
-									<label for="categoria_id" class="form-label">Categoría (*)</label>
-									<div class="input-group">
-										<span class="input-group-text d-flex justify-content-center align-items-center" style="width:46px"><i class="bi bi-tags-fill"></i></span>
-										<select name="categoria_id" id="categoria_id" class="form-select" required>
-											<option value="">Selecciona una categoría</option>
-											@foreach($categorias as $categoria)
-												<option value="{{ $categoria->id }}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>{{ $categoria->nombre }}</option>
-											@endforeach
-										</select>
-									</div>
-									@error('categoria_id')<small class="text-danger">{{ $message }}</small>@enderror
-								</div>
+    <section class="section">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Crear producto</h4>
+                    </div>
+                    <div class="card-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger mb-3" role="alert">
+                                <strong>Se encontraron errores en el formulario.</strong>
+                            </div>
+                        @endif
 
-								<div class="col-md-4">
-									<label for="laboratorio_id" class="form-label">Laboratorio</label>
-									<div class="input-group">
-										<span class="input-group-text d-flex justify-content-center align-items-center" style="width:46px"><i class="bi bi-flask"></i></span>
-										<select name="laboratorio_id" id="laboratorio_id" class="form-select">
-											<option value="">Selecciona un laboratorio</option>
-											@foreach($laboratorios as $lab)
-												<option value="{{ $lab->id }}" {{ old('laboratorio_id') == $lab->id ? 'selected' : '' }}>{{ $lab->nombre }}</option>
-											@endforeach
-										</select>
-									</div>
-									@error('laboratorio_id')<small class="text-danger">{{ $message }}</small>@enderror
-								</div>
+                        <form method="POST" action="{{ route('admin.productos.store') }}" enctype="multipart/form-data">
+                            @csrf
 
-								<div class="col-md-4">
-									<label for="forma_farmaceutica_id" class="form-label">Forma Farmacéutica</label>
-									<div class="input-group">
-										<span class="input-group-text d-flex justify-content-center align-items-center" style="width:46px"><i class="bi bi-capsule"></i></span>
-										<select name="forma_farmaceutica_id" id="forma_farmaceutica_id" class="form-select">
-											<option value="">Selecciona una forma farmacéutica</option>
-											@foreach($formaFarmaceuticas as $ff)
-												<option value="{{ $ff->id }}" {{ old('forma_farmaceutica_id') == $ff->id ? 'selected' : '' }}>{{ $ff->nombre }}</option>
-											@endforeach
-										</select>
-									</div>
-									@error('forma_farmaceutica_id')<small class="text-danger">{{ $message }}</small>@enderror
-								</div>
+                            <div class="row g-3">
+                                <div class="col-12 col-md-4">
+                                    <label for="categoria_id" class="form-label">Categoría (*)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text d-flex justify-content-center align-items-center"
+                                            style="width: 46px;"><i class="bi bi-tags-fill"></i></span>
+                                        <select name="categoria_id" id="categoria_id"
+                                            class="form-select @error('categoria_id') is-invalid @enderror" required>
+                                            <option value="">Selecciona una categoría</option>
+                                            @foreach ($categorias as $categoria)
+                                                <option value="{{ $categoria->id }}" @selected((string) old('categoria_id') === (string) $categoria->id)>
+                                                    {{ $categoria->nombre }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('categoria_id')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
 
-								<div class="col-md-4">
-									<label for="presentacion_id" class="form-label">Presentación</label>
-									<div class="input-group">
-										<span class="input-group-text d-flex justify-content-center align-items-center" style="width:46px"><i class="bi bi-box-seam"></i></span>
-										<select name="presentacion_id" id="presentacion_id" class="form-select">
-											<option value="">Selecciona una presentación</option>
-											@foreach($presentaciones as $pres)
-												<option value="{{ $pres->id }}" {{ old('presentacion_id') == $pres->id ? 'selected' : '' }}>{{ $pres->nombre }}</option>
-											@endforeach
-										</select>
-									</div>
-									@error('presentacion_id')<small class="text-danger">{{ $message }}</small>@enderror
-								</div>
+                                <div class="col-12 col-md-4">
+                                    <label for="laboratorio_id" class="form-label">Laboratorio</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text d-flex justify-content-center align-items-center"
+                                            style="width: 46px;"><i class="bi bi-capsule"></i></span>
+                                        <select name="laboratorio_id" id="laboratorio_id"
+                                            class="form-select @error('laboratorio_id') is-invalid @enderror">
+                                            <option value="">Selecciona un laboratorio</option>
+                                            @foreach ($laboratorios as $laboratorio)
+                                                <option value="{{ $laboratorio->id }}" @selected((string) old('laboratorio_id') === (string) $laboratorio->id)>
+                                                    {{ $laboratorio->nombre }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('laboratorio_id')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
 
-								<div class="col-md-4">
-									<label for="codigo_producto" class="form-label">Código Producto (*)</label>
-									<div class="input-group">
-										<span class="input-group-text d-flex justify-content-center align-items-center" style="width:46px"><i class="bi bi-upc"></i></span>
-										<input type="text" name="codigo_producto" id="codigo_producto" class="form-control" value="{{ old('codigo_producto') }}" required maxlength="50" placeholder="Ej: PRD-0001">
-									</div>
-									@error('codigo_producto')<small class="text-danger">{{ $message }}</small>@enderror
-								</div>
+                                <div class="col-12 col-md-4">
+                                    <label for="forma_farmaceutica_id" class="form-label">Forma farmacéutica</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text d-flex justify-content-center align-items-center"
+                                            style="width: 46px;"><i class="bi bi-capsule-pill"></i></span>
+                                        <select name="forma_farmaceutica_id" id="forma_farmaceutica_id"
+                                            class="form-select @error('forma_farmaceutica_id') is-invalid @enderror">
+                                            <option value="">Selecciona una forma farmacéutica</option>
+                                            @foreach ($formaFarmaceuticas as $formaFarmaceutica)
+                                                <option value="{{ $formaFarmaceutica->id }}" @selected((string) old('forma_farmaceutica_id') === (string) $formaFarmaceutica->id)>
+                                                    {{ $formaFarmaceutica->nombre }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('forma_farmaceutica_id')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
 
-								<div class="col-md-4">
-									<label for="codigo_barra" class="form-label">Código de Barra</label>
-									<div class="input-group">
-										<span class="input-group-text d-flex justify-content-center align-items-center" style="width:46px"><i class="bi bi-upc-scan"></i></span>
-										<input type="text" name="codigo_barra" id="codigo_barra" class="form-control" value="{{ old('codigo_barra') }}" maxlength="50" placeholder="Ej: 7750123456789">
-									</div>
-									@error('codigo_barra')<small class="text-danger">{{ $message }}</small>@enderror
-								</div>
+                                <div class="col-12 col-md-4">
+                                    <label for="presentacion_id" class="form-label">Presentación</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text d-flex justify-content-center align-items-center"
+                                            style="width: 46px;"><i class="bi bi-box-seam"></i></span>
+                                        <select name="presentacion_id" id="presentacion_id"
+                                            class="form-select @error('presentacion_id') is-invalid @enderror">
+                                            <option value="">Selecciona una presentación</option>
+                                            @foreach ($presentaciones as $presentacion)
+                                                <option value="{{ $presentacion->id }}" @selected((string) old('presentacion_id') === (string) $presentacion->id)>
+                                                    {{ $presentacion->nombre }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('presentacion_id')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
 
-								<div class="col-md-6">
-									<label for="nombre_comercial" class="form-label">Nombre Comercial (*)</label>
-									<div class="input-group">
-										<span class="input-group-text d-flex justify-content-center align-items-center" style="width:46px"><i class="bi bi-bag-fill"></i></span>
-										<input type="text" name="nombre_comercial" id="nombre_comercial" class="form-control" value="{{ old('nombre_comercial') }}" required maxlength="255" placeholder="Nombre comercial del producto">
-									</div>
-									@error('nombre_comercial')<small class="text-danger">{{ $message }}</small>@enderror
-								</div>
+                                <div class="col-12 col-md-4">
+                                    <label for="codigo_producto" class="form-label">Código de producto (*)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text d-flex justify-content-center align-items-center"
+                                            style="width: 46px;"><i class="bi bi-upc"></i></span>
+                                        <input type="text" name="codigo_producto" id="codigo_producto"
+                                            class="form-control @error('codigo_producto') is-invalid @enderror"
+                                            value="{{ old('codigo_producto') }}" maxlength="50" placeholder="Ej: PRD-0001"
+                                            required>
+                                    </div>
+                                    @error('codigo_producto')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
 
-								<div class="col-md-6">
-									<label for="nombre_generico" class="form-label">Nombre Genérico (*)</label>
-									<div class="input-group">
-										<span class="input-group-text d-flex justify-content-center align-items-center" style="width:46px"><i class="bi bi-capsule-pill"></i></span>
-										<input type="text" name="nombre_generico" id="nombre_generico" class="form-control" value="{{ old('nombre_generico') }}" required maxlength="255" placeholder="Principio activo">
-									</div>
-									@error('nombre_generico')<small class="text-danger">{{ $message }}</small>@enderror
-								</div>
+                                <div class="col-12 col-md-4">
+                                    <label for="codigo_barra" class="form-label">Código de barra</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text d-flex justify-content-center align-items-center"
+                                            style="width: 46px;"><i class="bi bi-upc-scan"></i></span>
+                                        <input type="text" name="codigo_barra" id="codigo_barra"
+                                            class="form-control @error('codigo_barra') is-invalid @enderror"
+                                            value="{{ old('codigo_barra') }}" maxlength="50"
+                                            placeholder="Ej: 7750123456789">
+                                    </div>
+                                    @error('codigo_barra')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
 
-								<div class="col-md-4">
-									<label for="concentracion" class="form-label">Concentración</label>
-									<div class="input-group">
-										<span class="input-group-text d-flex justify-content-center align-items-center" style="width:46px"><i class="bi bi-eyedropper"></i></span>
-										<input type="text" name="concentracion" id="concentracion" class="form-control" value="{{ old('concentracion') }}" maxlength="100" placeholder="Ej: 500 mg">
-									</div>
-									@error('concentracion')<small class="text-danger">{{ $message }}</small>@enderror
+                                <div class="col-12 col-md-6">
+                                    <label for="nombre_comercial" class="form-label">Nombre comercial (*)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text d-flex justify-content-center align-items-center"
+                                            style="width: 46px;"><i class="bi bi-bag-fill"></i></span>
+                                        <input type="text" name="nombre_comercial" id="nombre_comercial"
+                                            class="form-control @error('nombre_comercial') is-invalid @enderror"
+                                            value="{{ old('nombre_comercial') }}" maxlength="255"
+                                            placeholder="Nombre comercial del producto" required>
+                                    </div>
+                                    @error('nombre_comercial')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
 
-									<div class="mt-3">
-										<label for="accion_terapeutica" class="form-label">Acción terapéutica</label>
-										<div class="input-group">
-											<span class="input-group-text d-flex justify-content-center align-items-center" style="width:46px"><i class="bi bi-heart-pulse"></i></span>
-											<input type="text" name="accion_terapeutica" id="accion_terapeutica" class="form-control" value="{{ old('accion_terapeutica') }}" maxlength="255" placeholder="Ej: Analgésico, antiinflamatorio">
-										</div>
-										@error('accion_terapeutica')<small class="text-danger">{{ $message }}</small>@enderror
+                                <div class="col-12 col-md-6">
+                                    <label for="nombre_generico" class="form-label">Nombre genérico (*)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text d-flex justify-content-center align-items-center"
+                                            style="width: 46px;"><i class="bi bi-capsule-pill"></i></span>
+                                        <input type="text" name="nombre_generico" id="nombre_generico"
+                                            class="form-control @error('nombre_generico') is-invalid @enderror"
+                                            value="{{ old('nombre_generico') }}" maxlength="255"
+                                            placeholder="Principio activo" required>
+                                    </div>
+                                    @error('nombre_generico')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
 
-										<div class="form-check mt-2">
-											<input class="form-check-input" type="checkbox" id="usa_receta" name="usa_receta" {{ old('usa_receta') ? 'checked' : '' }}>
-											<label class="form-check-label ms-2" for="usa_receta">¿Requiere receta?</label>
-										</div>
-									</div>
-								</div>
+                                <div class="col-12 col-md-8">
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-6">
+                                            <label for="concentracion" class="form-label">Concentración</label>
+                                            <div class="input-group">
+                                                <span
+                                                    class="input-group-text d-flex justify-content-center align-items-center"
+                                                    style="width: 46px;"><i class="bi bi-eyedropper"></i></span>
+                                                <input type="text" name="concentracion" id="concentracion"
+                                                    class="form-control @error('concentracion') is-invalid @enderror"
+                                                    value="{{ old('concentracion') }}" maxlength="100"
+                                                    placeholder="Ej: 500 mg">
+                                            </div>
+                                            @error('concentracion')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
 
-								<div class="col-md-4">
-									<label for="unidad_medida" class="form-label">Unidad de medida</label>
-									<div class="input-group">
-										<span class="input-group-text d-flex justify-content-center align-items-center" style="width:46px"><i class="bi bi-rulers"></i></span>
-										<select name="unidad_medida" id="unidad_medida" class="form-select">
-											<option value="">Ej: mg, ml, g</option>
-											<option value="kg" {{ old('unidad_medida') == 'kg' ? 'selected' : '' }}>kg - kilogramo</option>
-											<option value="g" {{ old('unidad_medida') == 'g' ? 'selected' : '' }}>g - gramo</option>
-											<option value="mg" {{ old('unidad_medida') == 'mg' ? 'selected' : '' }}>mg - miligramo</option>
-											<option value="mcg" {{ old('unidad_medida') == 'mcg' ? 'selected' : '' }}>mcg - microgramo</option>
-											<option value="l" {{ old('unidad_medida') == 'l' ? 'selected' : '' }}>l - litro</option>
-											<option value="ml" {{ old('unidad_medida') == 'ml' ? 'selected' : '' }}>ml - mililitro</option>
-											<option value="mmol" {{ old('unidad_medida') == 'mmol' ? 'selected' : '' }}>mmol - milimol</option>
-											<option value="mEq" {{ old('unidad_medida') == 'mEq' ? 'selected' : '' }}>mEq - miliequivalente</option>
-											<option value="UI" {{ old('unidad_medida') == 'UI' ? 'selected' : '' }}>UI - Unidad Internacional</option>
-											<option value="%" {{ old('unidad_medida') == '%' ? 'selected' : '' }}>% - porcentaje</option>
-										</select>
-									</div>
-									@error('unidad_medida')<small class="text-danger">{{ $message }}</small>@enderror
-								</div>
+                                        <div class="col-12 col-md-6">
+                                            <label for="unidad_medida" class="form-label">Unidad de medida</label>
+                                            <div class="input-group">
+                                                <span
+                                                    class="input-group-text d-flex justify-content-center align-items-center"
+                                                    style="width: 46px;"><i class="bi bi-rulers"></i></span>
+                                                <select name="unidad_medida" id="unidad_medida"
+                                                    class="form-select @error('unidad_medida') is-invalid @enderror">
+                                                    <option value="">Selecciona una unidad</option>
+                                                    <option value="kg" @selected(old('unidad_medida') === 'kg')>kg - kilogramo
+                                                    </option>
+                                                    <option value="g" @selected(old('unidad_medida') === 'g')>g - gramo</option>
+                                                    <option value="mg" @selected(old('unidad_medida') === 'mg')>mg - miligramo
+                                                    </option>
+                                                    <option value="mcg" @selected(old('unidad_medida') === 'mcg')>mcg - microgramo
+                                                    </option>
+                                                    <option value="l" @selected(old('unidad_medida') === 'l')>l - litro</option>
+                                                    <option value="ml" @selected(old('unidad_medida') === 'ml')>ml - mililitro
+                                                    </option>
+                                                    <option value="mmol" @selected(old('unidad_medida') === 'mmol')>mmol - milimol
+                                                    </option>
+                                                    <option value="mEq" @selected(old('unidad_medida') === 'mEq')>mEq -
+                                                        miliequivalente
+                                                    </option>
+                                                    <option value="UI" @selected(old('unidad_medida') === 'UI')>UI - Unidad
+                                                        Internacional
+                                                    </option>
+                                                    <option value="%" @selected(old('unidad_medida') === '%')>% - porcentaje
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            @error('unidad_medida')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
 
-								<div class="col-12 col-md-4">
-									<label for="imagen" class="form-label">Imagen</label>
-									<div>
-										<div class="input-group">
-											<span class="input-group-text d-flex justify-content-center align-items-center" style="width:46px"><i class="bi bi-image"></i></span>
-											<input type="file" name="imagen" id="imagen" class="form-control" accept="image/*" placeholder="Ruta o URL de imagen">
-										</div>
-										@error('imagen')<small class="text-danger">{{ $message }}</small>@enderror
-										<div id="imagen-preview" style="width:100%; height:150px; border-radius:6px; border:1px solid #dce5ec; background:#999da1; padding:12px; display:flex; align-items:center; justify-content:center; margin-top:6px;">
-											<div id="imagenPlaceholder" style="color:#424c55; text-align:center; font-size:0.95rem;">
-												Sin previsualización
-											</div>
-											<img id="imagenPreview" src="" alt="Sin Previsualizacion" style="max-width:100%; max-height:100%; object-fit:contain; display:none;">
-										</div>
-									</div>
-								</div>
+                                        <div class="col-12">
+                                            <label for="accion_terapeutica" class="form-label">Acción terapéutica</label>
+                                            <div class="input-group">
+                                                <span
+                                                    class="input-group-text d-flex justify-content-center align-items-center"
+                                                    style="width: 46px;"><i class="bi bi-heart-pulse"></i></span>
+                                                <input type="text" name="accion_terapeutica" id="accion_terapeutica"
+                                                    class="form-control @error('accion_terapeutica') is-invalid @enderror"
+                                                    value="{{ old('accion_terapeutica') }}" maxlength="255"
+                                                    placeholder="Ej: Analgésico, antiinflamatorio, antibiótico">
+                                            </div>
+                                            @error('accion_terapeutica')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
 
+                                        <div class="col-12">
+                                            <div class="form-check mt-2">
+                                                <input type="checkbox" name="usa_receta" id="usa_receta"
+                                                    class="form-check-input @error('usa_receta') is-invalid @enderror"
+                                                    value="1" @checked(old('usa_receta'))>
+                                                <label class="form-check-label" for="usa_receta">¿Requiere receta?</label>
+                                            </div>
+                                            @error('usa_receta')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
 
-							</div>
+                                <div class="col-12 col-md-4">
+                                    <label for="imagen" class="form-label">Imagen</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text d-flex justify-content-center align-items-center"
+                                            style="width: 46px;"><i class="bi bi-image"></i></span>
+                                        <input type="file" name="imagen" id="imagen"
+                                            class="form-control @error('imagen') is-invalid @enderror" accept="image/*">
+                                    </div>
+                                    <div class="border rounded bg-light mt-2 d-flex align-items-center justify-content-center"
+                                        style="height: 150px; overflow: hidden;">
+                                        <img id="imagen_preview" src=""
+                                            alt="Vista previa de la imagen del producto" class="img-fluid d-none"
+                                            style="max-height: 100%; width: 100%; object-fit: contain;">
+                                        <small id="imagen_placeholder" class="text-muted">Sin
+                                            previsualización</small>
+                                    </div>
+                                    @error('imagen')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
 
                             <hr>
 
-
-							<div class="d-flex justify-content-end gap-2 mt-4">
-								<a href="{{ route('admin.productos.index') }}" class="btn btn-light-secondary">Cancelar</a>
-								<button type="submit" class="btn btn-primary">Guardar Producto</button>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
+                            <div class="d-flex justify-content-end gap-2 mt-4">
+                                <a href="{{ route('admin.productos.index') }}"
+                                    class="btn btn-light-secondary">Cancelar</a>
+                                <button type="submit" class="btn btn-primary">Guardar producto</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 @endsection
 
 @push('scripts')
-	<script>
-		(function() {
-			const imgInput = document.getElementById('imagen');
-			const previewContainer = document.getElementById('imagen-preview');
-			const previewImg = document.getElementById('imagenPreview');
-			const placeholder = document.getElementById('imagenPlaceholder');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('imagen');
+            const imagePreview = document.getElementById('imagen_preview');
+            const imagePlaceholder = document.getElementById('imagen_placeholder');
+            let objectUrl = null;
 
-			if (!imgInput) return;
+            if (!imageInput || !imagePreview || !imagePlaceholder) {
+                return;
+            }
 
-			// estado inicial
-			if (previewImg && previewImg.src) {
-				previewImg.style.display = 'block';
-				if (placeholder) placeholder.style.display = 'none';
-			} else {
-				if (placeholder) placeholder.style.display = 'block';
-				if (previewImg) previewImg.style.display = 'none';
-			}
+            const updateImagePreview = function() {
+                const selectedFile = imageInput.files && imageInput.files[0] ? imageInput.files[0] : null;
 
-			imgInput.addEventListener('change', function() {
-				const file = this.files && this.files[0];
-				if (!file) {
-					if (previewImg) { previewImg.src = ''; previewImg.style.display = 'none'; }
-					if (placeholder) placeholder.style.display = 'block';
-					return;
-				}
+                if (objectUrl) {
+                    URL.revokeObjectURL(objectUrl);
+                    objectUrl = null;
+                }
 
-				const reader = new FileReader();
-				reader.onload = function(e) {
-					if (previewImg) {
-						previewImg.src = e.target.result;
-						previewImg.style.display = 'block';
-					}
-					if (placeholder) placeholder.style.display = 'none';
-				};
-				reader.readAsDataURL(file);
-			});
-		})();
-	</script>
+                if (!selectedFile) {
+                    imagePreview.classList.add('d-none');
+                    imagePreview.removeAttribute('src');
+                    imagePlaceholder.classList.remove('d-none');
+                    imagePlaceholder.textContent = 'Sin previsualización';
+                    return;
+                }
+
+                if (!selectedFile.type.startsWith('image/')) {
+                    imagePreview.classList.add('d-none');
+                    imagePreview.removeAttribute('src');
+                    imagePlaceholder.classList.remove('d-none');
+                    imagePlaceholder.textContent = 'El archivo seleccionado no es una imagen';
+                    return;
+                }
+
+                objectUrl = URL.createObjectURL(selectedFile);
+                imagePreview.src = objectUrl;
+                imagePreview.classList.remove('d-none');
+                imagePlaceholder.classList.add('d-none');
+            };
+
+            imagePreview.addEventListener('error', function() {
+                imagePreview.classList.add('d-none');
+                imagePlaceholder.classList.remove('d-none');
+                imagePlaceholder.textContent = 'No se pudo cargar la imagen';
+            });
+
+            imagePreview.addEventListener('load', function() {
+                imagePlaceholder.classList.add('d-none');
+                imagePlaceholder.textContent = 'Sin previsualización';
+            });
+
+            imageInput.addEventListener('change', updateImagePreview);
+            updateImagePreview();
+        });
+    </script>
 @endpush
-

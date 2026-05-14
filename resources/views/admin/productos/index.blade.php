@@ -4,9 +4,8 @@
     <div class="page-heading">
         <div class="d-flex justify-content-between align-items-center">
             <h3>Productos</h3>
-            <button type="button" class="btn btn-primary"
-            onclick="window.location='{{ route('admin.productos.create') }}'">
-                <i class="bi bi-plus-circle"></i> Nuevo Producto
+            <button type="button" class="btn btn-primary" onclick="window.location='{{ route('admin.productos.create') }}'">
+                <i class="bi bi-plus-circle"></i> Nuevo producto
             </button>
         </div>
     </div>
@@ -16,17 +15,18 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title mb-0">Listado de Productos</h4>
+                        <h4 class="card-title mb-0">Listado de productos</h4>
                     </div>
                     <div class="card-body">
                         <form method="GET" action="{{ route('admin.productos.index') }}" class="mb-3">
                             <div class="row g-2 align-items-end">
                                 <div class="col-12 col-md-8">
-                                    <label for="search" class="form-label mb-1">Buscar Productos</label>
+                                    <label for="search" class="form-label mb-1">Buscar producto</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <span class="input-group-text d-flex justify-content-center align-items-center"
+                                            style="width: 46px;"><i class="bi bi-search"></i></span>
                                         <input type="text" name="search" id="search" class="form-control"
-                                            value="{{ $search ?? '' }}" placeholder="Escribe nombre">
+                                            value="{{ $search ?? '' }}" placeholder="Escribe el nombre del producto">
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4 d-flex gap-2">
@@ -43,68 +43,74 @@
                             </div>
                         @endif
 
-                        <div class="table-responsive" style="overflow-x:auto;">
-                            <table class="table table-striped table-sm mb-0 align-middle">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
                                 <thead>
                                     <tr>
-                                        <th style="width: 60px;">#</th>
+                                        <th>#</th>
+
                                         <th>Categoría</th>
                                         <th>Laboratorio</th>
                                         <th>Forma farmacéutica</th>
                                         <th>Presentación</th>
                                         <th>Código producto</th>
                                         <th>Código barra</th>
-                                        <th>Nombre Comercial</th>
-                                        <th>Nombre genérico  </th>
+                                        <th>Nombre comercial</th>
+                                        <th>Nombre genérico</th>
                                         <th>Concentración</th>
+
+
                                         <th>Receta</th>
-                                        <th style="width:120px">Acciones</th>
+
+
+                                        <th style="width: 160px;">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse ($productos as $producto)
                                         <tr>
-                                            <td class="py-1">{{ $productos->firstItem() + $loop->index }}</td>
+                                            <td>{{ $productos->firstItem() + $loop->index }}</td>
 
-                                            <td class="py-1">{{ $producto->categoria->nombre ?? 'No definido' }}</td>
-                                            <td class="py-1">{{ $producto->laboratorio->nombre ?? 'No definido' }}</td>
-                                            <td class="py-1">{{ optional($producto->forma_farmaceutica)->nombre ?? 'No definido' }}</td>
-                                            <td class="py-1">{{ $producto->presentacion->nombre ?? 'No definido' }}</td>
-                                            <td class="py-1">{{ $producto->codigo_producto }}</td>
-                                            <td class="py-1">{{ $producto->codigo_barra ?? 'No definido' }}</td>
-                                            <td class="py-1">{{ $producto->nombre_comercial }}</td>
-                                            <td class="py-1">{{ $producto->nombre_generico }}</td>
-                                            <td class="py-1">{{ $producto->concentracion. ' ' .$producto->unidad_medida ?? 'No definida' }}</td>
-
-                                            <td class="py-1">
-                                                @if($producto->usa_receta)
-                                                    <span class="badge bg-danger">Sí</span>
-                                                @else
-                                                    <span class="badge bg-success">No</span>
-                                                @endif
+                                            <td>{{ optional($producto->categoria)->nombre ?? 'No definida' }}</td>
+                                            <td>{{ optional($producto->laboratorio)->nombre ?? 'No definido' }}</td>
+                                            <td>{{ optional($producto->formaFarmaceutica)->nombre ?? 'No definida' }}</td>
+                                            <td>{{ optional($producto->presentacion)->nombre ?? 'No definida' }}</td>
+                                            <td>{{ $producto->codigo_producto }}</td>
+                                            <td>{{ $producto->codigo_barra ?? 'No definido' }}</td>
+                                            <td>{{ $producto->nombre_comercial }}</td>
+                                            <td>{{ $producto->nombre_generico }}</td>
+                                            <td>{{ $producto->concentracion . ' ' . ($producto->unidad_medida ?? '') }}
                                             </td>
 
 
-                                            <td class="py-1 text-center">
-                                                <div class="d-flex align-items-center justify-content-center" style="gap:8px;">
 
-                                                    <button type="button" class="btn btn-primary btn-sm p-0 d-inline-flex align-items-center justify-content-center me-1" title="Ver" onclick="window.location='{{ route('admin.productos.show', $producto->id) }}'" style="width:36px;height:36px;border-radius:6px;">
-                                                        <i class="bi bi-eye text-white"></i>
-                                                    </button>
+                                            <td>
+                                                <span
+                                                    class="badge {{ $producto->usa_receta ? 'bg-warning text-dark' : 'bg-success' }}">
+                                                    {{ $producto->usa_receta ? 'Sí' : 'No' }}
+                                                </span>
+                                            </td>
 
-                                                    <button type="button" class="btn btn-success btn-sm p-0 d-inline-flex align-items-center justify-content-center me-1" title="Editar" onclick="window.location='{{ route('admin.productos.edit', $producto->id) }}'" style="width:36px;height:36px;border-radius:6px;">
-                                                        <i class="bi bi-pencil-square text-white"></i>
-                                                    </button>
 
-                                                    <button type="button" class="btn btn-danger btn-sm p-0 d-inline-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#deleteProductoModal-{{ $producto->id }}" title="Eliminar" style="width:36px;height:36px;border-radius:6px;">
-                                                        <i class="bi bi-trash text-white"></i>
-                                                    </button>
-                                                </div>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary" title="Ver detalle"
+                                                    onclick="window.location='{{ route('admin.productos.show', $producto->id) }}'">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-success" title="Editar"
+                                                    onclick="window.location='{{ route('admin.productos.edit', $producto->id) }}'">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                                                    data-bs-target="#deleteProductoModal-{{ $producto->id }}">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="18" class="text-center text-muted py-4">No hay Productos registrados.</td>
+                                            <td colspan="18" class="text-center text-muted py-4">No hay productos
+                                                registrados.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -116,8 +122,7 @@
                                 class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mt-3">
                                 <small class="text-muted">
                                     Mostrando {{ $productos->firstItem() }} a {{ $productos->lastItem() }} de
-                                    {{ $productos->total() }}
-                                    registros
+                                    {{ $productos->total() }} registros
                                 </small>
                                 <div>
                                     {{ $productos->links('vendor.pagination.bootstrap-5-no-summary') }}
@@ -131,24 +136,23 @@
     </section>
 
 
+
     @foreach ($productos as $producto)
         <div class="modal fade" id="deleteProductoModal-{{ $producto->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <form class="modal-content" method="POST"
-                    action="{{ route('admin.productos.destroy', $producto->id) }}">
+                <form class="modal-content" method="POST" action="{{ route('admin.productos.destroy', $producto->id) }}">
                     @csrf
                     @method('DELETE')
                     <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title" style="color: white">Eliminar Producto</h5>
+                        <h5 class="modal-title" style="color: white">Eliminar producto</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
-
                     <div class="modal-body">
-                        <p class="mb-0">Esta seguro de eliminar el Producto <strong>{{ $producto->nombre }}</strong>?
+                        <p class="mb-0">¿Estás seguro de eliminar el producto
+                            <strong>{{ $producto->nombre_comercial }}</strong>?
                         </p>
                     </div>
-
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-danger">Eliminar</button>
@@ -158,6 +162,3 @@
         </div>
     @endforeach
 @endsection
-
-
-

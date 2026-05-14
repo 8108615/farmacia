@@ -7,12 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class FormaFarmaceutica extends Model
 {
-    Use HasFactory;
+    use HasFactory;
+
     protected $fillable = [
         'nombre',
     ];
 
-    
+    public function setNombreAttribute($value)
+    {
+        $this->attributes['nombre'] = mb_strtoupper(trim((string) $value));
+    }
+
+    public function getNombreAttribute($value)
+    {
+        return mb_strtoupper((string) $value);
+    }
+
     public function productos()
     {
         return $this->hasMany(Producto::class);

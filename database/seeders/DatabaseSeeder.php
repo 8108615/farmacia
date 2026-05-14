@@ -4,9 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\FormaFarmaceutica;
 use App\Models\Laboratorio;
+use App\Models\Presentacion;
 use App\Models\Sucursal;
 use App\Models\User;
-use App\Models\Presentacion;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -20,30 +20,32 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
         Sucursal::query()->firstOrCreate(
-            ['nombre' => 'LA VILLA'],
+            ['nombre' => 'CASA MATRIZ'],
             [
-                'direccion' => 'Vila primero de Mayo',
-                'telefono' => '76658532',
+                'direccion' => 'Av. Cumavi',
+                'telefono' => '76658531',
                 'estado' => true,
             ]
         );
 
-         $this->call([
+        $this->call([
             RoleSeeder::class,
             AjusteSeeder::class,
             SucursalSeeder::class,
             CategoriaSeeder::class,
             EmpleadoSeeder::class,
-            PresentacionSeeder::class,
+            ProveedorSeeder::class,
+            LoteSeeder::class,
         ]);
+
         Laboratorio::factory()->count(20)->create();
         FormaFarmaceutica::factory()->count(20)->create();
-        //Presentacion::factory()->count(20)->create();
+        Presentacion::factory()->count(20)->create();
 
-        // Productos: crear después de tener laboratorios y formas
         $this->call([
-            \Database\Seeders\ProductoSeeder::class,
+            ProductoSeeder::class,
         ]);
 
         $admin = User::firstOrCreate(
@@ -57,7 +59,5 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $admin->syncRoles([$superAdminRole->name]);
-
-
     }
 }

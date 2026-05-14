@@ -23,9 +23,10 @@
                                 <div class="col-12 col-md-8">
                                     <label for="search" class="form-label mb-1">Buscar categoría</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <span class="input-group-text d-flex justify-content-center align-items-center"
+                                            style="width: 46px;"><i class="bi bi-search"></i></span>
                                         <input type="text" name="search" id="search" class="form-control"
-                                            value="{{ $search ?? '' }}" placeholder="Escribe nombre">
+                                            value="{{ $search ?? '' }}" placeholder="Escribe el nombre de la categoría">
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4 d-flex gap-2">
@@ -61,7 +62,6 @@
                                                     data-bs-target="#editCategoriaModal-{{ $categoria->id }}">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </button>
-
                                                 <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
                                                     data-bs-target="#deleteCategoriaModal-{{ $categoria->id }}">
                                                     <i class="bi bi-trash"></i>
@@ -71,8 +71,7 @@
                                     @empty
                                         <tr>
                                             <td colspan="3" class="text-center text-muted py-4">No hay categorías
-                                                registradas.
-                                            </td>
+                                                registradas.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -84,8 +83,7 @@
                                 class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mt-3">
                                 <small class="text-muted">
                                     Mostrando {{ $categorias->firstItem() }} a {{ $categorias->lastItem() }} de
-                                    {{ $categorias->total() }}
-                                    registros
+                                    {{ $categorias->total() }} registros
                                 </small>
                                 <div>
                                     {{ $categorias->links('vendor.pagination.bootstrap-5-no-summary') }}
@@ -109,13 +107,13 @@
                 </div>
 
                 <div class="modal-body">
-                    <div class="form-group mb-2">
-                        <label for="create-nombre">Nombre (*)</label>
+                    <div class="form-group">
+                        <label for="nombre">Nombre (*)</label>
                         <div class="input-group">
                             <span class="input-group-text d-flex justify-content-center align-items-center"
                                 style="width: 46px;"><i class="bi bi-tags-fill"></i></span>
-                            <input type="text" name="nombre" id="create-nombre" class="form-control"
-                                value="{{ old('nombre') }}" placeholder="Nombre de la categoría" required>
+                            <input type="text" name="nombre" id="nombre" class="form-control"
+                                value="{{ old('nombre') }}" placeholder="Nombre de la categoría">
                         </div>
                         @if (session('open_modal') === 'createCategoriaModal')
                             @error('nombre')
@@ -136,8 +134,7 @@
     @foreach ($categorias as $categoria)
         <div class="modal fade" id="editCategoriaModal-{{ $categoria->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
-                <form class="modal-content" method="POST"
-                    action="{{ route('admin.categorias.update', $categoria->id) }}">
+                <form class="modal-content" method="POST" action="{{ route('admin.categorias.update', $categoria->id) }}">
                     @csrf
                     @method('PUT')
                     <div class="modal-header bg-success text-white">
@@ -147,14 +144,15 @@
                     </div>
 
                     <div class="modal-body">
-                        <div class="form-group mb-2">
-                            <label for="edit-nombre-{{ $categoria->id }}">Nombre (*)</label>
+                        <div class="form-group">
+                            <label for="nombre-{{ $categoria->id }}">Nombre (*)</label>
                             <div class="input-group">
                                 <span class="input-group-text d-flex justify-content-center align-items-center"
                                     style="width: 46px;"><i class="bi bi-tags-fill"></i></span>
-                                <input type="text" name="nombre" id="edit-nombre-{{ $categoria->id }}" class="form-control"
+                                <input type="text" name="nombre" id="nombre-{{ $categoria->id }}"
+                                    class="form-control"
                                     value="{{ session('open_modal') === 'editCategoriaModal-' . $categoria->id ? old('nombre', $categoria->nombre) : $categoria->nombre }}"
-                                    required>
+                                    placeholder="Nombre de la categoría">
                             </div>
                             @if (session('open_modal') === 'editCategoriaModal-' . $categoria->id)
                                 @error('nombre')
@@ -183,12 +181,11 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
-
                     <div class="modal-body">
-                        <p class="mb-0">Esta seguro de eliminar la categoría <strong>{{ $categoria->nombre }}</strong>?
+                        <p class="mb-0">¿Estás seguro de eliminar la categoría
+                            <strong>{{ $categoria->nombre }}</strong>?
                         </p>
                     </div>
-
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-danger">Eliminar</button>
@@ -197,23 +194,18 @@
             </div>
         </div>
     @endforeach
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                @if (session('open_modal'))
+                    var modalElement = document.getElementById('{{ session('open_modal') }}');
+                    if (modalElement) {
+                        var modal = new bootstrap.Modal(modalElement);
+                        modal.show();
+                    }
+                @endif
+            });
+        </script>
+    @endpush
 @endsection
-
-@push('scripts')
-    <script>
-        (function() {
-            const openModalId = @json(session('open_modal'));
-            if (!openModalId) {
-                return;
-            }
-
-            const modalElement = document.getElementById(openModalId);
-            if (!modalElement || typeof bootstrap === 'undefined') {
-                return;
-            }
-
-            const modal = new bootstrap.Modal(modalElement);
-            modal.show();
-        })();
-    </script>
-@endpush

@@ -13,14 +13,14 @@ class AjusteSeeder extends Seeder
     public function run(): void
     {
         Ajuste::query()->firstOrCreate(
-            ['email' => 'fernando@farmacia.com'],
+            ['email' => 'contacto@farmacia.com'],
             [
-                'nombre' => 'Farmacia EFMG',
-                'descripcion' => 'Sistema de Farmacia',
-                'direccion' => 'Villa primero de MAyo calle 7',
-                'telefono' => '76658531',
+                'nombre' => 'Farmacia Demo',
+                'descripcion' => 'Configuracion inicial del sistema',
+                'direccion' => 'Av. Principal 123 - Centro',
+                'telefono' => '987654321',
                 'divisa' => 'BOB',
-                'logo' => 'ajustes/lFrWGU0jNkLqKWWtrhEFyw7C5ODmplTEuNgmkXBW.jpg',
+                'logo' => 'ajustes/ChsdWiwBPXA9DFr2KthhYgtMMf6aWVVCRFP4oOQT.jpg',
                 'web' => 'https://farmacia.test',
             ]
         );

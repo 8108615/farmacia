@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Presentacion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PresentacionController extends Controller
 {
@@ -30,7 +31,7 @@ class PresentacionController extends Controller
      */
     public function create()
     {
-        // no usado (se manejan modales en la index)
+        //
     }
 
     /**
@@ -38,7 +39,7 @@ class PresentacionController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:150|unique:presentacions,nombre',
         ]);
 
@@ -50,13 +51,11 @@ class PresentacionController extends Controller
                 ->with('open_modal', 'createPresentacionModal');
         }
 
-        $presentacion = new Presentacion();
-        $presentacion->nombre = mb_strtoupper(trim((string) $request->input('nombre')));
-        $presentacion->save();
-
+        Presentacion::query()->create([
+            'nombre' => $request->input('nombre'),
+        ]);
 
         return redirect()->route('admin.presentaciones.index')->with('success', 'Presentación creada correctamente.');
-
     }
 
     /**
@@ -64,7 +63,7 @@ class PresentacionController extends Controller
      */
     public function show(Presentacion $presentacion)
     {
-        // no usado
+        //
     }
 
     /**
@@ -72,7 +71,7 @@ class PresentacionController extends Controller
      */
     public function edit(Presentacion $presentacion)
     {
-        // no usado (se manejan modales en la index)
+        //
     }
 
     /**
@@ -82,9 +81,10 @@ class PresentacionController extends Controller
     {
         $presentacion = Presentacion::query()->findOrFail($id);
 
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:150|unique:presentacions,nombre,' . $presentacion->id,
         ]);
+
         if ($validator->fails()) {
             return redirect()
                 ->route('admin.presentaciones.index')
@@ -93,8 +93,9 @@ class PresentacionController extends Controller
                 ->with('open_modal', 'editPresentacionModal-' . $presentacion->id);
         }
 
-        $presentacion->nombre = mb_strtoupper(trim((string) $request->input('nombre')));
-        $presentacion->save();
+        $presentacion->update([
+            'nombre' => $request->input('nombre'),
+        ]);
 
         return redirect()->route('admin.presentaciones.index')->with('success', 'Presentación actualizada correctamente.');
     }
@@ -107,9 +108,6 @@ class PresentacionController extends Controller
         $presentacion = Presentacion::query()->findOrFail($id);
         $presentacion->delete();
 
-        return redirect()
-            ->route('admin.presentaciones.index')
-            ->with('success', 'Presentación eliminada correctamente.');
+        return redirect()->route('admin.presentaciones.index')->with('success', 'Presentación eliminada correctamente.');
     }
 }
-

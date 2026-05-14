@@ -18,21 +18,19 @@
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app-dark.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/iconly.css') }}">
-
     <style>
         .input-group .input-group-text {
             display: flex;
             align-items: center;
             justify-content: center;
             min-width: 46px;
-            padding: 0.375rem 0.75rem;
+            padding: .375rem .75rem;
         }
 
         .input-group .input-group-text i {
             line-height: 1;
         }
     </style>
-
     @stack('styles')
 </head>
 
@@ -110,7 +108,6 @@
                                 </a>
                             </li>
 
-
                             <li class="sidebar-item {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.roles.index') }}" class='sidebar-link'>
                                     <i class="bi bi-shield-lock"></i>
@@ -118,14 +115,12 @@
                                 </a>
                             </li>
 
-
                             <li class="sidebar-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.users.index') }}" class='sidebar-link'>
                                     <i class="bi bi-people"></i>
                                     <span>Usuarios</span>
                                 </a>
                             </li>
-
 
                             <li class="sidebar-item {{ request()->routeIs('admin.sucursales.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.sucursales.index') }}" class='sidebar-link'>
@@ -136,7 +131,7 @@
 
                             <li class="sidebar-item {{ request()->routeIs('admin.categorias.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.categorias.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-tag-fill me-2"></i>
+                                    <i class="bi bi-tags-fill"></i>
                                     <span>Categorías</span>
                                 </a>
                             </li>
@@ -148,14 +143,16 @@
                                 </a>
                             </li>
 
-                            <li class="sidebar-item {{ request()->routeIs('admin.forma_farmaceuticas.*') ? 'active' : '' }}">
+                            <li
+                                class="sidebar-item {{ request()->routeIs('admin.forma_farmaceuticas.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.forma_farmaceuticas.index') }}" class='sidebar-link'>
                                     <i class="bi bi-capsule me-2"></i>
-                                    <span>Forma Farmacéuticas</span>
+                                    <span>Forma Farmacéutica</span>
                                 </a>
                             </li>
 
-                            <li class="sidebar-item {{ request()->routeIs('admin.presentaciones.*') ? 'active' : '' }}">
+                            <li
+                                class="sidebar-item {{ request()->routeIs('admin.presentaciones.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.presentaciones.index') }}" class='sidebar-link'>
                                     <i class="bi bi-box-seam"></i>
                                     <span>Presentaciones</span>
@@ -173,6 +170,13 @@
                                 <a href="{{ route('admin.proveedores.index') }}" class='sidebar-link'>
                                     <i class="bi bi-truck"></i>
                                     <span>Proveedores</span>
+                                </a>
+                            </li>
+
+                            <li class="sidebar-item {{ request()->routeIs('admin.lotes.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.lotes.index') }}" class='sidebar-link'>
+                                    <i class="bi bi-box-seam"></i>
+                                    <span>Lotes</span>
                                 </a>
                             </li>
 

@@ -54,10 +54,7 @@ class LaboratorioController extends Controller
         $laboratorio->nombre = mb_strtoupper($request->nombre);
         $laboratorio->save();
 
-
-        return redirect()->route('admin.laboratorios.index')->with('success', 'Laboratorio creado correctamente.');
-
-
+        return redirect()->route('admin.laboratorios.index')->with('success', 'Laboratorio creado exitosamente.');
     }
 
     /**
@@ -71,7 +68,7 @@ class LaboratorioController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Laboratorio $laboratorio)
+    public function edit(Laboratorio $laboratorio, Request $request)
     {
         //
     }
@@ -98,7 +95,7 @@ class LaboratorioController extends Controller
         $laboratorio->nombre = mb_strtoupper($request->nombre);
         $laboratorio->save();
 
-        return redirect()->route('admin.laboratorios.index')->with('success', 'Laboratorio actualizado correctamente.');
+        return redirect()->route('admin.laboratorios.index')->with('success', 'Laboratorio actualizado exitosamente.');
     }
 
     /**
@@ -109,6 +106,6 @@ class LaboratorioController extends Controller
         $laboratorio = Laboratorio::query()->findOrFail($id);
         $laboratorio->delete();
 
-        return redirect()->route('admin.laboratorios.index')->with('success', 'Laboratorio eliminado correctamente.');
+        return redirect()->route('admin.laboratorios.index')->with('success', 'Laboratorio eliminado exitosamente.');
     }
 }

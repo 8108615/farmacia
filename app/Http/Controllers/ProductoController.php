@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Producto;
 use App\Models\Categoria;
-use App\Models\Laboratorio;
 use App\Models\FormaFarmaceutica;
+use App\Models\Laboratorio;
 use App\Models\Presentacion;
+use App\Models\Producto;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -22,12 +21,13 @@ class ProductoController extends Controller
         $search = trim((string) request('search', ''));
 
         $productos = Producto::query()
+            ->with(['categoria', 'laboratorio', 'formaFarmaceutica', 'presentacion'])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where('nombre_comercial', 'like', '%' . $search . '%')
                     ->orWhere('nombre_generico', 'like', '%' . $search . '%')
                     ->orWhere('codigo_producto', 'like', '%' . $search . '%')
                     ->orWhere('codigo_barra', 'like', '%' . $search . '%')
-                    ->orWhere('categoria', 'like', '%' . $search . '%');
+                ;
             })
             ->orderBy('nombre_comercial')
             ->paginate(10)
@@ -50,7 +50,8 @@ class ProductoController extends Controller
             'categorias',
             'laboratorios',
             'formaFarmaceuticas',
-            'presentaciones'));
+            'presentaciones'
+        ));
     }
 
     /**
@@ -71,7 +72,7 @@ class ProductoController extends Controller
             'accion_terapeutica' => 'nullable|string|max:255',
             'unidad_medida' => 'nullable|string|max:50',
             'usa_receta' => 'boolean',
-            'imagen' => 'nullable|image|max:2048',
+            'imagen' => 'nullable|image|max:2048', // Máximo 2MB
         ]);
 
         $producto = new Producto();
@@ -94,17 +95,18 @@ class ProductoController extends Controller
 
         $producto->save();
 
-        return redirect()
-            ->route('admin.productos.index')
-            ->with('success', 'Producto creado correctamente.');
+        return redirect()->route('admin.productos.index')->with('success', 'Producto creado exitosamente.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Producto $producto, $id)
+    public function show(string $id)
     {
-        $producto = Producto::findOrFail($id);
+        $producto = Producto::query()
+            ->with(['categoria', 'laboratorio', 'formaFarmaceutica', 'presentacion'])
+            ->findOrFail($id);
+
         return view('admin.productos.show', compact('producto'));
     }
 
@@ -113,7 +115,7 @@ class ProductoController extends Controller
      */
     public function edit(string $id)
     {
-        $producto = Producto::findOrFail($id);
+        $producto = Producto::query()->findOrFail($id);
 
         $categorias = Categoria::query()->orderBy('nombre')->get(['id', 'nombre']);
         $laboratorios = Laboratorio::query()->orderBy('nombre')->get(['id', 'nombre']);
@@ -136,7 +138,7 @@ class ProductoController extends Controller
     {
         $producto = Producto::query()->findOrFail($id);
 
-        $request->validate( [
+        $request->validate([
             'categoria_id' => 'required|exists:categorias,id',
             'laboratorio_id' => 'nullable|exists:laboratorios,id',
             'forma_farmaceutica_id' => 'nullable|exists:forma_farmaceuticas,id',
@@ -151,8 +153,6 @@ class ProductoController extends Controller
             'usa_receta' => 'boolean',
             'imagen' => 'nullable|image|max:2048',
         ]);
-
-
 
         $producto->categoria_id = $request->input('categoria_id');
         $producto->laboratorio_id = $request->input('laboratorio_id');
@@ -171,14 +171,15 @@ class ProductoController extends Controller
             if (!empty($producto->imagen) && Storage::disk('public')->exists($producto->imagen)) {
                 Storage::disk('public')->delete($producto->imagen);
             }
+
             $producto->imagen = $request->file('imagen')->store('productos', 'public');
         }
 
         $producto->save();
 
         return redirect()
-            ->route('admin.productos.index', $producto->id)
-            ->with('success', 'Producto actualizado correctamente.');
+            ->route('admin.productos.index')
+            ->with('success', 'Producto actualizado exitosamente.');
     }
 
     /**
@@ -191,10 +192,11 @@ class ProductoController extends Controller
         if (!empty($producto->imagen) && Storage::disk('public')->exists($producto->imagen)) {
             Storage::disk('public')->delete($producto->imagen);
         }
+
         $producto->delete();
 
         return redirect()
             ->route('admin.productos.index')
-            ->with('success', 'Producto Eliminado Correctamente.');
+            ->with('success', 'Producto eliminado exitosamente.');
     }
 }

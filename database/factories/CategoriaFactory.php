@@ -6,7 +6,7 @@ use App\Models\Categoria;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<\App\Models\Categoria>
+ * @extends Factory<Categoria>
  */
 class CategoriaFactory extends Factory
 {
@@ -17,15 +17,20 @@ class CategoriaFactory extends Factory
         return [
             'nombre' => fake()->unique()->randomElement([
                 'Medicamentos',
+                'Cuidado Personal',
                 'Higiene',
-                'Suplementos',
-                'Cosméticos',
-                'Accesorios',
+                'Vitaminas',
+                'Bebés',
+                'Salud Sexual',
+                'Hogar',
+                'Belleza',
                 'Alimentos',
-                'Pediatría',
-                'Dermatología',
-                'Cremas',
-                'Inyecciones',
+                'Bebidas',
+                'Suplementos',
+                'Dermocosmética',
+                'Aparatos Médicos',
+                'Nutrición',
+                'Veterinaria',
             ]),
         ];
     }

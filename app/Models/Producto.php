@@ -9,10 +9,6 @@ class Producto extends Model
 {
     use HasFactory;
 
-    /**
-     * Allow mass assignment for seeding/testing.
-     */
-    protected $guarded = [];
     public function categoria()
     {
         return $this->belongsTo(Categoria::class);
@@ -20,10 +16,10 @@ class Producto extends Model
 
     public function laboratorio()
     {
-        return $this->belongsTo(laboratorio::class);
+        return $this->belongsTo(Laboratorio::class);
     }
 
-    public function forma_farmaceutica()
+    public function formaFarmaceutica()
     {
         return $this->belongsTo(FormaFarmaceutica::class);
     }
@@ -32,6 +28,4 @@ class Producto extends Model
     {
         return $this->belongsTo(Presentacion::class);
     }
-
-
 }

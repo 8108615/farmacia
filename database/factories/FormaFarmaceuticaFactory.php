@@ -2,9 +2,12 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\FormaFarmaceutica;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<FormaFarmaceutica>
+ */
 class FormaFarmaceuticaFactory extends Factory
 {
     protected $model = FormaFarmaceutica::class;
@@ -13,27 +16,36 @@ class FormaFarmaceuticaFactory extends Factory
     {
         return [
             'nombre' => mb_strtoupper(fake()->unique()->randomElement([
-            'Tableta',
-            'Cápsula',
-            'Jarabe',
-            'Suspensión',
-            'Crema',
-            'Ungüento',
-            'Solución',
-            'Gotas',
-            'Inyectable',
-            'Supositorio',
-            'Polvo',
-            'Granulado',
-            'Spray',
-            'Gel',
-            'Emulsión',
-            'Parches',
-            'Pastillas',
-            'Pomada',
-            'Loción',
-            'Óvulos',
-            ]), 'UTF-8'),
+                'Tableta',
+                'Cápsula',
+                'Jarabe',
+                'Pomada',
+                'Crema',
+                'Solución',
+                'Suspensión',
+                'Inhalador',
+                'Gotas',
+                'Spray',
+                'Ungüento',
+                'Polvo',
+                'Tableta masticable',
+                'Tableta sublingual',
+                'Comprimido',
+                'Inyección',
+                'Parches',
+                'Supositorio',
+                'Gel',
+                'Emulsión',
+                'Espuma',
+                'Nebulizador',
+                'Pastilla',
+                'Barrilla',
+                'Granulado',
+                'Nasal',
+                'Óvulos',
+                'Loción',
+                'Aerosol',
+            ])),
         ];
     }
 }

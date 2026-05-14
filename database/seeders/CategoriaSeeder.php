@@ -10,9 +10,8 @@ class CategoriaSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-   public function run(): void
+    public function run(): void
     {
         Categoria::factory()->count(10)->create();
     }
-
 }

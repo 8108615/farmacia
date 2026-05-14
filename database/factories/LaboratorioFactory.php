@@ -2,18 +2,20 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Laboratorio;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<Laboratorio>
+ */
 class LaboratorioFactory extends Factory
 {
-
     protected $model = Laboratorio::class;
 
-    public function definition()
+    public function definition(): array
     {
         return [
-            'nombre' => mb_strtoupper(fake()->unique()->company(), 'UTF-8'),
+            'nombre' => mb_strtoupper(fake()->unique()->company()),
         ];
     }
 }

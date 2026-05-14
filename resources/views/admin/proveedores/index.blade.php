@@ -4,7 +4,7 @@
     <div class="page-heading">
         <div class="d-flex justify-content-between align-items-center">
             <h3>Proveedores</h3>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProveedorModal">
+            <button type="button" class="btn btn-primary has-tooltip" title="Nuevo proveedor" data-bs-toggle="modal" data-bs-target="#createProveedorModal">
                 <i class="bi bi-plus-circle"></i> Nuevo proveedor
             </button>
         </div>
@@ -49,6 +49,7 @@
                                         <th>Teléfono</th>
                                         <th>Email</th>
                                         <th>Empresa</th>
+                                        <th>Direcion</th>
                                         <th style="width: 180px;">Acciones</th>
                                     </tr>
                                 </thead>
@@ -60,19 +61,24 @@
                                             <td>{{ $proveedor->telefono }}</td>
                                             <td>{{ $proveedor->email }}</td>
                                             <td>{{ $proveedor->empresa }}</td>
+                                            <td>{{ $proveedor->direccion }}</td>
                                             <td>
-                                                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#editProveedorModal-{{ $proveedor->id }}">
+                                                <button type="button" class="btn btn-sm btn-info has-tooltip" title="Ver detalles" data-bs-toggle="modal" data-bs-target="#showProveedorModal-{{ $proveedor->id }}">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+
+                                                <button type="button" class="btn btn-sm btn-success has-tooltip" title="Editar proveedor" data-bs-toggle="modal" data-bs-target="#editProveedorModal-{{ $proveedor->id }}">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </button>
 
-                                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteProveedorModal-{{ $proveedor->id }}">
+                                                <button type="button" class="btn btn-sm btn-danger has-tooltip" title="Eliminar proveedor" data-bs-toggle="modal" data-bs-target="#deleteProveedorModal-{{ $proveedor->id }}">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center text-muted py-4">No hay proveedores registrados.</td>
+                                            <td colspan="7" class="text-center text-muted py-4">No hay proveedores registrados.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -183,6 +189,56 @@
     </div>
 
     @foreach ($proveedores as $proveedor)
+        <div class="modal fade modal-top" id="showProveedorModal-{{ $proveedor->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title" style="color:white">Detalle del proveedor</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" value="{{ $proveedor->nombre }}" readonly>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="text" class="form-control" value="{{ $proveedor->telefono ?? '-' }}" readonly>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="text" class="form-control" value="{{ $proveedor->email ?? '-' }}" readonly>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Empresa</label>
+                                    <input type="text" class="form-control" value="{{ $proveedor->empresa ?? '-' }}" readonly>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" value="{{ $proveedor->direccion ?? '-' }}" readonly>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Notas</label>
+                                    <textarea class="form-control" rows="2" readonly>{{ $proveedor->notas ?? 'Sin notas' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="modal fade" id="editProveedorModal-{{ $proveedor->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
                 <form class="modal-content" method="POST" action="{{ route('admin.proveedores.update', $proveedor->id) }}">
@@ -279,6 +335,38 @@
     @endforeach
 @endsection
 
+@push('styles')
+    <style>
+        /* Top-aligned modal and smooth entrance animation */
+        .modal.modal-top {
+            align-items: flex-start; /* place modal at top */
+        }
+
+        .modal.modal-top .modal-dialog {
+            margin: 1.25rem auto;
+            transform: translateY(-12px);
+            opacity: 0;
+            transition: transform .22s ease, opacity .22s ease;
+            transform-origin: top center;
+        }
+
+        .modal.modal-top.show .modal-dialog {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Fallback: smoother entrance for other modals too */
+        .modal .modal-dialog {
+            transition: transform .22s ease, opacity .22s ease;
+        }
+
+        .modal.show .modal-dialog {
+            transform: none;
+            opacity: 1;
+        }
+    </style>
+@endpush
+
 @push('scripts')
     <script>
         (function() {
@@ -286,8 +374,19 @@
             if (!openModalId) return;
             const modalElement = document.getElementById(openModalId);
             if (!modalElement || typeof bootstrap === 'undefined') return;
-            const modal = new bootstrap.Modal(modalElement);
-            modal.show();
+            // Small delay so CSS transition produces a smoother entrance
+            setTimeout(function () {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            }, 100);
+        })();
+
+        (function() {
+            if (typeof bootstrap === 'undefined') return;
+            const tooltipElements = document.querySelectorAll('.has-tooltip');
+            tooltipElements.forEach(function(el) {
+                new bootstrap.Tooltip(el);
+            });
         })();
     </script>
 @endpush

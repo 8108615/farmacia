@@ -2,9 +2,12 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Presentacion;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<Presentacion>
+ */
 class PresentacionFactory extends Factory
 {
     protected $model = Presentacion::class;
@@ -13,28 +16,36 @@ class PresentacionFactory extends Factory
     {
         return [
             'nombre' => mb_strtoupper(fake()->unique()->randomElement([
-                'Caja',
-                'Blíster',
-                'Frasco',
-                'Ampolla',
-                'Sachet',
-                'Tubo',
-                'Vial',
-                'Bolsa',
-                'Píldora',
-                'Inhalador',
-                'Supositorio',
-                'Polvo para suspensión',
-                'Gotas',
-                'Crema',
-                'Ungüento',
-                'Gel',
-                'Emulsión',
-                'Parches',
-                'Pastillas',
-                'Pomada',
-                'Loción',
-            ]), 'UTF-8'),
+                'CAJA',
+                'FRASCO',
+                'AMPOLLA',
+                'BOLSITA',
+                'BLÍSTER',
+                'PAQUETE',
+                'TUBO',
+                'SPRAY',
+                'GOTERO',
+                'UNIÓN',
+                'SOBRE',
+                'PARCHES',
+                'SUPOSITORIO',
+                'JERINGA',
+                'PASTA',
+                'CREMA',
+                'GEL',
+                'SOLUCIÓN',
+                'SUSPENSIÓN',
+                'POLVO',
+                'COLIRIO',
+                'CÁPSULA',
+                'TABLETA',
+                'COMPRIMIDO',
+                'INHALADOR',
+                'LOCION',
+                'EMULSIÓN',
+                'NÁDULA',
+                'BARRA',
+            ])),
         ];
     }
 }
