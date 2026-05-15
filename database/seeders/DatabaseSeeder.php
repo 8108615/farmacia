@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
             EmpleadoSeeder::class,
             ProveedorSeeder::class,
             LoteSeeder::class,
+            ClienteSeeder::class,
         ]);
 
         Laboratorio::factory()->count(20)->create();
