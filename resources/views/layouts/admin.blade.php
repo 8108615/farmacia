@@ -175,7 +175,7 @@
 
                             <li class="sidebar-item {{ request()->routeIs('admin.clientes.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.clientes.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-person"></i>
+                                    <i class="bi bi-person-vcard"></i>
                                     <span>Clientes</span>
                                 </a>
                             </li>
@@ -189,7 +189,7 @@
 
                             <li class="sidebar-item {{ request()->routeIs('admin.empleados.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.empleados.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-person-badge"></i>
+                                    <i class="bi bi-person-circle"></i>
                                     <span>Empleados</span>
                                 </a>
                             </li>

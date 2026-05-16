@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
             CategoriaSeeder::class,
             EmpleadoSeeder::class,
             ProveedorSeeder::class,
-            LoteSeeder::class,
+            //LoteSeeder::class,
             ClienteSeeder::class,
         ]);
 
