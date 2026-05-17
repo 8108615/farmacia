@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('estado', 50); //Pendiente, Completado, cancelado
             $table->string('comprobante', 255)->nullable();
             $table->string('nota', 255)->nullable();
+
+            $table->index(['sucursal_id', 'proveedor_id', 'usuario_id']);
             $table->timestamps();
         });
     }

@@ -144,19 +144,22 @@ Table inventarios {
   stock_minimo int [not null, default: 0]
   stock_maximo int [not null, default: 0]
   fecha_registro datetime [not null, default: `CURRENT_TIMESTAMP`]
-  
+
   estado enum('compra','ajuste','traslado') [not null]
 }
 
 Table tmp_compras {
   id int [pk, increment]
-
+  usuario_id int [ref: > usuarios.id]
+  sucursal_id int [ref: > sucursales.id]
   producto_id int [ref: > productos.id]
 
   precio_compra_unidad decimal(12,2) [not null]
   precio_venta_unidad decimal(12,2) [not null]
   porcentaje_ganancia_unidad decimal(5,2) [not null]
   cantidad int [not null]
+  fecha_creacion datetime [not null, default: `CURRENT_TIMESTAMP`]
+  estado enum('activo','inactivo') [not null, default: 'activo']
 }
 
 Table compras {
@@ -178,6 +181,7 @@ Table compras_detalle {
 
   compra_id int [ref: > compras.id]
   producto_id int [ref: > productos.id]
+  lote_id int [ref: > lotes.id]
 
   precio_compra_unidad decimal(12,2) [not null]
   precio_venta_unidad decimal(12,2) [not null]
