@@ -12,7 +12,7 @@ class CompraTmpController extends Controller
      */
     public function index()
     {
-        //
+        return view('admin.ordenes_compra.index');
     }
 
     /**

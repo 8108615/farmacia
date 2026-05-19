@@ -189,9 +189,30 @@
 
                             <li class="sidebar-item {{ request()->routeIs('admin.empleados.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.empleados.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-person-circle"></i>
+                                    <i class="bi bi-person-badge"></i>
                                     <span>Empleados</span>
                                 </a>
+                            </li>
+
+                            <li class="sidebar-item {{ request()->routeIs('admin.compras.*') || request()->routeIs('admin.ordenes_compra.*') ? 'active' : '' }} has-sub">
+                                <a href="#" class='sidebar-link has-arrow'>
+                                    <i class="bi bi-cart-check"></i>
+                                    <span>Compras</span>
+                                </a>
+                                <ul class="submenu">
+                                    <li class="submenu-item {{ request()->routeIs('admin.ordenes_compra.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.ordenes_compra.index') }}" class='sidebar-link'>
+                                            <i class="bi bi-cart-plus"></i>
+                                            <span>Orden de Compras</span>
+                                        </a>
+                                    </li>
+                                    <li class="submenu-item {{ request()->routeIs('admin.compras.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.compras.index') }}" class='sidebar-link'>
+                                            <i class="bi bi-bag-check"></i>
+                                            <span>Compras</span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
 
                             <li class="sidebar-item">
