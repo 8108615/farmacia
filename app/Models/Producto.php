@@ -28,4 +28,9 @@ class Producto extends Model
     {
         return $this->belongsTo(Presentacion::class);
     }
+
+    public function compraTmps()
+    {
+        return $this->hasMany(CompraTmp::class, 'producto_id');
+    }
 }

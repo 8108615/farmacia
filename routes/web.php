@@ -93,12 +93,21 @@ Route::delete('/admin/lotes/{id}', [App\Http\Controllers\LoteController::class, 
 
 //Rutas para orden de compra
 Route::get('/admin/ordenes_compra', [App\Http\Controllers\CompraTmpController::class, 'index'])->name('admin.ordenes_compra.index')->middleware('auth');
+Route::get('/admin/ordenes_compra/create', [App\Http\Controllers\CompraTmpController::class, 'create'])->name('admin.ordenes_compra.create')->middleware('auth');
+Route::post('/admin/ordenes_compra/items/add', [App\Http\Controllers\CompraTmpController::class, 'addItems'])->name('admin.ordenes_compra.addItems')->middleware('auth');
+Route::put('/admin/ordenes_compra/items/{itemId}', [App\Http\Controllers\CompraTmpController::class, 'updateItem'])->name('admin.ordenes_compra.updateItem')->middleware('auth');
+Route::delete('/admin/ordenes_compra/items/{itemId}', [App\Http\Controllers\CompraTmpController::class, 'removeItem'])->name('admin.ordenes_compra.removeItem')->middleware('auth');
+Route::delete('/admin/ordenes_compra/items', [App\Http\Controllers\CompraTmpController::class, 'clearItems'])->name('admin.ordenes_compra.clearItems')->middleware('auth');
+Route::post('/admin/ordenes_compra/create', [App\Http\Controllers\CompraTmpController::class, 'store'])->name('admin.ordenes_compra.store')->middleware('auth');
+
+
 
 //Rutas para compras
 Route::get('/admin/compras', [App\Http\Controllers\CompraController::class, 'index'])->name('admin.compras.index')->middleware('auth');
+Route::get('/admin/compras/{id}', [App\Http\Controllers\CompraController::class, 'show'])->name('admin.compras.show')->middleware('auth');
 /*Route::get('/admin/compras/create', [App\Http\Controllers\CompraController::class, 'create'])->name('admin.compras.create')->middleware('auth');
 Route::post('/admin/compras/create', [App\Http\Controllers\CompraController::class, 'store'])->name('admin.compras.store')->middleware('auth');
-Route::get('/admin/compras/{id}', [App\Http\Controllers\CompraController::class, 'show'])->name('admin.compras.show')->middleware('auth');
+
 Route::get('/admin/compras/{id}/edit', [App\Http\Controllers\CompraController::class, 'edit'])->name('admin.compras.edit')->middleware('auth');
 Route::put('/admin/compras/{id}', [App\Http\Controllers\CompraController::class, 'update'])->name('admin.compras.update')->middleware('auth');
 Route::delete('/admin/compras/{id}', [App\Http\Controllers\CompraController::class, 'destroy'])->name('admin.compras.destroy')->middleware('auth');*/

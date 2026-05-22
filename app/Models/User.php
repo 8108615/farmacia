@@ -35,4 +35,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Empleado::class);
     }
+
+    public function compraTmps()
+    {
+        return $this->hasMany(CompraTmp::class, 'usuario_id');
+    }
 }

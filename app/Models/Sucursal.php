@@ -18,4 +18,9 @@ class Sucursal extends Model
     protected $casts = [
         'estado' => 'boolean',
     ];
+
+    public function compraTmps()
+    {
+        return $this->hasMany(CompraTmp::class, 'sucursal_id');
+    }
 }

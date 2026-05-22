@@ -1,4 +1,3 @@
-<!-- Clientes index -->
 @extends('layouts.admin')
 
 @section('content')
