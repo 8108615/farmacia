@@ -2,19 +2,16 @@
 
 namespace Database\Seeders;
 
-use App\Models\Lote;
+use App\Models\UbicacionFisica;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class LoteSeeder extends Seeder
+class UbicacionFisicaSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        Lote::factory()->count(10)->create();
+        UbicacionFisica::factory()->count(10)->create();
     }
 }

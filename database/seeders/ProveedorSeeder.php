@@ -9,6 +9,10 @@ use Illuminate\Database\Seeder;
 class ProveedorSeeder extends Seeder
 {
     use WithoutModelEvents;
+
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
         Proveedor::factory()->count(10)->create();

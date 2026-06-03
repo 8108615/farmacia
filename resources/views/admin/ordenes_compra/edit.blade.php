@@ -6,13 +6,15 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
-                    <h3>📝 Orden de Compra - Carrito Temporal</h3>
+                    <h3>Editar Orden de Compra #{{ $compra->id }}</h3>
                 </div>
                 <div class="col-12 col-md-6 order-md-2 order-first">
                     <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{ url('/home') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Orden de Compra</li>
+                            <li class="breadcrumb-item"><a href="{{ route('admin.ordenes_compra.index') }}">Orden de
+                                    Compra</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Editar</li>
                         </ol>
                     </nav>
                 </div>
@@ -22,17 +24,21 @@
 
     <div class="page-content">
         <div class="row">
-            <!-- FORMULARIO DE CARRITO -->
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">🛒 Agregar Productos a la Orden</h4>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">Carrito de la Orden</h4>
+                        <a href="{{ route('admin.ordenes_compra.show', $compra->id) }}"
+                            class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left"></i> Volver al Detalle
+                        </a>
                     </div>
                     <div class="card-body">
                         <form id="formCarrito" method="POST" action="">
                             @csrf
+                            @method('PUT')
+
                             <div class="row">
-                                <!-- SUCURSAL -->
                                 <div class="col-md-6 mb-3">
                                     <label for="sucursal_id" class="form-label">Sucursal <span
                                             class="text-danger">*</span></label>
@@ -42,7 +48,7 @@
                                         <option value="">-- Selecciona una Sucursal --</option>
                                         @foreach ($sucursales as $sucursal)
                                             <option value="{{ $sucursal->id }}"
-                                                {{ old('sucursal_id') == $sucursal->id ? 'selected' : '' }}>
+                                                {{ (string) old('sucursal_id', $compra->sucursal_id) === (string) $sucursal->id ? 'selected' : '' }}>
                                                 {{ $sucursal->nombre }}
                                             </option>
                                         @endforeach
@@ -52,7 +58,6 @@
                                     @enderror
                                 </div>
 
-                                <!-- PROVEEDOR -->
                                 <div class="col-md-6 mb-3">
                                     <label for="proveedor_id" class="form-label">Proveedor <span
                                             class="text-danger">*</span></label>
@@ -62,7 +67,7 @@
                                         <option value="">-- Selecciona un Proveedor --</option>
                                         @foreach ($proveedores as $proveedor)
                                             <option value="{{ $proveedor->id }}"
-                                                {{ old('proveedor_id') == $proveedor->id ? 'selected' : '' }}>
+                                                {{ (string) old('proveedor_id', $compra->proveedor_id) === (string) $proveedor->id ? 'selected' : '' }}>
                                                 {{ $proveedor->nombre }} - {{ $proveedor->empresa }}
                                             </option>
                                         @endforeach
@@ -76,36 +81,34 @@
                             <hr>
 
                             <div class="row">
-                                <!-- BÚSQUEDA DE PRODUCTOS -->
                                 <div class="col-12 mb-3">
                                     <label class="form-label">Seleccionar Producto <span
                                             class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <input type="text" id="buscarProducto" class="form-control form-control-lg"
-                                            placeholder="Busca por código, nombre, laboratorio, categoría, forma, presentación...">
+                                            placeholder="Busca por codigo, nombre, laboratorio, categoria, forma, presentacion...">
                                         <button class="btn btn-outline-secondary" type="button" id="btnBuscar">
                                             <i class="bi bi-search"></i> Buscar
                                         </button>
                                     </div>
                                 </div>
 
-                                <!-- TABLA DE PRODUCTOS -->
                                 <div class="col-12 mb-3">
                                     <div class="table-responsive" style="min-height: auto;">
                                         <table id="tablaProductos" class="table table-hover table-sm mb-0">
                                             <thead class="table-light" style="position: sticky; top: 0;">
                                                 <tr>
                                                     <th style="width: 5%;">#</th>
-                                                    <th style="width: 10%;">Código</th>
-                                                    <th style="width: 10%;">Código Barra</th>
+                                                    <th style="width: 10%;">Codigo</th>
+                                                    <th style="width: 10%;">Codigo Barra</th>
                                                     <th style="width: 12%;">Nombre Comercial</th>
-                                                    <th style="width: 12%;">Nombre Genérico</th>
-                                                    <th style="width: 10%;">Concentración</th>
+                                                    <th style="width: 12%;">Nombre Generico</th>
+                                                    <th style="width: 10%;">Concentracion</th>
                                                     <th style="width: 10%;">Laboratorio</th>
-                                                    <th style="width: 10%;">Categoría</th>
-                                                    <th style="width: 10%;">Forma Farmacéutica</th>
-                                                    <th style="width: 8%;">Presentación</th>
-                                                    <th style="width: 7%;">Acción Terapéutica</th>
+                                                    <th style="width: 10%;">Categoria</th>
+                                                    <th style="width: 10%;">Forma Farmaceutica</th>
+                                                    <th style="width: 8%;">Presentacion</th>
+                                                    <th style="width: 7%;">Accion Terapeutica</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="productosBody">
@@ -149,17 +152,15 @@
                                         </table>
                                     </div>
 
-                                    <!-- CONTROLES DE PAGINACIÓN -->
                                     <div class="d-flex justify-content-between align-items-center mt-3">
                                         <small class="text-muted">Mostrando <span id="infoProductos">0</span>
                                             productos</small>
-                                        <nav aria-label="Paginación de productos">
+                                        <nav aria-label="Paginacion de productos">
                                             <ul class="pagination pagination-sm mb-0" id="paginacionProductos"></ul>
                                         </nav>
                                     </div>
                                 </div>
 
-                                <!-- CAMPOS OCULTOS -->
                                 <input type="hidden" id="producto_id" name="producto_id" value="">
                                 <input type="hidden" id="cantidad" value="1">
                                 <input type="hidden" id="precio_compra" value="0">
@@ -168,12 +169,10 @@
                                 <input type="hidden" id="observaciones" value="">
                             </div>
 
-                            <!-- ESTADO OCULTO -->
                             <input type="hidden" id="estado" name="estado" value="activo">
 
                             <hr>
 
-                            <!-- TABLA DE CARRITO -->
                             <div class="table-responsive">
                                 <table id="tablaCarrito" class="table table-hover">
                                     <thead class="table-light">
@@ -191,7 +190,7 @@
                                     <tbody id="carritoBody">
                                         <tr id="filaVacia" class="text-center">
                                             <td colspan="8" class="py-4 text-muted">
-                                                <i class="bi bi-inbox"></i> Carrito vacío. Agrega productos para comenzar.
+                                                <i class="bi bi-inbox"></i> Carrito vacio. Agrega productos para comenzar.
                                             </td>
                                         </tr>
                                     </tbody>
@@ -204,7 +203,8 @@
                                             <td class="text-center"></td>
                                             <td class="text-center"></td>
                                             <td class="text-center"></td>
-                                            <td class="text-end"><strong>{{ $ajuste->divisa ?? 'Bs.' }} <span id="totalCompra">0.00</span></strong>
+                                            <td class="text-end"><strong>{{ $ajuste->divisa ?? 'Bs.' }} <span
+                                                        id="totalCompra">0.00</span></strong>
                                             </td>
                                             <td class="text-center"></td>
                                         </tr>
@@ -212,14 +212,13 @@
                                 </table>
                             </div>
 
-                            <!-- BOTONES FINALES -->
                             <div class="row mt-4">
                                 <div class="col-12 d-flex gap-2 justify-content-end">
                                     <button type="button" class="btn btn-secondary btn-lg" onclick="limpiarCarrito()">
                                         <i class="bi bi-trash"></i> Limpiar
                                     </button>
                                     <button type="submit" id="btnConfirmar" class="btn btn-primary btn-lg" disabled>
-                                        <i class="bi bi-check-circle"></i> Confirmar Orden
+                                        <i class="bi bi-check-circle"></i> Actualizar Orden
                                     </button>
                                 </div>
                             </div>
@@ -264,7 +263,6 @@
             color: #28a745;
         }
 
-        /* Estilos para tabla de productos */
         #tablaProductos {
             font-size: 0.85rem;
             margin-bottom: 0;
@@ -328,7 +326,6 @@
             border-radius: 0 0.375rem 0.375rem 0;
         }
 
-        /* Estilos para inputs de carrito */
         .cantidad-input {
             transition: background-color 0.2s ease, border-color 0.2s ease;
             text-align: right !important;
@@ -344,7 +341,13 @@
 
 @push('scripts')
     <script>
-        // ===== VARIABLES GLOBALES =====
+        const COMPRA_ID = {{ $compra->id }};
+        const COMPRA_ADD_URL = @json(route('admin.compras.items.add', ['compra_id' => $compra->id]));
+        const COMPRA_CLEAR_URL = @json(route('admin.compras.items.clear', ['compra_id' => $compra->id]));
+        const COMPRA_ITEM_UPDATE_URL_TEMPLATE = @json(route('admin.compras.items.update', ['compra_id' => $compra->id, 'item_id' => '__ITEM_ID__']));
+        const COMPRA_ITEM_REMOVE_URL_TEMPLATE = @json(route('admin.compras.items.remove', ['compra_id' => $compra->id, 'item_id' => '__ITEM_ID__']));
+        const compraItemUpdateUrl = (itemId) => COMPRA_ITEM_UPDATE_URL_TEMPLATE.replace('__ITEM_ID__', itemId);
+        const compraItemRemoveUrl = (itemId) => COMPRA_ITEM_REMOVE_URL_TEMPLATE.replace('__ITEM_ID__', itemId);
         let carrito = [];
         const MONEDA = "{{ $ajuste->divisa ?? 'Bs.' }}";
         let contadorLinea = 0;
@@ -355,23 +358,32 @@
         let updateItemTimers = {};
         let addingProductIds = new Set();
 
-        // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', function() {
-            // Guardar productos originales
+            const carritoInicial = @json($carritoInicial ?? []);
+
+            carrito = (carritoInicial || []).map(item => ({
+                ...item,
+                sucursal_id: document.getElementById('sucursal_id').value,
+                proveedor_id: document.getElementById('proveedor_id').value,
+                cantidad: parseInt(item.cantidad) || 0,
+                precio_compra: parseFloat(item.precio_compra) || 0,
+                precio_venta: parseFloat(item.precio_venta) || 0,
+                porcentaje_ganancia: parseFloat(item.porcentaje_ganancia) || 0,
+                observaciones: item.observaciones || '',
+                subtotal: (parseInt(item.cantidad) || 0) * (parseFloat(item.precio_compra) || 0)
+            }));
+
             productosOriginales = Array.from(document.querySelectorAll('.producto-row'));
             productosVisibles = [...productosOriginales];
 
-            // Inicializar paginación
             inicializarPaginacion();
             mostrarPagina(1);
 
-            // Event listeners para búsqueda de productos
             document.getElementById('buscarProducto').addEventListener('input', filtrarProductos);
             document.getElementById('btnBuscar').addEventListener('click', function() {
                 filtrarProductos();
             });
 
-            // Un solo listener para evitar duplicados por re-render/paginación
             document.getElementById('productosBody').addEventListener('click', function(e) {
                 const fila = e.target.closest('.producto-row');
                 if (!fila || fila.style.display === 'none') return;
@@ -380,18 +392,14 @@
                 seleccionarProducto(productoId, fila);
             });
 
-            // Carrito vacío al iniciar (fuente de datos: BD solo)
-            carrito = [];
             renderizarCarrito();
         });
 
-        // ===== PAGINACIÓN =====
         function inicializarPaginacion() {
             const totalPaginas = Math.ceil(productosVisibles.length / itemsPorPagina);
             const paginacionContainer = document.getElementById('paginacionProductos');
             paginacionContainer.innerHTML = '';
 
-            // Botón anterior
             const btnAnterior = document.createElement('li');
             btnAnterior.className = 'page-item';
             btnAnterior.innerHTML = '<a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>';
@@ -403,7 +411,6 @@
             });
             paginacionContainer.appendChild(btnAnterior);
 
-            // Números de página
             for (let i = 1; i <= totalPaginas; i++) {
                 const btnPagina = document.createElement('li');
                 btnPagina.className = 'page-item' + (i === paginaActual ? ' active' : '');
@@ -415,7 +422,6 @@
                 paginacionContainer.appendChild(btnPagina);
             }
 
-            // Botón siguiente
             const btnSiguiente = document.createElement('li');
             btnSiguiente.className = 'page-item';
             btnSiguiente.innerHTML = '<a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>';
@@ -433,28 +439,23 @@
             const inicio = (numeroPagina - 1) * itemsPorPagina;
             const fin = inicio + itemsPorPagina;
 
-            // Ocultar todas las filas
             productosOriginales.forEach(fila => {
                 fila.style.display = 'none';
             });
 
-            // Mostrar filas de la página actual
             productosVisibles.slice(inicio, fin).forEach(fila => {
                 fila.style.display = '';
             });
 
-            // Actualizar controles de paginación
             inicializarPaginacion();
 
-            // Actualizar información
             const totalVisibles = productosVisibles.length;
-            const mostrandoDesde = inicio + 1;
+            const mostrandoDesde = totalVisibles > 0 ? inicio + 1 : 0;
             const mostrandoHasta = Math.min(fin, totalVisibles);
             document.getElementById('infoProductos').textContent =
                 `${mostrandoDesde}-${mostrandoHasta} de ${totalVisibles}`;
         }
 
-        // ===== CALCULAR % GANANCIA =====
         function calcularGanancia() {
             const precioCompra = parseFloat(document.getElementById('precio_compra').value) || 0;
             const precioVenta = parseFloat(document.getElementById('precio_venta').value) || 0;
@@ -467,7 +468,6 @@
             document.getElementById('porcentaje_ganancia').value = ganancia.toFixed(2);
         }
 
-        // ===== FILTRAR PRODUCTOS =====
         function filtrarProductos() {
             const busqueda = document.getElementById('buscarProducto').value.toLowerCase();
 
@@ -500,7 +500,6 @@
             mostrarPagina(1);
         }
 
-        // ===== SELECCIONAR PRODUCTO =====
         function enfocarCantidadItem(itemId) {
             const filaItem = document.querySelector(`tr[data-item-id="${itemId}"]`);
             if (!filaItem) return;
@@ -521,18 +520,15 @@
             const codigo = fila.getAttribute('data-codigo');
             const sucursalId = document.getElementById('sucursal_id').value;
 
-            // Evita registrar el mismo producto varias veces por doble clic/latencia
             if (addingProductIds.has(productoId)) {
                 return;
             }
 
-            // Validar que sucursal esté seleccionada
             if (!sucursalId) {
-                Swal.fire('Atención', 'Por favor selecciona una sucursal primero', 'warning');
+                Swal.fire('Atencion', 'Por favor selecciona una sucursal primero', 'warning');
                 return;
             }
 
-            // Si ya existe en carrito, no crear otra fila; enfocar para editar cantidad
             const itemExistente = carrito.find(item =>
                 String(item.producto_id) === String(productoId) &&
                 String(item.sucursal_id) === String(sucursalId)
@@ -544,61 +540,64 @@
             }
 
             addingProductIds.add(productoId);
-
-            // Marcar fila como seleccionada visualmente
             document.querySelectorAll('.producto-row').forEach(f => f.classList.remove('table-active'));
             fila.classList.add('table-active');
 
-            // Crear nombre completo del producto
-            const nombreProducto = `${nombreComercial} (${nombreGenerico}) - Código: ${codigo}`;
+            const nombreProducto = `${nombreComercial} (${nombreGenerico}) - Codigo: ${codigo}`;
 
-            // Guardar en la base de datos
-            fetch('{{ route('admin.ordenes_compra.addItems') }}', {
+            // Agregar a la BD
+            fetch(COMPRA_ADD_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({
-                        sucursal_id: sucursalId,
                         producto_id: productoId
                     })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Crear objeto del carrito con el id retornado de la BD
-                        const item = {
-                            id: data.item_id,
-                            sucursal_id: sucursalId,
-                            proveedor_id: document.getElementById('proveedor_id').value,
-                            producto_id: productoId,
-                            producto_nombre: nombreProducto,
-                            cantidad: 0,
-                            precio_compra: 0,
-                            precio_venta: 0,
-                            porcentaje_ganancia: 0,
-                            observaciones: '',
-                            subtotal: 0
-                        };
-
-                        // Agregar al carrito local
-                        carrito.push(item);
-                        renderizarCarrito(true);
-                    } else {
-                        Swal.fire('Error', data.message, 'error');
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
                     }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) {
+                        Swal.fire('Error', data.message || 'No se pudo agregar el producto', 'error');
+                        addingProductIds.delete(productoId);
+                        fila.classList.remove('table-active');
+                        return;
+                    }
+
+                    const item = {
+                        id: data.item_id,
+                        sucursal_id: sucursalId,
+                        proveedor_id: document.getElementById('proveedor_id').value,
+                        producto_id: productoId,
+                        producto_nombre: nombreProducto,
+                        cantidad: 0,
+                        precio_compra: 0,
+                        precio_venta: 0,
+                        porcentaje_ganancia: 0,
+                        observaciones: '',
+                        subtotal: 0
+                    };
+
+                    carrito.push(item);
+                    renderizarCarrito(true);
+                    addingProductIds.delete(productoId);
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    Swal.fire('Error', 'No se pudo agregar el producto', 'error');
-                })
-                .finally(() => {
+                    Swal.fire('Error', 'Error al agregar el producto: ' + error.message, 'error');
                     addingProductIds.delete(productoId);
+                    fila.classList.remove('table-active');
                 });
         }
 
-        // ===== CALCULAR GANANCIA DE UN ITEM =====
         function calcularGananciaItem(precio_compra, precio_venta) {
             if (precio_compra <= 0) return 0;
             return ((precio_venta - precio_compra) / precio_compra) * 100;
@@ -609,7 +608,6 @@
             return precio_compra * (1 + (porcentaje_ganancia / 100));
         }
 
-        // ===== AGREGAR AL CARRITO (No se usa, pero se mantiene por compatibilidad) =====
         function agregarAlCarrito() {
             return false;
         }
@@ -624,16 +622,14 @@
             }
         }
 
-        // ===== RENDERIZAR CARRITO =====
         function renderizarCarrito(autoFocusCantidad = false) {
             const carritoBody = document.getElementById('carritoBody');
-            const filaVacia = document.getElementById('filaVacia');
             const btnConfirmar = document.getElementById('btnConfirmar');
             const tablaFooter = document.getElementById('tablaFooter');
 
             if (carrito.length === 0) {
                 carritoBody.innerHTML =
-                    '<tr id="filaVacia" class="text-center"><td colspan="8" class="py-4 text-muted"><i class="bi bi-inbox"></i> Carrito vacío. Agrega productos para comenzar.</td></tr>';
+                    '<tr id="filaVacia" class="text-center"><td colspan="8" class="py-4 text-muted"><i class="bi bi-inbox"></i> Carrito vacio. Agrega productos para comenzar.</td></tr>';
                 btnConfirmar.disabled = true;
                 tablaFooter.style.display = 'none';
                 return;
@@ -665,13 +661,12 @@
                 </td>
                 <td class="text-end"><strong class="subtotal-valor">${MONEDA} ${subtotal.toFixed(2)}</strong></td>
                 <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-danger" onclick="eliminarDelCarrito(${item.id})">
+                    <button type="button" class="btn btn-sm btn-danger" onclick="eliminarDelCarrito('${item.id}')">
                         <i class="bi bi-trash"></i>
                     </button>
                 </td>
             `;
 
-                // Agregar event listeners a los inputs
                 const cantidadInput = fila.querySelector('.cantidad-input');
                 const precioCompraInput = fila.querySelector('.precio-compra-input');
                 const precioVentaInput = fila.querySelector('.precio-venta-input');
@@ -754,7 +749,6 @@
                 carritoBody.appendChild(fila);
             });
 
-            // Hacer foco en cantidad solo cuando se agrega un nuevo producto
             if (autoFocusCantidad) {
                 const ultimoInput = carritoBody.querySelector('tr:last-child .cantidad-input');
                 if (ultimoInput) {
@@ -767,7 +761,7 @@
         }
 
         function actualizarVistaFila(itemId) {
-            const item = carrito.find(i => i.id === itemId);
+            const item = carrito.find(i => String(i.id) === String(itemId));
             if (!item) return;
 
             const fila = document.querySelector(`tr[data-item-id="${itemId}"]`);
@@ -801,45 +795,36 @@
             }
         }
 
-        // ===== ACTUALIZAR ITEM DEL CARRITO =====
         function actualizarItemCarrito(itemId, cambios) {
-            const item = carrito.find(i => i.id === itemId);
+            const item = carrito.find(i => String(i.id) === String(itemId));
             if (!item) return;
 
-            // Actualizar propiedades
             Object.assign(item, cambios);
 
             const cambioGanancia = Object.prototype.hasOwnProperty.call(cambios, 'porcentaje_ganancia');
             const cambioPrecioVenta = Object.prototype.hasOwnProperty.call(cambios, 'precio_venta');
             const cambioPrecioCompra = Object.prototype.hasOwnProperty.call(cambios, 'precio_compra');
 
-            // Si se edita manualmente el % de ganancia, recalcular P. Venta
             if (cambioGanancia) {
                 item.precio_venta = calcularPrecioVentaDesdeGanancia(item.precio_compra, item.porcentaje_ganancia);
             }
 
-            // Si cambia P. Compra y no se está editando P. Venta, mantener el % actual y recalcular P. Venta
             if (cambioPrecioCompra && !cambioPrecioVenta && !cambioGanancia) {
                 item.precio_venta = calcularPrecioVentaDesdeGanancia(item.precio_compra, item.porcentaje_ganancia);
             }
 
-            // Recalcular ganancia y subtotal
             item.porcentaje_ganancia = calcularGananciaItem(item.precio_compra, item.precio_venta);
             item.subtotal = item.cantidad * item.precio_compra;
 
-            // Refrescar solo la fila afectada para no interrumpir la escritura
             actualizarVistaFila(itemId);
             actualizarResumen();
 
-            // Debounce para evitar una petición por cada tecla
             if (updateItemTimers[itemId]) {
                 clearTimeout(updateItemTimers[itemId]);
             }
 
             updateItemTimers[itemId] = setTimeout(() => {
-                fetch(`{{ route('admin.ordenes_compra.updateItem', ['itemId' => 'PLACEHOLDER']) }}`.replace(
-                        'PLACEHOLDER',
-                        itemId), {
+                fetch(compraItemUpdateUrl(itemId), {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -852,14 +837,25 @@
                             porcentaje_ganancia_unidad: item.porcentaje_ganancia
                         })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`HTTP ${response.status}: ${text}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success) {
+                            console.error('Error:', data.message);
+                        }
+                    })
                     .catch(error => console.error('Error al actualizar:', error));
 
                 delete updateItemTimers[itemId];
             }, 350);
         }
 
-        // ===== ACTUALIZAR RESUMEN =====
         function actualizarResumen() {
             let totalCantidad = 0;
             let totalCompra = 0;
@@ -873,52 +869,54 @@
             document.getElementById('totalCompra').textContent = totalCompra.toFixed(2);
         }
 
-        // ===== ELIMINAR DEL CARRITO =====
         function eliminarDelCarrito(id) {
             Swal.fire({
-                title: '¿Eliminar?',
-                text: '¿Estás seguro de que deseas eliminar este producto del carrito?',
+                title: 'Eliminar?',
+                text: 'Estas seguro de que deseas eliminar este producto del carrito?',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Sí, eliminar',
+                confirmButtonText: 'Si, eliminar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
-                if (result.isConfirmed) {
-                    const url = `{{ route('admin.ordenes_compra.removeItem', ['itemId' => 'PLACEHOLDER']) }}`
-                        .replace(
-                            'PLACEHOLDER', id);
+                if (!result.isConfirmed) return;
 
-                    // Eliminar de la base de datos
-                    fetch(url, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                if (updateItemTimers[id]) {
-                                    clearTimeout(updateItemTimers[id]);
-                                    delete updateItemTimers[id];
-                                }
-                                carrito = carrito.filter(item => item.id !== id);
-                                renderizarCarrito();
-                                Swal.fire('Eliminado', 'Producto eliminado del carrito', 'success');
-                            } else {
-                                Swal.fire('Error', data.message, 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire('Error', 'No se pudo eliminar el producto: ' + error.message, 'error');
-                        });
+                if (updateItemTimers[id]) {
+                    clearTimeout(updateItemTimers[id]);
+                    delete updateItemTimers[id];
                 }
+
+                // Eliminar de la BD
+                fetch(compraItemRemoveUrl(id), {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`HTTP ${response.status}: ${text}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            carrito = carrito.filter(item => String(item.id) !== String(id));
+                            renderizarCarrito();
+                            Swal.fire('Eliminado', 'Producto eliminado del carrito', 'success');
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'No se pudo eliminar el producto: ' + error.message, 'error');
+                    });
             });
         }
 
-        // ===== LIMPIAR FORMULARIO =====
         function limpiarFormulario() {
             document.getElementById('producto_id').value = '';
             document.getElementById('cantidad').value = '1';
@@ -929,97 +927,102 @@
             document.getElementById('producto_id').focus();
         }
 
-        // ===== LIMPIAR CARRITO =====
         function limpiarCarrito() {
             Swal.fire({
-                title: '¿Limpiar carrito?',
-                text: 'Esto eliminará todos los productos del carrito',
+                title: 'Limpiar carrito?',
+                text: 'Esto eliminara todos los productos del carrito',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Sí, limpiar',
+                confirmButtonText: 'Si, limpiar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
-                if (result.isConfirmed) {
-                    if (carrito.length === 0) {
-                        Swal.fire('Info', 'El carrito ya está vacío', 'info');
-                        return;
-                    }
+                if (!result.isConfirmed) return;
 
-                    const itemIds = carrito.map(item => item.id).filter(id => !!id);
+                if (carrito.length === 0) {
+                    Swal.fire('Info', 'El carrito ya esta vacio', 'info');
+                    return;
+                }
 
-                    Object.keys(updateItemTimers).forEach(key => clearTimeout(updateItemTimers[key]));
-                    updateItemTimers = {};
+                Object.keys(updateItemTimers).forEach(key => clearTimeout(updateItemTimers[key]));
+                updateItemTimers = {};
 
-                    fetch('{{ route('admin.ordenes_compra.clearItems') }}', {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            },
-                            body: JSON.stringify({
-                                item_ids: itemIds
-                            })
+                const itemIds = carrito.map(item => item.id);
+
+                // Limpiar en la BD
+                fetch(COMPRA_CLEAR_URL, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            item_ids: itemIds
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (!data.success) {
-                                Swal.fire('Error', data.message || 'No se pudo limpiar el carrito', 'error');
-                                return;
-                            }
-
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`HTTP ${response.status}: ${text}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
                             carrito = [];
                             contadorLinea = 0;
                             renderizarCarrito();
                             limpiarFormulario();
-                            Swal.fire('Limpiado', 'Carrito vacío', 'success');
-                        })
-                        .catch(error => {
-                            console.error('Error al limpiar carrito:', error);
-                            Swal.fire('Error', 'No se pudo limpiar el carrito en base de datos', 'error');
-                        });
-                }
+                            Swal.fire('Limpiado', 'Carrito vacio', 'success');
+                        } else {
+                            Swal.fire('Error', data.message || 'Error al limpiar el carrito', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'No se pudo limpiar el carrito: ' + error.message, 'error');
+                    });
             });
         }
 
-        // ===== ENVIAR FORMULARIO =====
         document.getElementById('formCarrito').addEventListener('submit', function(e) {
             e.preventDefault();
 
             if (carrito.length === 0) {
-                Swal.fire('Error', 'El carrito está vacío. Agrega productos.', 'error');
+                Swal.fire('Error', 'El carrito esta vacio. Agrega productos.', 'error');
                 return;
             }
 
             const sucursal_id = document.getElementById('sucursal_id').value;
             const proveedor_id = document.getElementById('proveedor_id').value;
 
-            // Crear formulario oculto con datos del carrito
             const formData = new FormData();
             formData.append('_token', document.querySelector('input[name="_token"]').value);
+            formData.append('_method', 'PUT');
             formData.append('sucursal_id', sucursal_id);
             formData.append('proveedor_id', proveedor_id);
             formData.append('carrito', JSON.stringify(carrito));
 
-            // Enviar por AJAX
-            fetch('{{ route('admin.ordenes_compra.store') }}', {
+            fetch('{{ route('admin.ordenes_compra.update', $compra->id) }}', {
                     method: 'POST',
                     body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        Swal.fire('Éxito', 'Orden de compra confirmada', 'success').then(() => {
+                        Swal.fire('Exito', 'Orden de compra actualizada', 'success').then(() => {
                             carrito = [];
                             contadorLinea = 0;
-                            window.location.href = '{{ route('admin.ordenes_compra.index') }}';
+                            window.location.href = data.redirect ||
+                                '{{ route('admin.ordenes_compra.show', $compra->id) }}';
                         });
                     } else {
-                        Swal.fire('Error', data.message || 'Error al guardar la orden', 'error');
+                        Swal.fire('Error', data.message || 'Error al actualizar la orden', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    Swal.fire('Error', 'Error en la petición', 'error');
+                    Swal.fire('Error', 'Error en la peticion', 'error');
                 });
         });
     </script>

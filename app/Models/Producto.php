@@ -33,4 +33,9 @@ class Producto extends Model
     {
         return $this->hasMany(CompraTmp::class, 'producto_id');
     }
+
+    public function compraDetalles()
+    {
+        return $this->hasMany(CompraDetalle::class, 'producto_id');
+    }
 }

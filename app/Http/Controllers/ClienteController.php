@@ -8,19 +8,18 @@ use Illuminate\Support\Facades\Validator;
 
 class ClienteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $search = trim((string) request('search', ''));
 
         $clientes = Cliente::query()
             ->when($search !== '', function ($query) use ($search) {
-                $query->where('nombres_apellidos', 'like', '%' . $search . '%')
-                      ->orWhere('ci_nit', 'like', '%' . $search . '%')
-                      ->orWhere('email', 'like', '%' . $search . '%')
-                      ->orWhere('telefono', 'like', '%' . $search . '%');
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('ci_nit', 'like', '%' . $search . '%')
+                        ->orWhere('nombres_apellidos', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%')
+                        ->orWhere('telefono', 'like', '%' . $search . '%');
+                });
             })
             ->orderBy('nombres_apellidos')
             ->paginate(10)
@@ -29,17 +28,12 @@ class ClienteController extends Controller
         return view('admin.clientes.index', compact('clientes', 'search'));
     }
 
-    public function create()
-    {
-        // modal based CRUD, not used
-    }
-
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'ci_nit' => ['required', 'string', 'max:50', 'unique:clientes,ci_nit'],
             'nombres_apellidos' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'string', 'email', 'max:150'],
+            'email' => ['nullable', 'email', 'max:150'],
             'telefono' => ['nullable', 'string', 'max:50'],
         ]);
 
@@ -51,34 +45,26 @@ class ClienteController extends Controller
                 ->with('open_modal', 'createClienteModal');
         }
 
-        Cliente::query()->create([
-            'ci_nit' => trim((string) $request->input('ci_nit')),
-            'nombres_apellidos' => trim((string) $request->input('nombres_apellidos')),
-            'email' => $request->input('email'),
-            'telefono' => $request->input('telefono'),
-        ]);
+        $cliente = new Cliente();
+        $cliente->ci_nit = trim((string) $request->input('ci_nit'));
+        $cliente->nombres_apellidos = trim((string) $request->input('nombres_apellidos'));
+        $cliente->email = filled($request->input('email')) ? trim((string) $request->input('email')) : null;
+        $cliente->telefono = filled($request->input('telefono')) ? trim((string) $request->input('telefono')) : null;
+        $cliente->save();
 
         return redirect()
             ->route('admin.clientes.index')
             ->with('success', 'Cliente creado correctamente.');
     }
 
-    public function show(Cliente $cliente)
+    public function update(Request $request, string $id)
     {
-        // modal based
-    }
+        $cliente = Cliente::query()->findOrFail($id);
 
-    public function edit(Cliente $cliente)
-    {
-        // modal based
-    }
-
-    public function update(Request $request, Cliente $cliente)
-    {
         $validator = Validator::make($request->all(), [
             'ci_nit' => ['required', 'string', 'max:50', 'unique:clientes,ci_nit,' . $cliente->id],
             'nombres_apellidos' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'string', 'email', 'max:150'],
+            'email' => ['nullable', 'email', 'max:150'],
             'telefono' => ['nullable', 'string', 'max:50'],
         ]);
 
@@ -90,11 +76,10 @@ class ClienteController extends Controller
                 ->with('open_modal', 'editClienteModal-' . $cliente->id);
         }
 
-        $cliente->ci_nit = $request->input('ci_nit');
-        $cliente->nombres_apellidos = $request->input('nombres_apellidos');
-        $cliente->email = $request->input('email');
-        $cliente->telefono = $request->input('telefono');
-
+        $cliente->ci_nit = trim((string) $request->input('ci_nit'));
+        $cliente->nombres_apellidos = trim((string) $request->input('nombres_apellidos'));
+        $cliente->email = filled($request->input('email')) ? trim((string) $request->input('email')) : null;
+        $cliente->telefono = filled($request->input('telefono')) ? trim((string) $request->input('telefono')) : null;
         $cliente->save();
 
         return redirect()
@@ -102,8 +87,9 @@ class ClienteController extends Controller
             ->with('success', 'Cliente actualizado correctamente.');
     }
 
-    public function destroy(Cliente $cliente)
+    public function destroy(string $id)
     {
+        $cliente = Cliente::query()->findOrFail($id);
         $cliente->delete();
 
         return redirect()

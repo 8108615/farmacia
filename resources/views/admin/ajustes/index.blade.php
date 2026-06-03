@@ -71,7 +71,7 @@
                                                 <option value="">Seleccione una divisa</option>
                                                 @foreach ($divisas ?? [] as $codigo => $divisa)
                                                     <option value="{{ $codigo }}"
-                                                        {{ old('divisa', $configuracion->divisa ?? '') === $codigo ? 'selected' : '' }}>
+                                                        {{ old('divisa', $selectedDivisa ?? '') === $codigo ? 'selected' : '' }}>
                                                         {{ $codigo }} - {{ $divisa['name'] ?? $codigo }}
                                                         @if (!empty($divisa['symbol']))
                                                             ({{ $divisa['symbol'] }})

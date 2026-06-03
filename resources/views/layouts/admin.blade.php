@@ -30,6 +30,80 @@
         .input-group .input-group-text i {
             line-height: 1;
         }
+
+        .sidebar-menu .sidebar-item.has-sub>.sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .72rem 1rem;
+            border-radius: .75rem;
+            transition: background .2s ease, color .2s ease;
+            color: #334155;
+            background: transparent;
+            font-weight: 600;
+        }
+
+        .sidebar-menu .sidebar-item.has-sub>.sidebar-link:hover {
+            background: rgba(66, 99, 235, .08);
+            color: #1d4ed8;
+        }
+
+        .sidebar-menu .sidebar-item.has-sub.active>.sidebar-link {
+            background: #2563eb;
+            color: #fff;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+        }
+
+        .sidebar-menu .sidebar-item.has-sub.active>.sidebar-link i {
+            color: #fff;
+        }
+
+        .sidebar-menu .submenu {
+            margin-left: .5rem;
+            padding-left: 0;
+        }
+
+        .sidebar-menu .submenu .submenu-item {
+            margin: .15rem 0;
+        }
+
+        .sidebar-menu .submenu .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .68rem 1rem;
+            min-height: 40px;
+            border-radius: .75rem;
+            transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+            color: #475569;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .sidebar-menu .submenu .sidebar-link:hover {
+            background: rgba(66, 99, 235, .08);
+            color: #1d4ed8;
+        }
+
+        .sidebar-menu .submenu .submenu-item.active>.sidebar-link,
+        .sidebar-menu .submenu .sidebar-link.active {
+            background: rgba(37, 99, 235, .16);
+            box-shadow: inset 3px 0 0 #1d4ed8;
+            color: #1d4ed8;
+        }
+
+        .sidebar-menu .submenu .sidebar-link i,
+        .sidebar-menu .sidebar-item.has-sub>.sidebar-link i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            width: 18px;
+            height: 18px;
+            line-height: 1;
+            text-align: center;
+            color: inherit;
+        }
     </style>
     @stack('styles')
 </head>
@@ -92,8 +166,6 @@
                     </div>
                     <div class="sidebar-menu">
                         <ul class="menu">
-                            <li class="sidebar-title">Menu</li>
-
                             <li class="sidebar-item {{ request()->routeIs('home') ? 'active' : '' }}">
                                 <a href="{{ url('/home') }}" class='sidebar-link'>
                                     <i class="bi bi-grid-fill"></i>
@@ -101,114 +173,181 @@
                                 </a>
                             </li>
 
-                            <li class="sidebar-item {{ request()->routeIs('admin.ajustes.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.ajustes.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-sliders"></i>
-                                    <span>Ajustes</span>
+                            <li
+                                class="sidebar-item has-sub {{ request()->routeIs(['admin.ajustes.*', 'admin.roles.*', 'admin.users.*', 'admin.empleados.*']) ? 'active' : '' }}">
+                                <a href="#"
+                                    class="sidebar-link has-arrow {{ request()->routeIs(['admin.ajustes.*', 'admin.roles.*', 'admin.users.*', 'admin.empleados.*']) ? 'active' : '' }}">
+                                    <i class="bi bi-gear-fill"></i>
+                                    <span>Administración</span>
                                 </a>
-                            </li>
-
-                            <li class="sidebar-item {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.roles.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-shield-lock"></i>
-                                    <span>Roles</span>
-                                </a>
-                            </li>
-
-                            <li class="sidebar-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.users.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-people"></i>
-                                    <span>Usuarios</span>
-                                </a>
-                            </li>
-
-                            <li class="sidebar-item {{ request()->routeIs('admin.sucursales.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.sucursales.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-building"></i>
-                                    <span>Sucursales</span>
-                                </a>
-                            </li>
-
-                            <li class="sidebar-item {{ request()->routeIs('admin.categorias.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.categorias.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-tags-fill"></i>
-                                    <span>Categorías</span>
-                                </a>
-                            </li>
-
-                            <li class="sidebar-item {{ request()->routeIs('admin.laboratorios.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.laboratorios.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-capsule"></i>
-                                    <span>Laboratorios</span>
-                                </a>
+                                <ul class="submenu">
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.ajustes.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.ajustes.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.ajustes.*') ? 'active' : '' }}">
+                                            <i class="bi bi-sliders"></i>
+                                            <span>Ajustes</span>
+                                        </a>
+                                    </li>
+                                    <li class="submenu-item {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.roles.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                                            <i class="bi bi-shield-lock"></i>
+                                            <span>Roles</span>
+                                        </a>
+                                    </li>
+                                    <li class="submenu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.users.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                                            <i class="bi bi-people"></i>
+                                            <span>Usuarios</span>
+                                        </a>
+                                    </li>
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.empleados.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.empleados.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.empleados.*') ? 'active' : '' }}">
+                                            <i class="bi bi-person-badge"></i>
+                                            <span>Empleados</span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
 
                             <li
-                                class="sidebar-item {{ request()->routeIs('admin.forma_farmaceuticas.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.forma_farmaceuticas.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-capsule me-2"></i>
-                                    <span>Forma Farmacéutica</span>
+                                class="sidebar-item has-sub {{ request()->routeIs(['admin.sucursales.*', 'admin.ubicacion_fisicas.*']) ? 'active' : '' }}">
+                                <a href="#"
+                                    class="sidebar-link has-arrow {{ request()->routeIs(['admin.sucursales.*', 'admin.ubicacion_fisicas.*']) ? 'active' : '' }}">
+                                    <i class="bi bi-pin-map"></i>
+                                    <span>Ubicaciones</span>
                                 </a>
+                                <ul class="submenu">
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.sucursales.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.sucursales.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.sucursales.*') ? 'active' : '' }}">
+                                            <i class="bi bi-building"></i>
+                                            <span>Sucursales</span>
+                                        </a>
+                                    </li>
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.ubicacion_fisicas.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.ubicacion_fisicas.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.ubicacion_fisicas.*') ? 'active' : '' }}">
+                                            <i class="bi bi-pin-map"></i>
+                                            <span>Ubicaciones físicas</span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
 
                             <li
-                                class="sidebar-item {{ request()->routeIs('admin.presentaciones.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.presentaciones.index') }}" class='sidebar-link'>
+                                class="sidebar-item has-sub {{ request()->routeIs(['admin.categorias.*', 'admin.laboratorios.*', 'admin.forma_farmaceuticas.*', 'admin.presentaciones.*', 'admin.productos.*', 'admin.lotes.*']) ? 'active' : '' }}">
+                                <a href="#"
+                                    class="sidebar-link has-arrow {{ request()->routeIs(['admin.categorias.*', 'admin.laboratorios.*', 'admin.forma_farmaceuticas.*', 'admin.presentaciones.*', 'admin.productos.*', 'admin.lotes.*']) ? 'active' : '' }}">
                                     <i class="bi bi-box-seam"></i>
-                                    <span>Presentaciones</span>
+                                    <span>Catálogo</span>
                                 </a>
+                                <ul class="submenu">
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.categorias.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.categorias.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.categorias.*') ? 'active' : '' }}">
+                                            <i class="bi bi-tags-fill"></i>
+                                            <span>Categorías</span>
+                                        </a>
+                                    </li>
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.laboratorios.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.laboratorios.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.laboratorios.*') ? 'active' : '' }}">
+                                            <i class="bi bi-capsule"></i>
+                                            <span>Laboratorios</span>
+                                        </a>
+                                    </li>
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.forma_farmaceuticas.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.forma_farmaceuticas.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.forma_farmaceuticas.*') ? 'active' : '' }}">
+                                            <i class="bi bi-capsule"></i>
+                                            <span>Forma Farmacéutica</span>
+                                        </a>
+                                    </li>
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.presentaciones.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.presentaciones.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.presentaciones.*') ? 'active' : '' }}">
+                                            <i class="bi bi-box-seam"></i>
+                                            <span>Presentaciones</span>
+                                        </a>
+                                    </li>
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.productos.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.productos.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.productos.*') ? 'active' : '' }}">
+                                            <i class="bi bi-bag-fill"></i>
+                                            <span>Productos</span>
+                                        </a>
+                                    </li>
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.lotes.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.lotes.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.lotes.*') ? 'active' : '' }}">
+                                            <i class="bi bi-box-seam"></i>
+                                            <span>Lotes</span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
 
-                            <li class="sidebar-item {{ request()->routeIs('admin.productos.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.productos.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-bag-fill"></i>
-                                    <span>Productos</span>
+                            <li
+                                class="sidebar-item has-sub {{ request()->routeIs(['admin.proveedores.*', 'admin.clientes.*']) ? 'active' : '' }}">
+                                <a href="#"
+                                    class="sidebar-link has-arrow {{ request()->routeIs(['admin.proveedores.*', 'admin.clientes.*']) ? 'active' : '' }}">
+                                    <i class="bi bi-shop"></i>
+                                    <span>Comercio</span>
                                 </a>
+                                <ul class="submenu">
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.proveedores.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.proveedores.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.proveedores.*') ? 'active' : '' }}">
+                                            <i class="bi bi-truck"></i>
+                                            <span>Proveedores</span>
+                                        </a>
+                                    </li>
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.clientes.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.clientes.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.clientes.*') ? 'active' : '' }}">
+                                            <i class="bi bi-person-vcard"></i>
+                                            <span>Clientes</span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
 
-                            <li class="sidebar-item {{ request()->routeIs('admin.proveedores.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.proveedores.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-truck"></i>
-                                    <span>Proveedores</span>
-                                </a>
-                            </li>
-
-                            <li class="sidebar-item {{ request()->routeIs('admin.clientes.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.clientes.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-person-vcard"></i>
-                                    <span>Clientes</span>
-                                </a>
-                            </li>
-
-                            <li class="sidebar-item {{ request()->routeIs('admin.lotes.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.lotes.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-box-seam"></i>
-                                    <span>Lotes</span>
-                                </a>
-                            </li>
-
-                            <li class="sidebar-item {{ request()->routeIs('admin.empleados.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.empleados.index') }}" class='sidebar-link'>
-                                    <i class="bi bi-person-badge"></i>
-                                    <span>Empleados</span>
-                                </a>
-                            </li>
-
-                            <li class="sidebar-item {{ request()->routeIs('admin.compras.*') || request()->routeIs('admin.ordenes_compra.*') ? 'active' : '' }} has-sub">
-                                <a href="#" class='sidebar-link has-arrow'>
+                            <li
+                                class="sidebar-item has-sub {{ request()->routeIs(['admin.compras.*', 'admin.ordenes_compra.*']) ? 'active' : '' }}">
+                                <a href="#"
+                                    class="sidebar-link has-arrow {{ request()->routeIs(['admin.compras.*', 'admin.ordenes_compra.*']) ? 'active' : '' }}">
                                     <i class="bi bi-cart-check"></i>
                                     <span>Compras</span>
                                 </a>
                                 <ul class="submenu">
-                                    <li class="submenu-item {{ request()->routeIs('admin.ordenes_compra.*') ? 'active' : '' }}">
-                                        <a href="{{ route('admin.ordenes_compra.index') }}" class='sidebar-link'>
-                                            <i class="bi bi-cart-plus"></i>
-                                            <span>Orden de Compras</span>
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.ordenes_compra.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.ordenes_compra.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.ordenes_compra.*') ? 'active' : '' }}">
+                                            <i class="bi bi-card-checklist"></i>
+                                            <span>Órdenes</span>
                                         </a>
                                     </li>
-                                    <li class="submenu-item {{ request()->routeIs('admin.compras.*') ? 'active' : '' }}">
-                                        <a href="{{ route('admin.compras.index') }}" class='sidebar-link'>
-                                            <i class="bi bi-bag-check"></i>
+                                    <li
+                                        class="submenu-item {{ request()->routeIs('admin.compras.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.compras.index') }}"
+                                            class="sidebar-link {{ request()->routeIs('admin.compras.*') ? 'active' : '' }}">
+                                            <i class="bi bi-cart-check"></i>
                                             <span>Compras</span>
                                         </a>
                                     </li>
@@ -219,7 +358,7 @@
                                 <a href="{{ route('logout') }}" class='sidebar-link'
                                     onclick="event.preventDefault(); document.getElementById('sidebar-logout-form').submit();">
                                     <i class="bi bi-box-arrow-right"></i>
-                                    <span>Cerrar sesion</span>
+                                    <span>Cerrar sesión</span>
                                 </a>
                                 <form id="sidebar-logout-form" action="{{ route('logout') }}" method="POST"
                                     class="d-none">

@@ -6,13 +6,14 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
-                    <h3>📝 Orden de Compra - Carrito Temporal</h3>
+                    <h3>Orden de Compra #{{ $compra->id }}</h3>
                 </div>
                 <div class="col-12 col-md-6 order-md-2 order-first">
                     <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{ url('/home') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Orden de Compra</li>
+                            <li class="breadcrumb-item"><a href="{{ route('admin.compras.index') }}">Compras</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Crear</li>
                         </ol>
                     </nav>
                 </div>
@@ -22,17 +23,20 @@
 
     <div class="page-content">
         <div class="row">
-            <!-- FORMULARIO DE CARRITO -->
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">🛒 Agregar Productos a la Orden</h4>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">Carrito de la Orden</h4>
+                        <a href="{{ route('admin.compras.index') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left"></i> Volver al listado de compras
+                        </a>
                     </div>
                     <div class="card-body">
-                        <form id="formCarrito" method="POST" action="">
+                        <form id="formCarrito" method="POST"
+                            action="{{ route('admin.compras.store', ['id' => $compra->id]) }}">
                             @csrf
+
                             <div class="row">
-                                <!-- SUCURSAL -->
                                 <div class="col-md-6 mb-3">
                                     <label for="sucursal_id" class="form-label">Sucursal <span
                                             class="text-danger">*</span></label>
@@ -42,7 +46,7 @@
                                         <option value="">-- Selecciona una Sucursal --</option>
                                         @foreach ($sucursales as $sucursal)
                                             <option value="{{ $sucursal->id }}"
-                                                {{ old('sucursal_id') == $sucursal->id ? 'selected' : '' }}>
+                                                {{ (string) old('sucursal_id', $compra->sucursal_id) === (string) $sucursal->id ? 'selected' : '' }}>
                                                 {{ $sucursal->nombre }}
                                             </option>
                                         @endforeach
@@ -52,7 +56,6 @@
                                     @enderror
                                 </div>
 
-                                <!-- PROVEEDOR -->
                                 <div class="col-md-6 mb-3">
                                     <label for="proveedor_id" class="form-label">Proveedor <span
                                             class="text-danger">*</span></label>
@@ -62,7 +65,7 @@
                                         <option value="">-- Selecciona un Proveedor --</option>
                                         @foreach ($proveedores as $proveedor)
                                             <option value="{{ $proveedor->id }}"
-                                                {{ old('proveedor_id') == $proveedor->id ? 'selected' : '' }}>
+                                                {{ (string) old('proveedor_id', $compra->proveedor_id) === (string) $proveedor->id ? 'selected' : '' }}>
                                                 {{ $proveedor->nombre }} - {{ $proveedor->empresa }}
                                             </option>
                                         @endforeach
@@ -76,36 +79,34 @@
                             <hr>
 
                             <div class="row">
-                                <!-- BÚSQUEDA DE PRODUCTOS -->
                                 <div class="col-12 mb-3">
                                     <label class="form-label">Seleccionar Producto <span
                                             class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <input type="text" id="buscarProducto" class="form-control form-control-lg"
-                                            placeholder="Busca por código, nombre, laboratorio, categoría, forma, presentación...">
+                                            placeholder="Busca por codigo, nombre, laboratorio, categoria, forma, presentacion...">
                                         <button class="btn btn-outline-secondary" type="button" id="btnBuscar">
                                             <i class="bi bi-search"></i> Buscar
                                         </button>
                                     </div>
                                 </div>
 
-                                <!-- TABLA DE PRODUCTOS -->
                                 <div class="col-12 mb-3">
                                     <div class="table-responsive" style="min-height: auto;">
                                         <table id="tablaProductos" class="table table-hover table-sm mb-0">
                                             <thead class="table-light" style="position: sticky; top: 0;">
                                                 <tr>
                                                     <th style="width: 5%;">#</th>
-                                                    <th style="width: 10%;">Código</th>
-                                                    <th style="width: 10%;">Código Barra</th>
+                                                    <th style="width: 10%;">Codigo</th>
+                                                    <th style="width: 10%;">Codigo Barra</th>
                                                     <th style="width: 12%;">Nombre Comercial</th>
-                                                    <th style="width: 12%;">Nombre Genérico</th>
-                                                    <th style="width: 10%;">Concentración</th>
+                                                    <th style="width: 12%;">Nombre Generico</th>
+                                                    <th style="width: 10%;">Concentracion</th>
                                                     <th style="width: 10%;">Laboratorio</th>
-                                                    <th style="width: 10%;">Categoría</th>
-                                                    <th style="width: 10%;">Forma Farmacéutica</th>
-                                                    <th style="width: 8%;">Presentación</th>
-                                                    <th style="width: 7%;">Acción Terapéutica</th>
+                                                    <th style="width: 10%;">Categoria</th>
+                                                    <th style="width: 10%;">Forma Farmaceutica</th>
+                                                    <th style="width: 8%;">Presentacion</th>
+                                                    <th style="width: 7%;">Accion Terapeutica</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="productosBody">
@@ -149,17 +150,15 @@
                                         </table>
                                     </div>
 
-                                    <!-- CONTROLES DE PAGINACIÓN -->
                                     <div class="d-flex justify-content-between align-items-center mt-3">
                                         <small class="text-muted">Mostrando <span id="infoProductos">0</span>
                                             productos</small>
-                                        <nav aria-label="Paginación de productos">
+                                        <nav aria-label="Paginacion de productos">
                                             <ul class="pagination pagination-sm mb-0" id="paginacionProductos"></ul>
                                         </nav>
                                     </div>
                                 </div>
 
-                                <!-- CAMPOS OCULTOS -->
                                 <input type="hidden" id="producto_id" name="producto_id" value="">
                                 <input type="hidden" id="cantidad" value="1">
                                 <input type="hidden" id="precio_compra" value="0">
@@ -168,18 +167,20 @@
                                 <input type="hidden" id="observaciones" value="">
                             </div>
 
-                            <!-- ESTADO OCULTO -->
                             <input type="hidden" id="estado" name="estado" value="activo">
 
                             <hr>
 
-                            <!-- TABLA DE CARRITO -->
                             <div class="table-responsive">
                                 <table id="tablaCarrito" class="table table-hover">
                                     <thead class="table-light">
                                         <tr>
                                             <th>#</th>
                                             <th>Producto</th>
+                                            <th>Lote</th>
+                                            <th>Ubicación física</th>
+                                            <th class="text-center">Stock mínimo</th>
+                                            <th class="text-center">Stock máximo</th>
                                             <th class="text-center">Cantidad</th>
                                             <th class="text-center">P. Compra</th>
                                             <th class="text-center">P. Venta</th>
@@ -190,21 +191,23 @@
                                     </thead>
                                     <tbody id="carritoBody">
                                         <tr id="filaVacia" class="text-center">
-                                            <td colspan="8" class="py-4 text-muted">
-                                                <i class="bi bi-inbox"></i> Carrito vacío. Agrega productos para comenzar.
+                                            <td colspan="12" class="py-4 text-muted">
+                                                <i class="bi bi-inbox"></i> Carrito vacio. Agrega productos para comenzar.
                                             </td>
                                         </tr>
                                     </tbody>
                                     <tfoot class="table-light" id="tablaFooter" style="display: none;">
                                         <tr style="border-top: 2px solid #dee2e6;">
-                                            <td colspan="1"></td>
-                                            <td><strong>Totales:</strong></td>
+                                            <td colspan="4"></td>
+                                            <td class="text-center"></td>
+                                            <td class="text-center"></td>
                                             <td class="text-center"><strong><span id="totalCantidad">0</span></strong>
                                             </td>
                                             <td class="text-center"></td>
                                             <td class="text-center"></td>
                                             <td class="text-center"></td>
-                                            <td class="text-end"><strong>{{ $ajuste->divisa ?? 'Bs.' }} <span id="totalCompra">0.00</span></strong>
+                                            <td class="text-end"><strong>{{ $ajuste->divisa ?? 'Bs.' }} <span
+                                                        id="totalCompra">0.00</span></strong>
                                             </td>
                                             <td class="text-center"></td>
                                         </tr>
@@ -212,21 +215,91 @@
                                 </table>
                             </div>
 
-                            <!-- BOTONES FINALES -->
+                            <hr>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="comprobante" class="form-label">Comprobante</label>
+                                    <input type="text" id="comprobante" name="comprobante"
+                                        class="form-control form-control-lg @error('comprobante') is-invalid @enderror"
+                                        value="{{ old('comprobante', $compra->comprobante) }}"
+                                        placeholder="Número o código del comprobante">
+                                    @error('comprobante')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="nota" class="form-label">Nota</label>
+                                    <textarea id="nota" name="nota" class="form-control form-control-lg @error('nota') is-invalid @enderror"
+                                        rows="3" placeholder="Información adicional, observaciones o descripción">{{ old('nota', $compra->nota) }}</textarea>
+                                    @error('nota')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
                             <div class="row mt-4">
                                 <div class="col-12 d-flex gap-2 justify-content-end">
                                     <button type="button" class="btn btn-secondary btn-lg" onclick="limpiarCarrito()">
                                         <i class="bi bi-trash"></i> Limpiar
                                     </button>
                                     <button type="submit" id="btnConfirmar" class="btn btn-primary btn-lg" disabled>
-                                        <i class="bi bi-check-circle"></i> Confirmar Orden
+                                        <i class="bi bi-check-circle"></i> Finalizar compra
                                     </button>
                                 </div>
                             </div>
                         </form>
                     </div>
+
                 </div>
+
+
+
+
             </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear lote desde orden de compra -->
+    <div class="modal fade" id="loteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form class="modal-content" method="POST"
+                action="{{ url('/admin/compras/' . $compra->id . '/create/lote') }}">
+                @csrf
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" style="color:white">Crear lote</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="compra_detalle_id" id="modal_compra_detalle_id" value="">
+                    <input type="hidden" name="producto_id" id="modal_producto_id" value="">
+                    <input type="hidden" name="proveedor_id" id="modal_proveedor_id" value="">
+
+                    <div class="mb-3">
+                        <label for="modal_nombre" class="form-label">Número de lote (*)</label>
+                        <input type="text" name="nombre" id="modal_nombre" class="form-control"
+                            placeholder="Número de lote" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="modal_fecha_vencimiento" class="form-label">Fecha de vencimiento</label>
+                            <input type="date" name="fecha_vencimiento" id="modal_fecha_vencimiento"
+                                class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="modal_fecha_fabricacion" class="form-label">Fecha de fabricación</label>
+                            <input type="date" name="fecha_fabricacion" id="modal_fecha_fabricacion"
+                                class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar lote</button>
+                </div>
+            </form>
         </div>
     </div>
 @endsection
@@ -264,7 +337,6 @@
             color: #28a745;
         }
 
-        /* Estilos para tabla de productos */
         #tablaProductos {
             font-size: 0.85rem;
             margin-bottom: 0;
@@ -328,10 +400,9 @@
             border-radius: 0 0.375rem 0.375rem 0;
         }
 
-        /* Estilos para inputs de carrito */
         .cantidad-input {
             transition: background-color 0.2s ease, border-color 0.2s ease;
-            text-align: right !important;
+            text-align: center !important;
         }
 
         .cantidad-input:focus {
@@ -344,8 +415,16 @@
 
 @push('scripts')
     <script>
-        // ===== VARIABLES GLOBALES =====
+        const COMPRA_ID = {{ $compra->id }};
+        const COMPRA_ADD_URL = @json(route('admin.compras.items.add', ['compra_id' => $compra->id]));
+        const COMPRA_CLEAR_URL = @json(route('admin.compras.items.clear', ['compra_id' => $compra->id]));
+        const COMPRA_ITEM_UPDATE_URL_TEMPLATE = @json(route('admin.compras.items.update', ['compra_id' => $compra->id, 'item_id' => '__ITEM_ID__']));
+        const COMPRA_ITEM_REMOVE_URL_TEMPLATE = @json(route('admin.compras.items.remove', ['compra_id' => $compra->id, 'item_id' => '__ITEM_ID__']));
+        const UBICACIONES_FISICAS = @json($ubicacionesFisicas ?? []);
+        const compraItemUpdateUrl = (itemId) => COMPRA_ITEM_UPDATE_URL_TEMPLATE.replace('__ITEM_ID__', itemId);
+        const compraItemRemoveUrl = (itemId) => COMPRA_ITEM_REMOVE_URL_TEMPLATE.replace('__ITEM_ID__', itemId);
         let carrito = [];
+        const LOTES = @json($lotes ?? []);
         const MONEDA = "{{ $ajuste->divisa ?? 'Bs.' }}";
         let contadorLinea = 0;
         let paginaActual = 1;
@@ -355,23 +434,53 @@
         let updateItemTimers = {};
         let addingProductIds = new Set();
 
-        // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', function() {
-            // Guardar productos originales
+            const carritoInicial = @json($carritoInicial ?? []);
+
+            carrito = (carritoInicial || []).map(item => ({
+                ...item,
+                sucursal_id: document.getElementById('sucursal_id').value,
+                proveedor_id: document.getElementById('proveedor_id').value,
+                cantidad: parseInt(item.cantidad) || 0,
+                precio_compra: parseFloat(item.precio_compra) || 0,
+                precio_venta: parseFloat(item.precio_venta) || 0,
+                porcentaje_ganancia: parseFloat(item.porcentaje_ganancia) || 0,
+                lote_id: item.lote_id || null,
+                ubicacion_fisica_id: item.ubicacion_fisica_id || null,
+                stock_minimo: item.stock_minimo !== undefined ? item.stock_minimo : '',
+                stock_maximo: item.stock_maximo !== undefined ? item.stock_maximo : '',
+                observaciones: item.observaciones || '',
+                subtotal: (parseInt(item.cantidad) || 0) * (parseFloat(item.precio_compra) || 0)
+            }));
+
             productosOriginales = Array.from(document.querySelectorAll('.producto-row'));
             productosVisibles = [...productosOriginales];
 
-            // Inicializar paginación
             inicializarPaginacion();
             mostrarPagina(1);
 
-            // Event listeners para búsqueda de productos
             document.getElementById('buscarProducto').addEventListener('input', filtrarProductos);
             document.getElementById('btnBuscar').addEventListener('click', function() {
                 filtrarProductos();
             });
 
-            // Un solo listener para evitar duplicados por re-render/paginación
+            document.getElementById('sucursal_id').addEventListener('change', function() {
+                const sucursalId = this.value;
+                carrito.forEach(item => {
+                    item.sucursal_id = sucursalId;
+                    if (item.ubicacion_fisica_id) {
+                        const ubicacionValida = UBICACIONES_FISICAS.some(ubicacion =>
+                            String(ubicacion.id) === String(item.ubicacion_fisica_id) &&
+                            String(ubicacion.sucursal_id) === String(sucursalId)
+                        );
+                        if (!ubicacionValida) {
+                            item.ubicacion_fisica_id = null;
+                        }
+                    }
+                });
+                renderizarCarrito();
+            });
+
             document.getElementById('productosBody').addEventListener('click', function(e) {
                 const fila = e.target.closest('.producto-row');
                 if (!fila || fila.style.display === 'none') return;
@@ -380,18 +489,24 @@
                 seleccionarProducto(productoId, fila);
             });
 
-            // Carrito vacío al iniciar (fuente de datos: BD solo)
-            carrito = [];
+            document.getElementById('carritoBody').addEventListener('click', function(e) {
+                const boton = e.target.closest('.abrir-lote-modal');
+                if (!boton) return;
+
+                const compraDetalleId = boton.getAttribute('data-compra-detalle-id');
+                const productoId = boton.getAttribute('data-producto-id');
+                const proveedorId = boton.getAttribute('data-proveedor-id');
+                openLoteModal(productoId, proveedorId, compraDetalleId);
+            });
+
             renderizarCarrito();
         });
 
-        // ===== PAGINACIÓN =====
         function inicializarPaginacion() {
             const totalPaginas = Math.ceil(productosVisibles.length / itemsPorPagina);
             const paginacionContainer = document.getElementById('paginacionProductos');
             paginacionContainer.innerHTML = '';
 
-            // Botón anterior
             const btnAnterior = document.createElement('li');
             btnAnterior.className = 'page-item';
             btnAnterior.innerHTML = '<a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>';
@@ -403,7 +518,6 @@
             });
             paginacionContainer.appendChild(btnAnterior);
 
-            // Números de página
             for (let i = 1; i <= totalPaginas; i++) {
                 const btnPagina = document.createElement('li');
                 btnPagina.className = 'page-item' + (i === paginaActual ? ' active' : '');
@@ -415,7 +529,6 @@
                 paginacionContainer.appendChild(btnPagina);
             }
 
-            // Botón siguiente
             const btnSiguiente = document.createElement('li');
             btnSiguiente.className = 'page-item';
             btnSiguiente.innerHTML = '<a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>';
@@ -433,28 +546,23 @@
             const inicio = (numeroPagina - 1) * itemsPorPagina;
             const fin = inicio + itemsPorPagina;
 
-            // Ocultar todas las filas
             productosOriginales.forEach(fila => {
                 fila.style.display = 'none';
             });
 
-            // Mostrar filas de la página actual
             productosVisibles.slice(inicio, fin).forEach(fila => {
                 fila.style.display = '';
             });
 
-            // Actualizar controles de paginación
             inicializarPaginacion();
 
-            // Actualizar información
             const totalVisibles = productosVisibles.length;
-            const mostrandoDesde = inicio + 1;
+            const mostrandoDesde = totalVisibles > 0 ? inicio + 1 : 0;
             const mostrandoHasta = Math.min(fin, totalVisibles);
             document.getElementById('infoProductos').textContent =
                 `${mostrandoDesde}-${mostrandoHasta} de ${totalVisibles}`;
         }
 
-        // ===== CALCULAR % GANANCIA =====
         function calcularGanancia() {
             const precioCompra = parseFloat(document.getElementById('precio_compra').value) || 0;
             const precioVenta = parseFloat(document.getElementById('precio_venta').value) || 0;
@@ -467,7 +575,23 @@
             document.getElementById('porcentaje_ganancia').value = ganancia.toFixed(2);
         }
 
-        // ===== FILTRAR PRODUCTOS =====
+        function obtenerUbicacionesPorSucursal(sucursalId) {
+            return UBICACIONES_FISICAS.filter(ubicacion =>
+                String(ubicacion.sucursal_id) === String(sucursalId)
+            );
+        }
+
+        function crearOpcionesUbicacion(ubicacionFisicaId) {
+            const sucursalId = document.getElementById('sucursal_id').value;
+            const ubicaciones = obtenerUbicacionesPorSucursal(sucursalId);
+
+            return ubicaciones.map(ubicacion => `
+                <option value="${ubicacion.id}" ${String(ubicacionFisicaId || '') === String(ubicacion.id) ? 'selected' : ''}>
+                    ${ubicacion.sucursal && ubicacion.sucursal.nombre ? ubicacion.sucursal.nombre + ' - ' : ''}${ubicacion.nombre}
+                </option>
+            `).join('');
+        }
+
         function filtrarProductos() {
             const busqueda = document.getElementById('buscarProducto').value.toLowerCase();
 
@@ -500,7 +624,6 @@
             mostrarPagina(1);
         }
 
-        // ===== SELECCIONAR PRODUCTO =====
         function enfocarCantidadItem(itemId) {
             const filaItem = document.querySelector(`tr[data-item-id="${itemId}"]`);
             if (!filaItem) return;
@@ -521,18 +644,15 @@
             const codigo = fila.getAttribute('data-codigo');
             const sucursalId = document.getElementById('sucursal_id').value;
 
-            // Evita registrar el mismo producto varias veces por doble clic/latencia
             if (addingProductIds.has(productoId)) {
                 return;
             }
 
-            // Validar que sucursal esté seleccionada
             if (!sucursalId) {
-                Swal.fire('Atención', 'Por favor selecciona una sucursal primero', 'warning');
+                Swal.fire('Atencion', 'Por favor selecciona una sucursal primero', 'warning');
                 return;
             }
 
-            // Si ya existe en carrito, no crear otra fila; enfocar para editar cantidad
             const itemExistente = carrito.find(item =>
                 String(item.producto_id) === String(productoId) &&
                 String(item.sucursal_id) === String(sucursalId)
@@ -544,61 +664,68 @@
             }
 
             addingProductIds.add(productoId);
-
-            // Marcar fila como seleccionada visualmente
             document.querySelectorAll('.producto-row').forEach(f => f.classList.remove('table-active'));
             fila.classList.add('table-active');
 
-            // Crear nombre completo del producto
-            const nombreProducto = `${nombreComercial} (${nombreGenerico}) - Código: ${codigo}`;
+            const nombreProducto = `${nombreComercial} (${nombreGenerico}) - Codigo: ${codigo}`;
 
-            // Guardar en la base de datos
-            fetch('{{ route('admin.ordenes_compra.addItems') }}', {
+            // Agregar a la BD
+            fetch(COMPRA_ADD_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({
-                        sucursal_id: sucursalId,
                         producto_id: productoId
                     })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Crear objeto del carrito con el id retornado de la BD
-                        const item = {
-                            id: data.item_id,
-                            sucursal_id: sucursalId,
-                            proveedor_id: document.getElementById('proveedor_id').value,
-                            producto_id: productoId,
-                            producto_nombre: nombreProducto,
-                            cantidad: 0,
-                            precio_compra: 0,
-                            precio_venta: 0,
-                            porcentaje_ganancia: 0,
-                            observaciones: '',
-                            subtotal: 0
-                        };
-
-                        // Agregar al carrito local
-                        carrito.push(item);
-                        renderizarCarrito(true);
-                    } else {
-                        Swal.fire('Error', data.message, 'error');
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
                     }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) {
+                        Swal.fire('Error', data.message || 'No se pudo agregar el producto', 'error');
+                        addingProductIds.delete(productoId);
+                        fila.classList.remove('table-active');
+                        return;
+                    }
+
+                    const item = {
+                        id: data.item_id,
+                        sucursal_id: sucursalId,
+                        proveedor_id: document.getElementById('proveedor_id').value,
+                        producto_id: productoId,
+                        producto_nombre: nombreProducto,
+                        cantidad: 0,
+                        precio_compra: 0,
+                        precio_venta: 0,
+                        porcentaje_ganancia: 0,
+                        lote_id: null,
+                        ubicacion_fisica_id: null,
+                        stock_minimo: '',
+                        stock_maximo: '',
+                        observaciones: '',
+                        subtotal: 0
+                    };
+
+                    carrito.push(item);
+                    renderizarCarrito(true);
+                    addingProductIds.delete(productoId);
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    Swal.fire('Error', 'No se pudo agregar el producto', 'error');
-                })
-                .finally(() => {
+                    Swal.fire('Error', 'Error al agregar el producto: ' + error.message, 'error');
                     addingProductIds.delete(productoId);
+                    fila.classList.remove('table-active');
                 });
         }
 
-        // ===== CALCULAR GANANCIA DE UN ITEM =====
         function calcularGananciaItem(precio_compra, precio_venta) {
             if (precio_compra <= 0) return 0;
             return ((precio_venta - precio_compra) / precio_compra) * 100;
@@ -609,7 +736,6 @@
             return precio_compra * (1 + (porcentaje_ganancia / 100));
         }
 
-        // ===== AGREGAR AL CARRITO (No se usa, pero se mantiene por compatibilidad) =====
         function agregarAlCarrito() {
             return false;
         }
@@ -624,16 +750,14 @@
             }
         }
 
-        // ===== RENDERIZAR CARRITO =====
         function renderizarCarrito(autoFocusCantidad = false) {
             const carritoBody = document.getElementById('carritoBody');
-            const filaVacia = document.getElementById('filaVacia');
             const btnConfirmar = document.getElementById('btnConfirmar');
             const tablaFooter = document.getElementById('tablaFooter');
 
             if (carrito.length === 0) {
                 carritoBody.innerHTML =
-                    '<tr id="filaVacia" class="text-center"><td colspan="8" class="py-4 text-muted"><i class="bi bi-inbox"></i> Carrito vacío. Agrega productos para comenzar.</td></tr>';
+                    '<tr id="filaVacia" class="text-center"><td colspan="12" class="py-4 text-muted"><i class="bi bi-inbox"></i> Carrito vacio. Agrega productos para comenzar.</td></tr>';
                 btnConfirmar.disabled = true;
                 tablaFooter.style.display = 'none';
                 return;
@@ -652,6 +776,23 @@
                 <td><small class="text-muted">${index + 1}</small></td>
                 <td><small>${item.producto_nombre}</small></td>
                 <td class="text-center">
+                    ${item.lote_id ? `<span class="badge bg-success">${item.lote_nombre || 'Lote asignado'}</span>` : `<button type="button" class="btn btn-info btn-sm abrir-lote-modal" data-compra-detalle-id="${item.id}" data-producto-id="${item.producto_id}" data-proveedor-id="${item.proveedor_id}">
+                                                                                                            <i class="bi bi-plus-lg me-1"></i> Agregar lote
+                                                                                                        </button>`}
+                </td>
+                <td class="text-center">
+                    <select class="form-select form-select-sm ubicacion-fisica-select" style="width: 180px; margin: 0 auto; display: block;">
+                        <option value="">-- Selecciona --</option>
+                        ${crearOpcionesUbicacion(item.ubicacion_fisica_id)}
+                    </select>
+                </td>
+                <td class="text-center">
+                    <input type="number" class="form-control form-control-sm stock-minimo-input" value="${item.stock_minimo !== undefined ? item.stock_minimo : ''}" min="0" style="width: 100px; margin: 0 auto; display: block; text-align: center;">
+                </td>
+                <td class="text-center">
+                    <input type="number" class="form-control form-control-sm stock-maximo-input" value="${item.stock_maximo !== undefined ? item.stock_maximo : ''}" min="0" style="width: 100px; margin: 0 auto; display: block; text-align: center;">
+                </td>
+                <td class="text-center">
                     <input type="number" class="form-control form-control-sm cantidad-input" value="${item.cantidad === 0 ? '' : item.cantidad}" min="0" style="width: 100px; margin: 0 auto; display: block;">
                 </td>
                 <td class="text-center">
@@ -665,17 +806,52 @@
                 </td>
                 <td class="text-end"><strong class="subtotal-valor">${MONEDA} ${subtotal.toFixed(2)}</strong></td>
                 <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-danger" onclick="eliminarDelCarrito(${item.id})">
+                    <button type="button" class="btn btn-sm btn-danger" onclick="eliminarDelCarrito('${item.id}')">
                         <i class="bi bi-trash"></i>
                     </button>
                 </td>
             `;
 
-                // Agregar event listeners a los inputs
                 const cantidadInput = fila.querySelector('.cantidad-input');
+                const ubicacionFisicaSelect = fila.querySelector('.ubicacion-fisica-select');
+                const loteSelect = fila.querySelector('.lote-select');
+                const stockMinimoInput = fila.querySelector('.stock-minimo-input');
+                const stockMaximoInput = fila.querySelector('.stock-maximo-input');
                 const precioCompraInput = fila.querySelector('.precio-compra-input');
                 const precioVentaInput = fila.querySelector('.precio-venta-input');
                 const gananciaInput = fila.querySelector('.ganancia-input');
+
+                if (ubicacionFisicaSelect) {
+                    ubicacionFisicaSelect.addEventListener('change', function() {
+                        const ubicacionId = this.value ? parseInt(this.value) : null;
+                        const itemToUpdate = carrito.find(i => String(i.id) === String(item.id));
+                        if (itemToUpdate) {
+                            itemToUpdate.ubicacion_fisica_id = ubicacionId;
+                        }
+                    });
+                }
+
+                cantidadInput.addEventListener('input', function() {
+                    actualizarItemCarrito(item.id, {
+                        cantidad: parseInt(this.value) || 0
+                    });
+                });
+
+                if (stockMinimoInput) {
+                    stockMinimoInput.addEventListener('input', function() {
+                        actualizarItemCarrito(item.id, {
+                            stock_minimo: this.value === '' ? '' : parseInt(this.value) || 0
+                        });
+                    });
+                }
+
+                if (stockMaximoInput) {
+                    stockMaximoInput.addEventListener('input', function() {
+                        actualizarItemCarrito(item.id, {
+                            stock_maximo: this.value === '' ? '' : parseInt(this.value) || 0
+                        });
+                    });
+                }
 
                 cantidadInput.addEventListener('input', function() {
                     actualizarItemCarrito(item.id, {
@@ -730,6 +906,14 @@
                     }
                 });
 
+                if (loteSelect) {
+                    loteSelect.addEventListener('change', function() {
+                        actualizarItemCarrito(item.id, {
+                            lote_id: this.value ? parseInt(this.value) : null
+                        });
+                    });
+                }
+
                 gananciaInput.addEventListener('input', function() {
                     actualizarItemCarrito(item.id, {
                         porcentaje_ganancia: parseFloat(this.value) || 0
@@ -754,7 +938,6 @@
                 carritoBody.appendChild(fila);
             });
 
-            // Hacer foco en cantidad solo cuando se agrega un nuevo producto
             if (autoFocusCantidad) {
                 const ultimoInput = carritoBody.querySelector('tr:last-child .cantidad-input');
                 if (ultimoInput) {
@@ -767,7 +950,7 @@
         }
 
         function actualizarVistaFila(itemId) {
-            const item = carrito.find(i => i.id === itemId);
+            const item = carrito.find(i => String(i.id) === String(itemId));
             if (!item) return;
 
             const fila = document.querySelector(`tr[data-item-id="${itemId}"]`);
@@ -801,45 +984,36 @@
             }
         }
 
-        // ===== ACTUALIZAR ITEM DEL CARRITO =====
         function actualizarItemCarrito(itemId, cambios) {
-            const item = carrito.find(i => i.id === itemId);
+            const item = carrito.find(i => String(i.id) === String(itemId));
             if (!item) return;
 
-            // Actualizar propiedades
             Object.assign(item, cambios);
 
             const cambioGanancia = Object.prototype.hasOwnProperty.call(cambios, 'porcentaje_ganancia');
             const cambioPrecioVenta = Object.prototype.hasOwnProperty.call(cambios, 'precio_venta');
             const cambioPrecioCompra = Object.prototype.hasOwnProperty.call(cambios, 'precio_compra');
 
-            // Si se edita manualmente el % de ganancia, recalcular P. Venta
             if (cambioGanancia) {
                 item.precio_venta = calcularPrecioVentaDesdeGanancia(item.precio_compra, item.porcentaje_ganancia);
             }
 
-            // Si cambia P. Compra y no se está editando P. Venta, mantener el % actual y recalcular P. Venta
             if (cambioPrecioCompra && !cambioPrecioVenta && !cambioGanancia) {
                 item.precio_venta = calcularPrecioVentaDesdeGanancia(item.precio_compra, item.porcentaje_ganancia);
             }
 
-            // Recalcular ganancia y subtotal
             item.porcentaje_ganancia = calcularGananciaItem(item.precio_compra, item.precio_venta);
             item.subtotal = item.cantidad * item.precio_compra;
 
-            // Refrescar solo la fila afectada para no interrumpir la escritura
             actualizarVistaFila(itemId);
             actualizarResumen();
 
-            // Debounce para evitar una petición por cada tecla
             if (updateItemTimers[itemId]) {
                 clearTimeout(updateItemTimers[itemId]);
             }
 
             updateItemTimers[itemId] = setTimeout(() => {
-                fetch(`{{ route('admin.ordenes_compra.updateItem', ['itemId' => 'PLACEHOLDER']) }}`.replace(
-                        'PLACEHOLDER',
-                        itemId), {
+                fetch(compraItemUpdateUrl(itemId), {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -849,17 +1023,41 @@
                             cantidad: item.cantidad,
                             precio_compra_unidad: item.precio_compra,
                             precio_venta_unidad: item.precio_venta,
-                            porcentaje_ganancia_unidad: item.porcentaje_ganancia
+                            porcentaje_ganancia_unidad: item.porcentaje_ganancia,
+                            lote_id: item.lote_id
                         })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`HTTP ${response.status}: ${text}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success) {
+                            console.error('Error:', data.message);
+                        }
+                    })
                     .catch(error => console.error('Error al actualizar:', error));
 
                 delete updateItemTimers[itemId];
             }, 350);
         }
 
-        // ===== ACTUALIZAR RESUMEN =====
+        function openLoteModal(productoId, proveedorId, compraDetalleId) {
+            document.getElementById('modal_producto_id').value = productoId;
+            document.getElementById('modal_proveedor_id').value = proveedorId;
+            document.getElementById('modal_compra_detalle_id').value = compraDetalleId;
+            document.getElementById('modal_nombre').value = '';
+            document.getElementById('modal_fecha_vencimiento').value = '';
+            document.getElementById('modal_fecha_fabricacion').value = '';
+
+            const modal = new bootstrap.Modal(document.getElementById('loteModal'));
+            modal.show();
+        }
+
         function actualizarResumen() {
             let totalCantidad = 0;
             let totalCompra = 0;
@@ -873,52 +1071,54 @@
             document.getElementById('totalCompra').textContent = totalCompra.toFixed(2);
         }
 
-        // ===== ELIMINAR DEL CARRITO =====
         function eliminarDelCarrito(id) {
             Swal.fire({
-                title: '¿Eliminar?',
-                text: '¿Estás seguro de que deseas eliminar este producto del carrito?',
+                title: 'Eliminar?',
+                text: 'Estas seguro de que deseas eliminar este producto del carrito?',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Sí, eliminar',
+                confirmButtonText: 'Si, eliminar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
-                if (result.isConfirmed) {
-                    const url = `{{ route('admin.ordenes_compra.removeItem', ['itemId' => 'PLACEHOLDER']) }}`
-                        .replace(
-                            'PLACEHOLDER', id);
+                if (!result.isConfirmed) return;
 
-                    // Eliminar de la base de datos
-                    fetch(url, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                if (updateItemTimers[id]) {
-                                    clearTimeout(updateItemTimers[id]);
-                                    delete updateItemTimers[id];
-                                }
-                                carrito = carrito.filter(item => item.id !== id);
-                                renderizarCarrito();
-                                Swal.fire('Eliminado', 'Producto eliminado del carrito', 'success');
-                            } else {
-                                Swal.fire('Error', data.message, 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire('Error', 'No se pudo eliminar el producto: ' + error.message, 'error');
-                        });
+                if (updateItemTimers[id]) {
+                    clearTimeout(updateItemTimers[id]);
+                    delete updateItemTimers[id];
                 }
+
+                // Eliminar de la BD
+                fetch(compraItemRemoveUrl(id), {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`HTTP ${response.status}: ${text}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            carrito = carrito.filter(item => String(item.id) !== String(id));
+                            renderizarCarrito();
+                            Swal.fire('Eliminado', 'Producto eliminado del carrito', 'success');
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'No se pudo eliminar el producto: ' + error.message, 'error');
+                    });
             });
         }
 
-        // ===== LIMPIAR FORMULARIO =====
         function limpiarFormulario() {
             document.getElementById('producto_id').value = '';
             document.getElementById('cantidad').value = '1';
@@ -929,97 +1129,105 @@
             document.getElementById('producto_id').focus();
         }
 
-        // ===== LIMPIAR CARRITO =====
         function limpiarCarrito() {
             Swal.fire({
-                title: '¿Limpiar carrito?',
-                text: 'Esto eliminará todos los productos del carrito',
+                title: 'Limpiar carrito?',
+                text: 'Esto eliminara todos los productos del carrito',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Sí, limpiar',
+                confirmButtonText: 'Si, limpiar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
-                if (result.isConfirmed) {
-                    if (carrito.length === 0) {
-                        Swal.fire('Info', 'El carrito ya está vacío', 'info');
-                        return;
-                    }
+                if (!result.isConfirmed) return;
 
-                    const itemIds = carrito.map(item => item.id).filter(id => !!id);
+                if (carrito.length === 0) {
+                    Swal.fire('Info', 'El carrito ya esta vacio', 'info');
+                    return;
+                }
 
-                    Object.keys(updateItemTimers).forEach(key => clearTimeout(updateItemTimers[key]));
-                    updateItemTimers = {};
+                Object.keys(updateItemTimers).forEach(key => clearTimeout(updateItemTimers[key]));
+                updateItemTimers = {};
 
-                    fetch('{{ route('admin.ordenes_compra.clearItems') }}', {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            },
-                            body: JSON.stringify({
-                                item_ids: itemIds
-                            })
+                const itemIds = carrito.map(item => item.id);
+
+                // Limpiar en la BD
+                fetch(COMPRA_CLEAR_URL, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            item_ids: itemIds
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (!data.success) {
-                                Swal.fire('Error', data.message || 'No se pudo limpiar el carrito', 'error');
-                                return;
-                            }
-
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`HTTP ${response.status}: ${text}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
                             carrito = [];
                             contadorLinea = 0;
                             renderizarCarrito();
                             limpiarFormulario();
-                            Swal.fire('Limpiado', 'Carrito vacío', 'success');
-                        })
-                        .catch(error => {
-                            console.error('Error al limpiar carrito:', error);
-                            Swal.fire('Error', 'No se pudo limpiar el carrito en base de datos', 'error');
-                        });
-                }
+                            Swal.fire('Limpiado', 'Carrito vacio', 'success');
+                        } else {
+                            Swal.fire('Error', data.message || 'Error al limpiar el carrito', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'No se pudo limpiar el carrito: ' + error.message, 'error');
+                    });
             });
         }
 
-        // ===== ENVIAR FORMULARIO =====
         document.getElementById('formCarrito').addEventListener('submit', function(e) {
             e.preventDefault();
 
             if (carrito.length === 0) {
-                Swal.fire('Error', 'El carrito está vacío. Agrega productos.', 'error');
+                Swal.fire('Error', 'El carrito esta vacio. Agrega productos.', 'error');
                 return;
             }
 
             const sucursal_id = document.getElementById('sucursal_id').value;
             const proveedor_id = document.getElementById('proveedor_id').value;
+            const comprobante = document.getElementById('comprobante').value;
+            const nota = document.getElementById('nota').value;
 
-            // Crear formulario oculto con datos del carrito
             const formData = new FormData();
             formData.append('_token', document.querySelector('input[name="_token"]').value);
             formData.append('sucursal_id', sucursal_id);
             formData.append('proveedor_id', proveedor_id);
+            formData.append('comprobante', comprobante);
+            formData.append('nota', nota);
             formData.append('carrito', JSON.stringify(carrito));
 
-            // Enviar por AJAX
-            fetch('{{ route('admin.ordenes_compra.store') }}', {
+            fetch('{{ route('admin.compras.store', $compra->id) }}', {
                     method: 'POST',
                     body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        Swal.fire('Éxito', 'Orden de compra confirmada', 'success').then(() => {
+                        Swal.fire('Exito', 'Orden de compra actualizada', 'success').then(() => {
                             carrito = [];
                             contadorLinea = 0;
-                            window.location.href = '{{ route('admin.ordenes_compra.index') }}';
+                            window.location.href = data.redirect ||
+                                '{{ route('admin.ordenes_compra.show', $compra->id) }}';
                         });
                     } else {
-                        Swal.fire('Error', data.message || 'Error al guardar la orden', 'error');
+                        Swal.fire('Error', data.message || 'Error al actualizar la orden', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    Swal.fire('Error', 'Error en la petición', 'error');
+                    Swal.fire('Error', 'Error en la peticion', 'error');
                 });
         });
     </script>

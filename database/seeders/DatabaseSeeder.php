@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         Sucursal::query()->firstOrCreate(
             ['nombre' => 'CASA MATRIZ'],
             [
-                'direccion' => 'Av. Cumavi',
+                'direccion' => 'Av. Cumavi Calle 5, Nro 225',
                 'telefono' => '76658531',
                 'estado' => true,
             ]
@@ -34,17 +34,16 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             AjusteSeeder::class,
             SucursalSeeder::class,
+            UbicacionFisicaSeeder::class,
             CategoriaSeeder::class,
             EmpleadoSeeder::class,
             ProveedorSeeder::class,
-            //LoteSeeder::class,
             ClienteSeeder::class,
         ]);
 
         Laboratorio::factory()->count(20)->create();
         FormaFarmaceutica::factory()->count(20)->create();
         Presentacion::factory()->count(20)->create();
-
         $this->call([
             ProductoSeeder::class,
         ]);

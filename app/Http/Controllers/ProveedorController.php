@@ -8,18 +8,18 @@ use Illuminate\Support\Facades\Validator;
 
 class ProveedorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $search = trim((string) request('search', ''));
 
         $proveedores = Proveedor::query()
             ->when($search !== '', function ($query) use ($search) {
-                $query->where('nombre', 'like', '%' . $search . '%')
-                      ->orWhere('email', 'like', '%' . $search . '%')
-                      ->orWhere('telefono', 'like', '%' . $search . '%');
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('nombre', 'like', '%' . $search . '%')
+                        ->orWhere('telefono', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%')
+                        ->orWhere('empresa', 'like', '%' . $search . '%');
+                });
             })
             ->orderBy('nombre')
             ->paginate(10)
@@ -28,24 +28,13 @@ class ProveedorController extends Controller
         return view('admin.proveedores.index', compact('proveedores', 'search'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        // not used (modals in index)
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'nombre' => ['required', 'string', 'max:255'],
-            'telefono' => ['nullable', 'string', 'max:50'],
-            'email' => ['nullable', 'string', 'email', 'max:150'],
-            'direccion' => ['nullable', 'string'],
+            'telefono' => ['required', 'string', 'max:50'],
+            'email' => ['nullable', 'email', 'max:150'],
+            'direccion' => ['nullable', 'string', 'max:255'],
             'empresa' => ['nullable', 'string', 'max:150'],
             'notas' => ['nullable', 'string'],
         ]);
@@ -58,46 +47,29 @@ class ProveedorController extends Controller
                 ->with('open_modal', 'createProveedorModal');
         }
 
-        Proveedor::query()->create([
-            'nombre' => trim((string) $request->input('nombre')),
-            'telefono' => $request->input('telefono'),
-            'email' => $request->input('email'),
-            'direccion' => $request->input('direccion'),
-            'empresa' => $request->input('empresa', $request->input('contacto')),
-            'notas' => $request->input('notas'),
-        ]);
+        $proveedor = new Proveedor();
+        $proveedor->nombre = trim((string) $request->input('nombre'));
+        $proveedor->telefono = trim((string) $request->input('telefono'));
+        $proveedor->email = filled($request->input('email')) ? trim((string) $request->input('email')) : null;
+        $proveedor->direccion = filled($request->input('direccion')) ? trim((string) $request->input('direccion')) : null;
+        $proveedor->empresa = filled($request->input('empresa')) ? trim((string) $request->input('empresa')) : null;
+        $proveedor->notas = filled($request->input('notas')) ? trim((string) $request->input('notas')) : null;
+        $proveedor->save();
 
         return redirect()
             ->route('admin.proveedores.index')
             ->with('success', 'Proveedor creado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Proveedor $proveedor)
+    public function update(Request $request, string $id)
     {
-        // not used in modal CRUD
-    }
+        $proveedor = Proveedor::query()->findOrFail($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Proveedor $proveedor)
-    {
-        // not used (modals in index)
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Proveedor $proveedor)
-    {
         $validator = Validator::make($request->all(), [
             'nombre' => ['required', 'string', 'max:255'],
-            'telefono' => ['nullable', 'string', 'max:50'],
-            'email' => ['nullable', 'string', 'email', 'max:150'],
-            'direccion' => ['nullable', 'string'],
+            'telefono' => ['required', 'string', 'max:50'],
+            'email' => ['nullable', 'email', 'max:150'],
+            'direccion' => ['nullable', 'string', 'max:255'],
             'empresa' => ['nullable', 'string', 'max:150'],
             'notas' => ['nullable', 'string'],
         ]);
@@ -110,13 +82,12 @@ class ProveedorController extends Controller
                 ->with('open_modal', 'editProveedorModal-' . $proveedor->id);
         }
 
-        $proveedor->nombre = $request->input('nombre');
-        $proveedor->telefono = $request->input('telefono');
-        $proveedor->email = $request->input('email');
-        $proveedor->direccion = $request->input('direccion');
-        $proveedor->empresa = $request->input('empresa', $request->input('contacto'));
-        $proveedor->notas = $request->input('notas');
-
+        $proveedor->nombre = trim((string) $request->input('nombre'));
+        $proveedor->telefono = trim((string) $request->input('telefono'));
+        $proveedor->email = filled($request->input('email')) ? trim((string) $request->input('email')) : null;
+        $proveedor->direccion = filled($request->input('direccion')) ? trim((string) $request->input('direccion')) : null;
+        $proveedor->empresa = filled($request->input('empresa')) ? trim((string) $request->input('empresa')) : null;
+        $proveedor->notas = filled($request->input('notas')) ? trim((string) $request->input('notas')) : null;
         $proveedor->save();
 
         return redirect()
@@ -124,11 +95,9 @@ class ProveedorController extends Controller
             ->with('success', 'Proveedor actualizado correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Proveedor $proveedor)
+    public function destroy(string $id)
     {
+        $proveedor = Proveedor::query()->findOrFail($id);
         $proveedor->delete();
 
         return redirect()

@@ -34,6 +34,12 @@ Route::post('/admin/sucursales/create', [App\Http\Controllers\SucursalController
 Route::put('/admin/sucursales/{id}', [App\Http\Controllers\SucursalController::class, 'update'])->name('admin.sucursales.update')->middleware('auth');
 Route::delete('/admin/sucursales/{id}', [App\Http\Controllers\SucursalController::class, 'destroy'])->name('admin.sucursales.destroy')->middleware('auth');
 
+// Rutas para ubicaciones físicas
+Route::get('/admin/ubicacion-fisicas', [App\Http\Controllers\UbicacionFisicaController::class, 'index'])->name('admin.ubicacion_fisicas.index')->middleware('auth');
+Route::post('/admin/ubicacion-fisicas/create', [App\Http\Controllers\UbicacionFisicaController::class, 'store'])->name('admin.ubicacion_fisicas.store')->middleware('auth');
+Route::put('/admin/ubicacion-fisicas/{id}', [App\Http\Controllers\UbicacionFisicaController::class, 'update'])->name('admin.ubicacion_fisicas.update')->middleware('auth');
+Route::delete('/admin/ubicacion-fisicas/{id}', [App\Http\Controllers\UbicacionFisicaController::class, 'destroy'])->name('admin.ubicacion_fisicas.destroy')->middleware('auth');
+
 // Rutas para categorias
 Route::get('/admin/categorias', [App\Http\Controllers\CategoriaController::class, 'index'])->name('admin.categorias.index')->middleware('auth');
 Route::post('/admin/categorias/create', [App\Http\Controllers\CategoriaController::class, 'store'])->name('admin.categorias.store')->middleware('auth');
@@ -46,13 +52,13 @@ Route::post('/admin/laboratorios/create', [App\Http\Controllers\LaboratorioContr
 Route::put('/admin/laboratorios/{id}', [App\Http\Controllers\LaboratorioController::class, 'update'])->name('admin.laboratorios.update')->middleware('auth');
 Route::delete('/admin/laboratorios/{id}', [App\Http\Controllers\LaboratorioController::class, 'destroy'])->name('admin.laboratorios.destroy')->middleware('auth');
 
-// Rutas para formas farmaceuticas
+// Rutas para formas farmacéuticas
 Route::get('/admin/forma-farmaceuticas', [App\Http\Controllers\FormaFarmaceuticaController::class, 'index'])->name('admin.forma_farmaceuticas.index')->middleware('auth');
 Route::post('/admin/forma-farmaceuticas/create', [App\Http\Controllers\FormaFarmaceuticaController::class, 'store'])->name('admin.forma_farmaceuticas.store')->middleware('auth');
 Route::put('/admin/forma-farmaceuticas/{id}', [App\Http\Controllers\FormaFarmaceuticaController::class, 'update'])->name('admin.forma_farmaceuticas.update')->middleware('auth');
 Route::delete('/admin/forma-farmaceuticas/{id}', [App\Http\Controllers\FormaFarmaceuticaController::class, 'destroy'])->name('admin.forma_farmaceuticas.destroy')->middleware('auth');
 
-//rutas para presentaciones
+// Rutas para presentaciones
 Route::get('/admin/presentaciones', [App\Http\Controllers\PresentacionController::class, 'index'])->name('admin.presentaciones.index')->middleware('auth');
 Route::post('/admin/presentaciones/create', [App\Http\Controllers\PresentacionController::class, 'store'])->name('admin.presentaciones.store')->middleware('auth');
 Route::put('/admin/presentaciones/{id}', [App\Http\Controllers\PresentacionController::class, 'update'])->name('admin.presentaciones.update')->middleware('auth');
@@ -64,7 +70,7 @@ Route::post('/admin/empleados/create', [App\Http\Controllers\EmpleadoController:
 Route::put('/admin/empleados/{id}', [App\Http\Controllers\EmpleadoController::class, 'update'])->name('admin.empleados.update')->middleware('auth');
 Route::delete('/admin/empleados/{id}', [App\Http\Controllers\EmpleadoController::class, 'destroy'])->name('admin.empleados.destroy')->middleware('auth');
 
-//rutas para productos
+// Rutas para productos
 Route::get('/admin/productos', [App\Http\Controllers\ProductoController::class, 'index'])->name('admin.productos.index')->middleware('auth');
 Route::get('/admin/productos/create', [App\Http\Controllers\ProductoController::class, 'create'])->name('admin.productos.create')->middleware('auth');
 Route::post('/admin/productos/create', [App\Http\Controllers\ProductoController::class, 'store'])->name('admin.productos.store')->middleware('auth');
@@ -73,41 +79,52 @@ Route::get('/admin/productos/{id}/edit', [App\Http\Controllers\ProductoControlle
 Route::put('/admin/productos/{id}', [App\Http\Controllers\ProductoController::class, 'update'])->name('admin.productos.update')->middleware('auth');
 Route::delete('/admin/productos/{id}', [App\Http\Controllers\ProductoController::class, 'destroy'])->name('admin.productos.destroy')->middleware('auth');
 
-//Rutas para proveedores
+// Rutas para proveedores
 Route::get('/admin/proveedores', [App\Http\Controllers\ProveedorController::class, 'index'])->name('admin.proveedores.index')->middleware('auth');
 Route::post('/admin/proveedores/create', [App\Http\Controllers\ProveedorController::class, 'store'])->name('admin.proveedores.store')->middleware('auth');
-Route::put('/admin/proveedores/{proveedor}', [App\Http\Controllers\ProveedorController::class, 'update'])->name('admin.proveedores.update')->middleware('auth');
-Route::delete('/admin/proveedores/{proveedor}', [App\Http\Controllers\ProveedorController::class, 'destroy'])->name('admin.proveedores.destroy')->middleware('auth');
+Route::put('/admin/proveedores/{id}', [App\Http\Controllers\ProveedorController::class, 'update'])->name('admin.proveedores.update')->middleware('auth');   
+Route::delete('/admin/proveedores/{id}', [App\Http\Controllers\ProveedorController::class, 'destroy'])->name('admin.proveedores.destroy')->middleware('auth');
 
 // Rutas para clientes
 Route::get('/admin/clientes', [App\Http\Controllers\ClienteController::class, 'index'])->name('admin.clientes.index')->middleware('auth');
 Route::post('/admin/clientes/create', [App\Http\Controllers\ClienteController::class, 'store'])->name('admin.clientes.store')->middleware('auth');
-Route::put('/admin/clientes/{cliente}', [App\Http\Controllers\ClienteController::class, 'update'])->name('admin.clientes.update')->middleware('auth');
-Route::delete('/admin/clientes/{cliente}', [App\Http\Controllers\ClienteController::class, 'destroy'])->name('admin.clientes.destroy')->middleware('auth');
+Route::put('/admin/clientes/{id}', [App\Http\Controllers\ClienteController::class, 'update'])->name('admin.clientes.update')->middleware('auth');
+Route::delete('/admin/clientes/{id}', [App\Http\Controllers\ClienteController::class, 'destroy'])->name('admin.clientes.destroy')->middleware('auth');
 
-//rutas para lotes
+// Rutas para lotes
 Route::get('/admin/lotes', [App\Http\Controllers\LoteController::class, 'index'])->name('admin.lotes.index')->middleware('auth');
 Route::post('/admin/lotes/create', [App\Http\Controllers\LoteController::class, 'store'])->name('admin.lotes.store')->middleware('auth');
 Route::put('/admin/lotes/{id}', [App\Http\Controllers\LoteController::class, 'update'])->name('admin.lotes.update')->middleware('auth');
-Route::delete('/admin/lotes/{id}', [App\Http\Controllers\LoteController::class, 'destroy'])->name('admin.lotes.destroy')->middleware('auth');
+Route::delete('/admin/lotes/{id}', [App\Http\Controllers\LoteController::class, 'destroy'])->name('admin.lotes.destroy')->middleware('auth');   
 
-//Rutas para orden de compra
+// Rutas para Orden de compra
 Route::get('/admin/ordenes_compra', [App\Http\Controllers\CompraTmpController::class, 'index'])->name('admin.ordenes_compra.index')->middleware('auth');
 Route::get('/admin/ordenes_compra/create', [App\Http\Controllers\CompraTmpController::class, 'create'])->name('admin.ordenes_compra.create')->middleware('auth');
+Route::put('/admin/ordenes_compra/{id}', [App\Http\Controllers\CompraTmpController::class, 'update'])->name('admin.ordenes_compra.update')->middleware('auth');
+Route::get('/admin/ordenes_compra/compra/{id}', [App\Http\Controllers\CompraTmpController::class, 'show'])->name('admin.ordenes_compra.show')->middleware('auth');
+Route::get('/admin/ordenes_compra/compra/{id}/edit', [App\Http\Controllers\CompraTmpController::class, 'edit'])->name('admin.ordenes_compra.edit')->middleware('auth');
+Route::delete('/admin/ordenes_compra/{id}', [App\Http\Controllers\CompraTmpController::class, 'destroy'])->name('admin.ordenes_compra.destroy')->middleware('auth');
 Route::post('/admin/ordenes_compra/items/add', [App\Http\Controllers\CompraTmpController::class, 'addItems'])->name('admin.ordenes_compra.addItems')->middleware('auth');
 Route::put('/admin/ordenes_compra/items/{itemId}', [App\Http\Controllers\CompraTmpController::class, 'updateItem'])->name('admin.ordenes_compra.updateItem')->middleware('auth');
 Route::delete('/admin/ordenes_compra/items/{itemId}', [App\Http\Controllers\CompraTmpController::class, 'removeItem'])->name('admin.ordenes_compra.removeItem')->middleware('auth');
 Route::delete('/admin/ordenes_compra/items', [App\Http\Controllers\CompraTmpController::class, 'clearItems'])->name('admin.ordenes_compra.clearItems')->middleware('auth');
 Route::post('/admin/ordenes_compra/create', [App\Http\Controllers\CompraTmpController::class, 'store'])->name('admin.ordenes_compra.store')->middleware('auth');
+Route::post('/admin/ordenes_compra/{id}/send-email', [App\Http\Controllers\CompraTmpController::class, 'sendEmail'])->name('admin.ordenes_compra.sendEmail')->middleware('auth');
+Route::get('/admin/ordenes_compra/{id}/send-whatsapp', [App\Http\Controllers\CompraTmpController::class, 'sendWhatsapp'])->name('admin.ordenes_compra.sendWhatsapp')->middleware('auth');
 
+//Rutas para compradetalle para editar el carrito de compra en ordenes de compra
+Route::post('/admin/compras/{compra_id}/items/add', [App\Http\Controllers\CompraDetalleController::class, 'addItem'])->name('admin.compras.items.add')->middleware('auth');
+Route::put('/admin/compras/{compra_id}/items/{item_id}', [App\Http\Controllers\CompraDetalleController::class, 'updateItem'])->name('admin.compras.items.update')->middleware('auth');
+Route::delete('/admin/compras/{compra_id}/items/{item_id}', [App\Http\Controllers\CompraDetalleController::class, 'removeItem'])->name('admin.compras.items.remove')->middleware('auth');
+Route::delete('/admin/compras/{compra_id}/items', [App\Http\Controllers\CompraDetalleController::class, 'clearItems'])->name('admin.compras.items.clear')->middleware('auth');
 
-
-//Rutas para compras
+// Rutas para compras
 Route::get('/admin/compras', [App\Http\Controllers\CompraController::class, 'index'])->name('admin.compras.index')->middleware('auth');
+Route::get('/admin/compras/{id}/create', [App\Http\Controllers\CompraController::class, 'create'])->name('admin.compras.create')->middleware('auth');
+Route::post('/admin/compras/{id}/create', [App\Http\Controllers\CompraController::class, 'store'])->name('admin.compras.store')->middleware('auth');
+Route::post('/admin/compras/{id}/create/lote', [App\Http\Controllers\CompraController::class, 'create_lote'])->name('admin.compras.create.lote')->middleware('auth');
 Route::get('/admin/compras/{id}', [App\Http\Controllers\CompraController::class, 'show'])->name('admin.compras.show')->middleware('auth');
-/*Route::get('/admin/compras/create', [App\Http\Controllers\CompraController::class, 'create'])->name('admin.compras.create')->middleware('auth');
-Route::post('/admin/compras/create', [App\Http\Controllers\CompraController::class, 'store'])->name('admin.compras.store')->middleware('auth');
-
 Route::get('/admin/compras/{id}/edit', [App\Http\Controllers\CompraController::class, 'edit'])->name('admin.compras.edit')->middleware('auth');
 Route::put('/admin/compras/{id}', [App\Http\Controllers\CompraController::class, 'update'])->name('admin.compras.update')->middleware('auth');
-Route::delete('/admin/compras/{id}', [App\Http\Controllers\CompraController::class, 'destroy'])->name('admin.compras.destroy')->middleware('auth');*/
+Route::delete('/admin/compras/{id}', [App\Http\Controllers\CompraController::class, 'destroy'])->name('admin.compras.destroy')->middleware('auth');
+

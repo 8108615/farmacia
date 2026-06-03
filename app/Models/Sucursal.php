@@ -23,4 +23,9 @@ class Sucursal extends Model
     {
         return $this->hasMany(CompraTmp::class, 'sucursal_id');
     }
+
+    public function compras()
+    {
+        return $this->hasMany(Compra::class, 'sucursal_id');
+    }
 }

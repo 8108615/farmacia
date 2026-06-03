@@ -19,7 +19,7 @@ class AjusteSeeder extends Seeder
                 'descripcion' => 'Configuracion inicial del sistema',
                 'direccion' => 'Av. Principal 123 - Centro',
                 'telefono' => '987654321',
-                'divisa' => 'BOB',
+                'divisa' => 'Bs',
                 'logo' => 'ajustes/ChsdWiwBPXA9DFr2KthhYgtMMf6aWVVCRFP4oOQT.jpg',
                 'web' => 'https://farmacia.test',
             ]

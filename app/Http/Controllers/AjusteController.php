@@ -13,8 +13,18 @@ class AjusteController extends Controller
     {
         $divisas = $this->getDivisas();
         $configuracion = Ajuste::query()->first();
+        $selectedDivisa = null;
 
-        return view('admin.ajustes.index', compact('divisas', 'configuracion'));
+        if ($configuracion && isset($configuracion->divisa)) {
+            foreach ($divisas as $codigo => $info) {
+                if (isset($info['symbol']) && $info['symbol'] === $configuracion->divisa) {
+                    $selectedDivisa = $codigo;
+                    break;
+                }
+            }
+        }
+
+        return view('admin.ajustes.index', compact('divisas', 'configuracion', 'selectedDivisa'));
     }
 
     public function store(Request $request)
@@ -32,11 +42,15 @@ class AjusteController extends Controller
             'web' => ['nullable', 'url', 'max:255'],
         ]);
 
-        if (!array_key_exists($validated['divisa'], $divisas)) {
+        $divisaCodigo = $validated['divisa'];
+
+        if (!array_key_exists($divisaCodigo, $divisas)) {
             return back()
                 ->withErrors(['divisa' => 'La divisa seleccionada no es valida.'])
                 ->withInput();
         }
+
+        $validated['divisa'] = $divisas[$divisaCodigo]['symbol'] ?? $divisaCodigo;
 
         $ajuste = Ajuste::query()->first() ?? new Ajuste();
 

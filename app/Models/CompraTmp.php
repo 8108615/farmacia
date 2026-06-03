@@ -22,9 +22,9 @@ class CompraTmp extends Model
 
     protected $casts = [
         'fecha_creacion' => 'datetime',
-        'precio_compra_unidad' => 'decimal',
-        'precio_venta_unidad' => 'decimal',
-        'porcentaje_ganancia_unidad' => 'decimal',
+        'precio_compra_unidad' => 'decimal:2',
+        'precio_venta_unidad' => 'decimal:2',
+        'porcentaje_ganancia_unidad' => 'decimal:2',
     ];
 
     //relaciones
@@ -44,3 +44,4 @@ class CompraTmp extends Model
         return $this->belongsTo(Producto::class, 'producto_id');
     }
 }
+

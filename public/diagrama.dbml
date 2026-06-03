@@ -1,6 +1,6 @@
-Table ajustes {
+﻿Table ajustes {
   id int [pk, increment]
-
+  
   nombre varchar(150) [not null]
   descripcion text
   direccion text
@@ -37,11 +37,11 @@ Table empleados {
   id int [pk, increment]
   usuario_id int [ref: > usuarios.id]
   sucursal_id int [ref: > sucursales.id]
-
+  
   nombres varchar(255) [not null]
   apellidos varchar(255) [not null]
   tipo_doc enum('CI','DNI','RUC','PASAPORTE','OTRO') [not null]
-  numero_doc varchar(50) [not null, unique]
+  numero_doc varchar(50) [not null, unique] 
   telefono varchar(50)
   direccion text
   profesion varchar(150)
@@ -60,6 +60,7 @@ Table laboratorios {
   id int [pk, increment]
   nombre varchar(150) [not null, unique]
 }
+
 Table forma_farmaceuticas {
   id int [pk, increment]
   nombre varchar(150) [not null, unique]
@@ -70,7 +71,6 @@ Table presentacions {
   nombre varchar(150) [not null, unique]
 }
 
-
 Table productos {
   id int [pk, increment]
 
@@ -78,6 +78,7 @@ Table productos {
   laboratorio_id int [ref: > laboratorios.id]
   forma_farmaceutica_id int [ref: > forma_farmaceuticas.id]
   presentacion_id int [ref: > presentacions.id]
+
   codigo_producto varchar(50) [unique, not null]
   codigo_barra varchar(50) [unique, null]
   nombre_comercial varchar(255) [not null]
@@ -86,14 +87,13 @@ Table productos {
   accion_terapeutica varchar(255)
   unidad_medida varchar(50)
   usa_receta boolean [not null, default: false]
-
   imagen varchar(255) [null]
 }
 
 Table lotes {
   id int [pk, increment]
-  producto_id int [not null, ref: > productos.id]
-  proveedor_id int [not null, ref: > proveedores.id]
+  producto_id int [ref: > productos.id]
+  proveedor_id int [ref: > proveedores.id]
 
   nombre varchar(150) [not null , unique]
   fecha_vencimiento date
@@ -102,7 +102,7 @@ Table lotes {
 
 Table ubicacion_fisica {
   id int [pk, increment]
-  sucursal_id int [not null, ref: > sucursales.id]
+  sucursal_id int [ref: > sucursales.id]
 
   nombre varchar(150) [not null]
   descripcion text
@@ -130,13 +130,13 @@ Table proveedores {
 
 Table inventarios {
   id int [pk, increment]
-
+  
   lote_id int [not null, ref: > lotes.id]
-  ubicacion_fisica_id int [ref: > ubicacion_fisicas.id]
-
+  ubicacion_fisica_id int [not null, ref: > ubicacion_fisica.id]
+  
   sucursal_id int
   producto_id int
-
+  
   precio_compra_unidad decimal(12,2) [not null]
   precio_venta_unidad decimal(12,2) [not null]
   porcentaje_ganancia_unidad decimal(5,2) [not null]
@@ -144,16 +144,17 @@ Table inventarios {
   stock_minimo int [not null, default: 0]
   stock_maximo int [not null, default: 0]
   fecha_registro datetime [not null, default: `CURRENT_TIMESTAMP`]
-
+  
   estado enum('compra','ajuste','traslado') [not null]
 }
 
 Table tmp_compras {
   id int [pk, increment]
+
   usuario_id int [ref: > usuarios.id]
   sucursal_id int [ref: > sucursales.id]
   producto_id int [ref: > productos.id]
-
+  
   precio_compra_unidad decimal(12,2) [not null]
   precio_venta_unidad decimal(12,2) [not null]
   porcentaje_ganancia_unidad decimal(5,2) [not null]
@@ -164,11 +165,11 @@ Table tmp_compras {
 
 Table compras {
   id int [pk, increment]
-
+  
   sucursal_id int [not null, ref: > sucursales.id]
   proveedor_id int [ref: > proveedores.id]
   usuario_id int [ref: > usuarios.id]
-
+  
   fecha_compra datetime [not null, default: `CURRENT_TIMESTAMP`]
   total_compra decimal(12,2) [not null, default: 0.00]
   estado enum('pendiente','recibido','cancelado') [not null, default: 'pendiente']
@@ -178,11 +179,11 @@ Table compras {
 
 Table compras_detalle {
   id int [pk, increment]
-
+  
   compra_id int [ref: > compras.id]
   producto_id int [ref: > productos.id]
   lote_id int [ref: > lotes.id]
-
+  
   precio_compra_unidad decimal(12,2) [not null]
   precio_venta_unidad decimal(12,2) [not null]
   porcentaje_ganancia_unidad decimal(5,2) [not null]
@@ -193,18 +194,18 @@ Table tmp_ventas {
   id int [pk, increment]
 
   producto_id int [ref: > productos.id]
-
+  
   precio_venta_unidad decimal(12,2) [not null]
   cantidad int [not null]
 }
 
 Table ventas {
   id int [pk, increment]
-
+  
   sucursal_id int [not null, ref: > sucursales.id]
   cliente_id int [ref: > clientes.id]
   usuario_id int [ref: > usuarios.id]
-
+  
   fecha_venta datetime [not null, default: `CURRENT_TIMESTAMP`]
   total_venta decimal(12,2) [not null, default: 0.00]
   estado enum('pendiente','emitida','cancelada','devuelta') [not null, default: 'emitida']
@@ -214,10 +215,10 @@ Table ventas {
 
 Table ventas_detalle {
   id int [pk, increment]
-
+  
   venta_id int [ref: > ventas.id]
   producto_id int [ref: > productos.id]
-
+  
   cantidad int [not null]
   precio_venta_unidad decimal(12,2) [not null]
 }
