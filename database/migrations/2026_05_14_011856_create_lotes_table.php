@@ -13,14 +13,17 @@ return new class extends Migration
     {
         Schema::create('lotes', function (Blueprint $table) {
             $table->id();
+            
             $table->foreignId('producto_id')->constrained('productos')->onDelete('cascade');
             $table->foreignId('proveedor_id')->constrained('proveedores')->onDelete('cascade');
-            
-            $table->string('nombre')->unique();
+
+            $table->string('numero_lote', 50);
             $table->date('fecha_vencimiento')->nullable();
             $table->date('fecha_fabricacion')->nullable();
 
-            $table->index(['producto_id', 'proveedor_id', 'nombre']);
+            $table->unique(['producto_id', 'numero_lote']);
+            $table->index(['producto_id', 'proveedor_id', 'numero_lote']);
+            
             $table->timestamps();
         });
     }

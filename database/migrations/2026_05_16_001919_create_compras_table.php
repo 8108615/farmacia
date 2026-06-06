@@ -20,7 +20,7 @@ return new class extends Migration
 
             $table->date('fecha_compra');
             $table->decimal('total', 12, 2);
-            $table->string('estado', 50); //Pendiente, Completado, cancelado
+            $table->string('estado', 50); // Pendiente, Completada, Cancelada
             $table->string('comprobante', 255)->nullable();
             $table->string('nota', 255)->nullable();
 

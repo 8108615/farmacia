@@ -354,6 +354,13 @@
                                 </ul>
                             </li>
 
+                            <li class="sidebar-item {{ request()->routeIs('admin.inventarios.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.inventarios.index') }}" class="sidebar-link">
+                                    <i class="bi bi-boxes"></i>
+                                    <span>Inventarios</span>
+                                </a>
+                            </li>
+
                             <li class="sidebar-item">
                                 <a href="{{ route('logout') }}" class='sidebar-link'
                                     onclick="event.preventDefault(); document.getElementById('sidebar-logout-form').submit();">

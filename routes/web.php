@@ -128,3 +128,30 @@ Route::get('/admin/compras/{id}/edit', [App\Http\Controllers\CompraController::c
 Route::put('/admin/compras/{id}', [App\Http\Controllers\CompraController::class, 'update'])->name('admin.compras.update')->middleware('auth');
 Route::delete('/admin/compras/{id}', [App\Http\Controllers\CompraController::class, 'destroy'])->name('admin.compras.destroy')->middleware('auth');
 
+// Rutas para inventarios
+Route::get('/admin/inventarios', [App\Http\Controllers\InventarioController::class, 'index'])->name('admin.inventarios.index')->middleware('auth');
+Route::get('/admin/inventarios/resumen', [App\Http\Controllers\InventarioController::class, 'resumen'])->name('admin.inventarios.resumen')->middleware('auth');
+Route::get('/admin/inventarios/existencias', [App\Http\Controllers\InventarioController::class, 'existencias'])->name('admin.inventarios.existencias')->middleware('auth');
+Route::get('/admin/inventarios/movimientos', [App\Http\Controllers\InventarioController::class, 'movimientos'])->name('admin.inventarios.movimientos')->middleware('auth');
+Route::get('/admin/inventarios/kardex', [App\Http\Controllers\InventarioController::class, 'kardex'])->name('admin.inventarios.kardex')->middleware('auth');
+Route::get('/admin/inventarios/lotes-vencimiento', [App\Http\Controllers\InventarioController::class, 'lotesVencimiento'])->name('admin.inventarios.lotesVencimiento')->middleware('auth');
+Route::get('/admin/inventarios/traslados', [App\Http\Controllers\InventarioController::class, 'traslados'])->name('admin.inventarios.traslados')->middleware('auth');
+Route::get('/admin/inventarios/alertas', [App\Http\Controllers\InventarioController::class, 'alertas'])->name('admin.inventarios.alertas')->middleware('auth');
+Route::get('/admin/inventarios/reportes', [App\Http\Controllers\InventarioController::class, 'reportes'])->name('admin.inventarios.reportes')->middleware('auth');
+
+// Rutas para cajas
+Route::get('/admin/cajas', [App\Http\Controllers\CajaController::class, 'index'])->name('admin.cajas.index')->middleware('auth');
+Route::post('/admin/cajas/create', [App\Http\Controllers\CajaController::class, 'store'])->name('admin.cajas.store')->middleware('auth');
+Route::put('/admin/cajas/{id}', [App\Http\Controllers\CajaController::class, 'update'])->name('admin.cajas.update')->middleware('auth');
+Route::delete('/admin/cajas/{id}', [App\Http\Controllers\CajaController::class, 'destroy'])->name('admin.cajas.destroy')->middleware('auth');
+
+// Rutas para arqueos
+Route::get('/admin/arqueos', [App\Http\Controllers\ArqueoController::class, 'index'])->name('admin.arqueos.index')->middleware('auth');
+Route::post('/admin/arqueos/create', [App\Http\Controllers\ArqueoController::class, 'store'])->name('admin.arqueos.store')->middleware('auth');
+Route::put('/admin/arqueos/{id}', [App\Http\Controllers\ArqueoController::class, 'update'])->name('admin.arqueos.update')->middleware('auth');
+Route::delete('/admin/arqueos/{id}', [App\Http\Controllers\ArqueoController::class, 'destroy'])->name('admin.arqueos.destroy')->middleware('auth');
+Route::get('/admin/arqueos/{id}/reporte', [App\Http\Controllers\ArqueoController::class, 'reporte'])->name('admin.arqueos.reporte')->middleware('auth');
+
+// Rutas para arqueo detalles
+Route::post('/admin/arqueos/{arqueo_id}/detalles/create', [App\Http\Controllers\ArqueoDetalleController::class, 'store'])->name('admin.arqueos.detalles.store')->middleware('auth');
+Route::delete('/admin/arqueos/{arqueo_id}/detalles/{id}', [App\Http\Controllers\ArqueoDetalleController::class, 'destroy'])->name('admin.arqueos.detalles.destroy')->middleware('auth');

@@ -20,8 +20,6 @@ class CreateClientesTable extends Migration
             $table->string('nombres_apellidos', 255);
             $table->string('email', 150)->nullable();
             $table->string('telefono', 50)->nullable();
-
-            $table->timestamps();
         });
     }
 

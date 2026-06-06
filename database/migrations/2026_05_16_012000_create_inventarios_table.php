@@ -13,22 +13,24 @@ return new class extends Migration
     {
         Schema::create('inventarios', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('lote_id')->constrained('lotes')->onDelete('cascade');
-            $table->foreignId('ubicacion_fisica_id')->constrained('ubicacion_fisicas')->onDelete('cascade');
+            
+                $table->foreignId('lote_id')->constrained('lotes')->onDelete('cascade');
+                $table->foreignId('ubicacion_fisica_id')->constrained('ubicacion_fisicas')->onDelete('cascade');
+                $table->foreignId('compra_id')->nullable()->constrained('compras')->onDelete('cascade');
+               
+                $table->unsignedBigInteger('sucursal_id');
+                $table->unsignedBigInteger('producto_id');
+    
+                $table->decimal('precio_compra_unidad', 12, 2);
+                $table->decimal('precio_venta_unidad', 12, 2);
+                $table->integer('stock_actual')->default(0);
+                $table->integer('stock_minimo')->default(0);
+                $table->integer('stock_maximo')->default(0);
+                $table->date('fecha_registro')->nullable();
+    
+                $table->enum('estado', ['compra', 'ajuste', 'traslado']);
 
-            $table->unsignedBigInteger('sucursal_id');
-            $table->unsignedBigInteger('producto_id');
-
-            $table->decimal('precio_compra_unidad', 12, 2);
-            $table->decimal('precio_venta_unidad', 12, 2);
-            $table->integer('stock_actual')->default(0);
-            $table->integer('stock_minimo')->default(0);
-            $table->integer('stock_maximo')->default(0);
-            $table->date('fecha_registro')->nullable();
-
-            $table->enum('estado', ['compra', 'ajuste', 'traslado']);
-
-            $table->index(['sucursal_id', 'producto_id', 'lote_id']);
+                $table->index(['sucursal_id', 'producto_id', 'lote_id','compra_id']);
 
             $table->timestamps();
         });

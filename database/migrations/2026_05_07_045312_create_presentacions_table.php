@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('presentacions', function (Blueprint $table) {
             $table->id();
+
             $table->string('nombre', 150)->unique();
+            
             $table->timestamps();
         });
     }

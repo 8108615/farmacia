@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ubicacion_fisicas', function (Blueprint $table) {
+        Schema::create('arqueo_detalles', function (Blueprint $table) {
             $table->id();
-            
-            $table->foreignId('sucursal_id')->constrained('sucursals')->onDelete('cascade');
-            $table->string('nombre', 150);
-            $table->text('descripcion')->nullable();
-
-            $table->index(['sucursal_id', 'nombre']);
+            $table->foreignId('arqueo_id')->constrained('arqueos')->onDelete('cascade');
+            $table->enum('tipo', ['ingreso', 'egreso'])->default('ingreso');
+            $table->string('concepto');
+            $table->decimal('monto', 12, 2)->default(0);
+            $table->string('referencia')->nullable();
             
             $table->timestamps();
         });
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ubicacion_fisicas');
+        Schema::dropIfExists('arqueo_detalles');
     }
 };

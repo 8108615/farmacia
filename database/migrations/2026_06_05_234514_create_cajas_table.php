@@ -11,15 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ubicacion_fisicas', function (Blueprint $table) {
+        Schema::create('cajas', function (Blueprint $table) {
             $table->id();
-            
             $table->foreignId('sucursal_id')->constrained('sucursals')->onDelete('cascade');
-            $table->string('nombre', 150);
-            $table->text('descripcion')->nullable();
-
-            $table->index(['sucursal_id', 'nombre']);
-            
+            $table->string('nombre');
+            $table->enum('estado', ['abierta', 'cerrada'])->default('cerrada');
             $table->timestamps();
         });
     }
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ubicacion_fisicas');
+        Schema::dropIfExists('cajas');
     }
 };

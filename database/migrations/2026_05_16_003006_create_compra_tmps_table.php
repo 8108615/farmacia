@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('compra_tmps', function (Blueprint $table) {
             $table->id();
+            
             $table->foreignId('usuario_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('sucursal_id')->constrained('sucursals')->onDelete('cascade');
             $table->foreignId('producto_id')->constrained('productos')->onDelete('cascade');
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->enum('estado', ['activo', 'inactivo','pendiente','confirmado','cancelado'])->default('activo');
 
             $table->index(['usuario_id', 'sucursal_id', 'producto_id']);
+            
             $table->timestamps();
         });
     }

@@ -24,8 +24,8 @@ class DatabaseSeeder extends Seeder
         Sucursal::query()->firstOrCreate(
             ['nombre' => 'CASA MATRIZ'],
             [
-                'direccion' => 'Av. Cumavi Calle 5, Nro 225',
-                'telefono' => '76658531',
+                'direccion' => 'Av. Cumavi calle 5 Nro 225',
+                'telefono' => '59176658531',
                 'estado' => true,
             ]
         );
