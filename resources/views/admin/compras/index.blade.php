@@ -103,7 +103,7 @@
                                     @empty
                                         <tr>
                                             <td colspan="9" class="text-center text-muted py-4">No hay compras
-                                                registradas.
+                                                Registradas.
                                             </td>
                                         </tr>
                                     @endforelse
@@ -215,7 +215,7 @@
                                                                 <td>
                                                                     <a href="{{ url('/admin/compras/' . $order->id . '/create') }}"
                                                                         class="btn btn-sm btn-success">
-                                                                        Convertir a compra
+                                                                        Convertir a Compra
                                                                     </a>
                                                                 </td>
                                                             </tr>
