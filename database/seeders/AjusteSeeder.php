@@ -13,12 +13,12 @@ class AjusteSeeder extends Seeder
     public function run(): void
     {
         Ajuste::query()->firstOrCreate(
-            ['email' => 'contacto@farmacia.com'],
+            ['email' => 'moralesgilerick@gmail.com'],
             [
-                'nombre' => 'Farmacia Demo',
+                'nombre' => 'Farmacia',
                 'descripcion' => 'Configuracion inicial del sistema',
                 'direccion' => 'Av. Principal 123 - Centro',
-                'telefono' => '987654321',
+                'telefono' => '76658531',
                 'divisa' => 'Bs',
                 'logo' => 'ajustes/ChsdWiwBPXA9DFr2KthhYgtMMf6aWVVCRFP4oOQT.jpg',
                 'web' => 'https://farmacia.test',

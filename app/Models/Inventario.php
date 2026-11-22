@@ -37,4 +37,24 @@ class Inventario extends Model
     {
         return $this->belongsTo(Compra::class, 'compra_id');
     }
+
+    public function lote()
+    {
+        return $this->belongsTo(Lote::class, 'lote_id');
+    }
+
+    public function producto()
+    {
+        return $this->belongsTo(Producto::class, 'producto_id');
+    }
+
+    public function sucursal()
+    {
+        return $this->belongsTo(Sucursal::class, 'sucursal_id');
+    }
+
+    public function ubicacionFisica()
+    {
+        return $this->belongsTo(UbicacionFisica::class, 'ubicacion_fisica_id');
+    }
 }

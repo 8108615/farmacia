@@ -1,65 +1,206 @@
 @extends('layouts.admin')
 
 @push('styles')
+
     <style>
-        @import url('https://fonts.bunny.net/css2?family=space-grotesk:400,500,600,700&display=swap');
-
-        :root {
-            --inv-ink: #0f172a;
-            --inv-muted: #64748b;
-            --inv-soft: #e2e8f0;
-            --inv-glow: rgba(15, 23, 42, 0.08);
-            --inv-blue: #2563eb;
-            --inv-cyan: #0891b2;
-            --inv-emerald: #059669;
-            --inv-amber: #d97706;
-            --inv-rose: #e11d48;
-        }
-
         .inventory-shell {
-            font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+            --inv-text: #0f172a;
+            --inv-muted: #52647b;
+            --inv-surface: #fff;
+            --inv-border: #dbe4ef;
+            --inv-chip: #fff;
+            --inv-badge: #e8efff;
+            --inv-badge-text: #2855bc;
+            --inv-hero: linear-gradient(110deg, #d5effc, #f9fbfd 50%, #d6e1fb);
+            --inv-shadow: 0 14px 28px rgba(32, 59, 105, .09);
+            --inv-blue: #2563eb;
+            --inv-cyan: #087e9e;
+            --inv-amber: #a85b05;
+            --inv-rose: #d62350;
         }
 
-        .inventory-hero {
-            border: 1px solid rgba(59, 130, 246, 0.15);
-            border-radius: 1.4rem;
-            background:
-                radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.22), transparent 48%),
-                radial-gradient(circle at 100% 100%,  ☐ rgba(37, 99, 235, 0.2), transparent 42%),
-                linear-gradient(130deg, #ffffff, #f8fafc);
-            box-shadow: 0 28px 45px var(--inv-glow);
+        [data-bs-theme="dark"] .inventory-shell {
+            --inv-text: #edf2ff;
+            --inv-muted: #afbdd4;
+            --inv-surface: #222538;
+            --inv-border: #353c54;
+            --inv-chip: #263250;
+            --inv-badge: #2c3c62;
+            --inv-badge-text: #a8c2ff;
+            --inv-hero: linear-gradient(110deg, #173c52, #22283c 50%, #2a365a);
+            --inv-shadow: 0 14px 28px rgba(0, 0, 0, .18);
+        }
+
+        .inventory-shell .inventory-hero,
+        .inventory-shell .inventory-stat,
+        .inventory-shell .module-card {
+            border: 1px solid var(--inv-border);
+            border-radius: 1.1rem;
+            box-shadow: var(--inv-shadow);
+        }
+
+        .inventory-shell .inventory-hero {
+            background: var(--inv-hero);
+            color: var(--inv-text);
             padding: 1.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
         }
 
-        .inventory-hero h3 {
-            margin-bottom: 0.35rem;
-            color: var(--inv-ink);
-            font-weight: 700;  
+        .inventory-shell .inventory-hero h3,
+        .inventory-shell .module-title,
+        .inventory-shell .value {
+            color: var(--inv-text);
+            font-weight: 700;
         }
 
-        .inventory-hero p {
-            margin-bottom: 0;
-            color: var(--inv-muted);
+        .inventory-shell .inventory-hero p,
+        .inventory-shell .inventory-hero .text-muted,
+        .inventory-shell .label,
+        .inventory-shell .module-desc {
+            color: var(--inv-muted) !important;
         }
 
-        .hero-chip-wrap {
-            margin-top: 1rem;
+        .inventory-shell .hero-chip-wrap {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.75rem;
+            gap: .6rem;
+            margin-top: 1rem;
         }
 
-        .hero-chip {
-            background: var(--inv-soft);
-            color: var(--inv-ink);
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 500;
+        .inventory-shell .hero-chip {
+            background: var(--inv-chip);
+            border: 1px solid var(--inv-border);
+            border-radius: 999px;
+            color: var(--inv-text);
+            font-size: .82rem;
+            font-weight: 600;
+            padding: .35rem .7rem;
         }
 
-        
+        .inventory-shell .inventory-stat-grid,
+        .inventory-shell .module-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .inventory-shell .inventory-stat-grid {
+            margin-bottom: 3rem;
+        }
+
+        .inventory-shell .inventory-stat,
+        .inventory-shell .module-card {
+            background: var(--inv-surface);
+            margin: 0;
+            min-width: 0;
+        }
+
+        .inventory-shell .inventory-stat .card-body {
+            display: flex;
+            align-items: center;
+            gap: .85rem;
+            padding: 1rem;
+        }
+
+        .inventory-shell .inventory-icon,
+        .inventory-shell .module-badge {
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+        }
+
+        .inventory-shell .inventory-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: .9rem;
+            color: #fff;
+        }
+
+        .inventory-shell .label,
+        .inventory-shell .value,
+        .inventory-shell .module-title {
+            margin: 0;
+        }
+
+        .inventory-shell .label,
+        .inventory-shell .module-desc {
+            font-size: .875rem;
+        }
+
+        .inventory-shell .value {
+            font-size: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .inventory-shell .module-card .card-body {
+            display: flex;
+            flex-direction: column;
+            min-height: 12rem;
+            padding: 1rem;
+        }
+
+        .inventory-shell .module-header {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+        }
+
+        .inventory-shell .module-badge {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: .65rem;
+            background: var(--inv-badge);
+            color: var(--inv-badge-text);
+        }
+
+        .inventory-shell .module-title {
+            font-size: 1rem;
+        }
+
+        .inventory-shell .module-desc {
+            margin: .65rem 0 1.1rem;
+        }
+
+        @media (min-width: 576px) {
+            .inventory-shell .inventory-stat-grid,
+            .inventory-shell .module-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 992px) {
+            .inventory-shell .module-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .inventory-shell .inventory-stat-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1600px) {
+            .inventory-shell .module-grid {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+            }
+        }
+
+        .inventory-shell .inventory-icon > .bi,
+        .inventory-shell .module-badge > .bi {
+            display: grid;
+            place-items: center;
+            width: 1em;
+            height: 1em;
+            line-height: 1;
+        }
+
+        .inventory-shell .inventory-icon > .bi::before,
+        .inventory-shell .module-badge > .bi::before {
+            display: block;
+            line-height: 1;
+            vertical-align: baseline;
+        }
     </style>
 @endpush
 
@@ -127,13 +268,13 @@
                         <div class="hero-chip-wrap">
                             <span class="hero-chip">Registros: {{ $totalItems }}</span>
                             <span class="hero-chip">Stock total: {{ number_format($totalStock, 0, '.', ',') }}</span>
-                            <span class="hero-chip">Bajo minimo: {{ $totalBajoMinimo }}</span>
+                            <span class="hero-chip">Bajo mínimo: {{ $totalBajoMinimo }}</span>
                             <span class="hero-chip">Por vencer: {{ $totalPorVencer }}</span>
-                            <span class="hero-chip">Sin ubicacion: {{ $totalSinUbicacion }}</span>
+                            <span class="hero-chip">Sin ubicación: {{ $totalSinUbicacion }}</span>
                         </div>
                     </div>
                     <div class="text-lg-end">
-                        <h6 class="mb-1 text-muted">Valorizacion global</h6>
+                        <h6 class="mb-1 text-muted">Valorización global</h6>
                         <div><strong>Costo:</strong> {{ $divisa }} {{ number_format($valorCompra, 2, '.', ',') }}
                         </div>
                         <div><strong>Venta:</strong> {{ $divisa }} {{ number_format($valorVenta, 2, '.', ',') }}</div>
@@ -173,7 +314,7 @@
                         <i class="bi bi-exclamation-triangle fs-5"></i>
                     </div>
                     <div>
-                        <p class="label">Stock bajo minimo</p>
+                        <p class="label">Stock bajo mínimo</p>
                         <p class="value">{{ number_format($totalBajoMinimo, 0, '.', ',') }}</p>
                     </div>
                 </div>
@@ -205,14 +346,15 @@
                         <p class="module-desc">{{ $modulo['descripcion'] }}</p>
                         <div class="mt-auto">
                             <a href="{{ $modulo ['ruta'] }}" class="btn btn-primary btn-sm w-100">
-                                Ver mas
+                                Ver más
                             </a>
                         </div>
                     </div>
                 </div>
             @endforeach
         </div>
-    </section>
+    </div>
 </div>
 @endsection
-    
+
+
