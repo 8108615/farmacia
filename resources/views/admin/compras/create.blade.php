@@ -261,14 +261,20 @@
         </div>
     </div>
 
-    <!-- Modal para crear lote desde orden de compra -->
+    @if ($errors->has('lote_existente_id') || $errors->has('compra_detalle_id'))
+        <div class="alert alert-danger" role="alert">
+            {{ $errors->first('lote_existente_id') ?: $errors->first('compra_detalle_id') }}
+        </div>
+    @endif
+
+    <!-- Modal para asignar lote desde orden de compra -->
     <div class="modal fade" id="loteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <form class="modal-content" method="POST"
                 action="{{ url('/admin/compras/' . $compra->id . '/create/lote') }}">
                 @csrf
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" style="color:white">Crear lote</h5>
+                    <h5 class="modal-title" style="color:white">Asignar lote</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Cerrar"></button>
                 </div>
@@ -277,27 +283,33 @@
                     <input type="hidden" name="producto_id" id="modal_producto_id" value="">
                     <input type="hidden" name="proveedor_id" id="modal_proveedor_id" value="">
 
-                    <div class="mb-3">
-                        <label for="modal_nombre" class="form-label">Número de lote (*)</label>
-                        <input type="text" name="nombre" id="modal_nombre" class="form-control"
-                            placeholder="Número de lote" required>
+                    <div class="mb-3" id="modal_lote_existente_grupo" hidden>
+                        <label for="modal_lote_existente_id" class="form-label">Lote existente</label>
+                        <select name="lote_existente_id" id="modal_lote_existente_id" class="form-select"></select>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="modal_fecha_vencimiento" class="form-label">Fecha de vencimiento</label>
-                            <input type="date" name="fecha_vencimiento" id="modal_fecha_vencimiento"
-                                class="form-control">
+                    <fieldset id="modal_lote_nuevo">
+                        <div class="mb-3">
+                            <label for="modal_nombre" class="form-label">Número de lote (*)</label>
+                            <input type="text" name="nombre" id="modal_nombre" class="form-control"
+                                placeholder="Número de lote" required>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="modal_fecha_fabricacion" class="form-label">Fecha de fabricación</label>
-                            <input type="date" name="fecha_fabricacion" id="modal_fecha_fabricacion"
-                                class="form-control">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="modal_fecha_vencimiento" class="form-label">Fecha de vencimiento</label>
+                                <input type="date" name="fecha_vencimiento" id="modal_fecha_vencimiento"
+                                    class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="modal_fecha_fabricacion" class="form-label">Fecha de fabricación</label>
+                                <input type="date" name="fecha_fabricacion" id="modal_fecha_fabricacion"
+                                    class="form-control">
+                            </div>
                         </div>
-                    </div>
+                    </fieldset>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar lote</button>
+                    <button type="submit" class="btn btn-primary" id="modal_guardar_lote">Guardar lote</button>
                 </div>
             </form>
         </div>
@@ -776,7 +788,7 @@
                 <td><small class="text-muted">${index + 1}</small></td>
                 <td><small>${item.producto_nombre}</small></td>
                 <td class="text-center">
-                    ${item.lote_id ? `<span class="badge bg-success">${item.lote_nombre || 'Lote asignado'}</span>` : `<button type="button" class="btn btn-info btn-sm abrir-lote-modal" data-compra-detalle-id="${item.id}" data-producto-id="${item.producto_id}" data-proveedor-id="${item.proveedor_id}">
+                    ${item.lote_id ? `<span class="badge bg-success nombre-lote-compra">Lote asignado</span>` : `<button type="button" class="btn btn-info btn-sm abrir-lote-modal" data-compra-detalle-id="${item.id}" data-producto-id="${item.producto_id}" data-proveedor-id="${item.proveedor_id}">
                                                                                                             <i class="bi bi-plus-lg me-1"></i> Agregar lote
                                                                                                         </button>`}
                 </td>
@@ -935,6 +947,11 @@
                     }
                 });
 
+                const nombreLote = fila.querySelector('.nombre-lote-compra');
+                if (nombreLote) {
+                    nombreLote.textContent = item.lote_nombre || 'Lote asignado';
+                }
+
                 carritoBody.appendChild(fila);
             });
 
@@ -1046,7 +1063,30 @@
             }, 350);
         }
 
+        const selectorLoteExistente = document.getElementById('modal_lote_existente_id');
+
+        function actualizarModoLote() {
+            const usaLoteExistente = selectorLoteExistente.value !== '';
+            const campos = document.getElementById('modal_lote_nuevo');
+            campos.disabled = usaLoteExistente;
+            campos.hidden = usaLoteExistente;
+            document.getElementById('modal_guardar_lote').textContent =
+                usaLoteExistente ? 'Usar este lote' : 'Guardar lote';
+        }
+
+        selectorLoteExistente.addEventListener('change', actualizarModoLote);
+
         function openLoteModal(productoId, proveedorId, compraDetalleId) {
+            selectorLoteExistente.replaceChildren(new Option('Crear un lote nuevo', ''));
+            const lotesProducto = LOTES.filter(lote => String(lote.producto_id) === String(productoId));
+            lotesProducto.forEach(lote => {
+                const fecha = lote.fecha_vencimiento?.slice(0, 10).split('-').reverse().join('/');
+                const etiqueta = fecha ? lote.numero_lote + ' · vence ' + fecha : lote.numero_lote;
+                selectorLoteExistente.add(new Option(etiqueta, lote.id));
+            });
+
+            document.getElementById('modal_lote_existente_grupo').hidden = lotesProducto.length === 0;
+            actualizarModoLote();
             document.getElementById('modal_producto_id').value = productoId;
             document.getElementById('modal_proveedor_id').value = proveedorId;
             document.getElementById('modal_compra_detalle_id').value = compraDetalleId;

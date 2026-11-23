@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ajuste;
 use App\Models\Inventario;
 use App\Models\Lote;
+use App\Models\MovimientoInventario;
 use Illuminate\Http\Request;
 use App\Models\Sucursal;
 
@@ -152,5 +153,45 @@ class InventarioController extends Controller
         $sucursales = Sucursal::query()->orderBy('nombre')->get(['id', 'nombre']);
 
         return view('admin.inventarios.movimientos', compact('movimientos', 'sucursales', 'filtros'));
+    }
+
+    public function kardex(Request $request)
+    {
+        $filtros = $request->validate([
+            'sucursal_id' => ['nullable', 'integer', 'min:1'],
+            'buscar' => ['nullable', 'string', 'max:150'],
+            'desde' => ['nullable', 'date_format:Y-m-d'],
+            'hasta' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:desde'],
+        ]);
+
+        $consulta = MovimientoInventario::query()
+            ->when($filtros['sucursal_id'] ?? null, fn ($query, $id) => $query->where('sucursal_id', $id))
+            ->when($filtros['desde'] ?? null, fn ($query, $fecha) => $query->whereDate('ocurrido_en', '>=', $fecha))
+            ->when($filtros['hasta'] ?? null, fn ($query, $fecha) => $query->whereDate('ocurrido_en', '<=', $fecha));
+
+        $buscar = trim($filtros['buscar'] ?? '');
+
+        if ($buscar !== '') {
+            $patron = '%' . $buscar . '%';
+
+            $consulta->where(function ($query) use ($patron) {
+                $query->where('nombre_producto', 'like', $patron)
+                    ->orWhere('codigo_producto', 'like', $patron)
+                    ->orWhere('numero_lote', 'like', $patron);
+            });
+        }
+
+        $movimientos = $consulta->orderByDesc('ocurrido_en')
+            ->orderByDesc('id')
+            ->paginate(15)
+            ->appends($filtros);
+
+        $sucursales = MovimientoInventario::query()
+            ->selectRaw('sucursal_id as id, MAX(nombre_sucursal) as nombre')
+            ->groupBy('sucursal_id')
+            ->orderBy('nombre')
+            ->get();
+
+        return view('admin.inventarios.kardex', compact('movimientos', 'sucursales', 'filtros'));
     }
 }

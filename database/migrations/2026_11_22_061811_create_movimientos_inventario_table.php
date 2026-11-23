@@ -32,7 +32,10 @@ return new class extends Migration
             $table->timestamp('ocurrido_en');
 
             $table->index(['inventario_id', 'id']);
-            $table->index(['sucursal_id', 'producto_id', 'lote_id', 'ocurrido_en']);
+            $table->index(
+                ['sucursal_id', 'producto_id', 'lote_id', 'ocurrido_en'],
+                'mov_inv_sucursal_producto_lote_fecha_idx'
+            );
         });
     }
 

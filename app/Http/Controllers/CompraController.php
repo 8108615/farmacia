@@ -11,6 +11,7 @@ use App\Models\Producto;
 use App\Models\Proveedor;
 use App\Models\Sucursal;
 use App\Models\UbicacionFisica;
+use App\Services\HistorialStockCompra;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,9 @@ use Illuminate\Validation\Rule;
 
 class CompraController extends Controller
 {
+    public function __construct(private HistorialStockCompra $historialStock)
+    {
+    }
     /**
      * Display a listing of the resource.
      */
@@ -42,6 +46,10 @@ class CompraController extends Controller
 
     public function create_lote(Request $request, $id)
     {
+        if ($request->filled('lote_existente_id')) {
+            return $this->asignarLoteExistente($request, $id);
+        }
+
         DB::beginTransaction();
 
         try {
@@ -121,6 +129,42 @@ class CompraController extends Controller
                 ->route('admin.compras.create', ['id' => $id])
                 ->with('error', 'No se pudo crear el lote: ' . $e->getMessage());
         }
+    }
+
+    private function asignarLoteExistente(Request $request, $id)
+    {
+        $datos = $request->validate([
+            'compra_detalle_id' => ['required', 'integer'],
+            'lote_existente_id' => ['required', 'integer'],
+        ]);
+
+        DB::transaction(function () use ($request, $id, $datos) {
+            $compra = Compra::query()->lockForUpdate()->findOrFail($id);
+            abort_unless((int) $compra->usuario_id === (int) $request->user()->id, 403);
+            abort_unless($compra->estado === 'pendiente', 409, 'La compra ya no está pendiente.');
+
+            $detalle = CompraDetalle::query()
+                ->where('compra_id', $compra->id)
+                ->findOrFail($datos['compra_detalle_id']);
+
+            $lote = Lote::query()
+                ->where('producto_id', $detalle->producto_id)
+                ->lockForUpdate()
+                ->find($datos['lote_existente_id']);
+
+            if (!$lote) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'lote_existente_id' => 'Selecciona un lote válido para este producto.',
+                ]);
+            }
+
+            $detalle->lote_id = $lote->id;
+            $detalle->save();
+        });
+
+        return redirect()
+            ->route('admin.compras.create', ['id' => $id])
+            ->with('success', 'Lote existente asignado a la compra.');
     }
 
     /**
@@ -269,96 +313,95 @@ class CompraController extends Controller
                 }
             }
 
-            DB::beginTransaction();
+            $this->historialStock->ejecutar(
+                (int) $compra->id,
+                'compra_guardada',
+                $request->user()?->id,
+                function (Compra $compra) use ($validated, $itemsValidos): void {
+                    $compra->load('detalles');
 
-            try {
-                $compra->load('detalles');
+                    $totalCompra = $itemsValidos->sum(function ($item) {
+                        return ((float) ($item['cantidad'] ?? 0)) * ((float) ($item['precio_compra'] ?? 0));
+                    });
 
-                $totalCompra = $itemsValidos->sum(function ($item) {
-                    return ((float) ($item['cantidad'] ?? 0)) * ((float) ($item['precio_compra'] ?? 0));
-                });
+                    $compra->sucursal_id = $validated['sucursal_id'];
+                    $compra->proveedor_id = $validated['proveedor_id'];
+                    $compra->total = $totalCompra;
+                    $compra->comprobante = $validated['comprobante'] ?? null;
+                    $compra->nota = $validated['nota'] ?? null;
+                    $compra->estado = 'completada';
+                    if (empty($compra->fecha_compra)) {
+                        $compra->fecha_compra = Carbon::now()->toDateString();
+                    }
+                    $compra->save();
 
-                $compra->sucursal_id = $validated['sucursal_id'];
-                $compra->proveedor_id = $validated['proveedor_id'];
-                $compra->total = $totalCompra;
-                $compra->comprobante = $validated['comprobante'] ?? null;
-                $compra->nota = $validated['nota'] ?? null;
-                $compra->estado = 'completada';
-                if (empty($compra->fecha_compra)) {
-                    $compra->fecha_compra = Carbon::now()->toDateString();
-                }
-                $compra->save();
+                    $detallesExistentes = $compra->detalles->keyBy('id');
+                    $detallesMantener = [];
 
-                $detallesExistentes = $compra->detalles->keyBy('id');
-                $detallesMantener = [];
+                    foreach ($itemsValidos as $item) {
+                        $detalleId = isset($item['id']) && is_numeric($item['id']) ? (int) $item['id'] : null;
 
-                foreach ($itemsValidos as $item) {
-                    $detalleId = isset($item['id']) && is_numeric($item['id']) ? (int) $item['id'] : null;
+                        $detalle = null;
+                        if ($detalleId && $detallesExistentes->has($detalleId)) {
+                            $detalle = $detallesExistentes->get($detalleId);
+                        }
 
-                    $detalle = null;
-                    if ($detalleId && $detallesExistentes->has($detalleId)) {
-                        $detalle = $detallesExistentes->get($detalleId);
+                        if (!$detalle) {
+                            $detalle = new CompraDetalle();
+                            $detalle->compra_id = $compra->id;
+                        }
+
+                        $precioCompra = (float) ($item['precio_compra'] ?? 0);
+                        $precioVenta = (float) ($item['precio_venta'] ?? 0);
+                        $porcentajeGanancia = (float) ($item['porcentaje_ganancia'] ?? 0);
+
+                        if ($precioCompra > 0) {
+                            $porcentajeGanancia = (($precioVenta - $precioCompra) / $precioCompra) * 100;
+                        }
+
+                        $detalle->producto_id = (int) $item['producto_id'];
+                        $detalle->lote_id = (int) $item['lote_id'];
+                        $detalle->precio_compra_unidad = $precioCompra;
+                        $detalle->precio_venta_unidad = $precioVenta;
+                        $detalle->porcentaje_ganancia_unidad = $porcentajeGanancia;
+                        $detalle->cantidad = (int) $item['cantidad'];
+                        $detalle->save();
+
+                        $detallesMantener[] = $detalle->id;
+                        $this->crearOActualizarInventario($item, $compra->sucursal_id, (int) $item['producto_id'], $compra->id);
                     }
 
-                    if (!$detalle) {
-                        $detalle = new CompraDetalle();
-                        $detalle->compra_id = $compra->id;
+                    if (empty($detallesMantener)) {
+                        $detallesEliminar = $compra->detalles;
+                    } else {
+                        $detallesEliminar = $compra->detalles->whereNotIn('id', $detallesMantener);
                     }
 
-                    $precioCompra = (float) ($item['precio_compra'] ?? 0);
-                    $precioVenta = (float) ($item['precio_venta'] ?? 0);
-                    $porcentajeGanancia = (float) ($item['porcentaje_ganancia'] ?? 0);
-
-                    if ($precioCompra > 0) {
-                        $porcentajeGanancia = (($precioVenta - $precioCompra) / $precioCompra) * 100;
+                    foreach ($detallesEliminar as $detalleEliminar) {
+                        Inventario::where('compra_id', $compra->id)
+                            ->where('producto_id', $detalleEliminar->producto_id)
+                            ->when(
+                                $detalleEliminar->lote_id === null,
+                                fn ($query) => $query->whereNull('lote_id'),
+                                fn ($query) => $query->where('lote_id', $detalleEliminar->lote_id)
+                            )
+                            ->delete();
                     }
 
-                    $detalle->producto_id = (int) $item['producto_id'];
-                    $detalle->lote_id = (int) $item['lote_id'];
-                    $detalle->precio_compra_unidad = $precioCompra;
-                    $detalle->precio_venta_unidad = $precioVenta;
-                    $detalle->porcentaje_ganancia_unidad = $porcentajeGanancia;
-                    $detalle->cantidad = (int) $item['cantidad'];
-                    $detalle->save();
+                    if (empty($detallesMantener)) {
+                        $compra->detalles()->delete();
+                    } else {
+                        $compra->detalles()->whereNotIn('id', $detallesMantener)->delete();
+                    }
 
-                    $detallesMantener[] = $detalle->id;
-                    $this->crearOActualizarInventario($item, $compra->sucursal_id, (int) $item['producto_id'], $compra->id);
-                }
+                },
+            );
 
-                if (empty($detallesMantener)) {
-                    $detallesEliminar = $compra->detalles;
-                } else {
-                    $detallesEliminar = $compra->detalles->whereNotIn('id', $detallesMantener);
-                }
-
-                foreach ($detallesEliminar as $detalleEliminar) {
-                    Inventario::where('compra_id', $compra->id)
-                        ->where('producto_id', $detalleEliminar->producto_id)
-                        ->when(
-                            $detalleEliminar->lote_id === null,
-                            fn ($query) => $query->whereNull('lote_id'),
-                            fn ($query) => $query->where('lote_id', $detalleEliminar->lote_id)
-                        )
-                        ->delete();
-                }
-
-                if (empty($detallesMantener)) {
-                    $compra->detalles()->delete();
-                } else {
-                    $compra->detalles()->whereNotIn('id', $detallesMantener)->delete();
-                }
-
-                DB::commit();
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Compra registrada exitosamente',
-                    'redirect' => route('admin.compras.index')
-                ], 200);
-            } catch (\Exception $e) {
-                DB::rollBack();
-                throw $e;
-            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Compra registrada exitosamente',
+                'redirect' => route('admin.compras.index')
+            ], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -464,17 +507,23 @@ class CompraController extends Controller
      */
     public function destroy($id)
     {
-        $compra = Compra::with('detalles')->findOrFail($id);
-        $loteIds = $compra->detalles
-            ->pluck('lote_id')
-            ->filter()
-            ->unique()
-            ->values();
+        $loteIds = $this->historialStock->ejecutar(
+            (int) $id,
+            'compra_eliminada',
+            auth()->id(),
+            function (Compra $compra) {
+                $loteIds = $compra->detalles()
+                    ->pluck('lote_id')
+                    ->filter()
+                    ->unique()
+                    ->values();
 
-        DB::transaction(function () use ($compra) {
-            Inventario::where('compra_id', $compra->id)->delete();
-            $compra->delete();
-        });
+                Inventario::where('compra_id', $compra->id)->delete();
+                $compra->delete();
+
+                return $loteIds;
+            },
+        );
 
         foreach ($loteIds as $loteId) {
             $tieneDetalles = CompraDetalle::where('lote_id', $loteId)->exists();

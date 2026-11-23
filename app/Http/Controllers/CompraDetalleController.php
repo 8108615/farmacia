@@ -5,13 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\CompraDetalle;
 use App\Models\Compra;
 use App\Models\Inventario;
+use App\Services\HistorialStockCompra;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class CompraDetalleController extends Controller
 {
+    public function __construct(private HistorialStockCompra $historialStock)
+    {
+    }
     /**
      * Display a listing of the resource.
      */
@@ -26,61 +31,68 @@ class CompraDetalleController extends Controller
     public function addItem(Request $request, $compra_id)
     {
         try {
-            Log::info('=== START addItem CompraDetalle ===', ['compra_id' => $compra_id, 'user_id' => Auth::id()]);
-            Log::info('Request data:', $request->all());
-            
-            // Verificar que la compra exista y pertenezca al usuario
-            $compra = Compra::where('id', $compra_id)
-                ->where('usuario_id', Auth::id())
-                ->first();
-            
-            if (!$compra) {
-                Log::warning('Compra no encontrada o no pertenece al usuario');
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Compra no encontrada o no tienes permiso'
-                ], 404);
-            }
+            return $this->historialStock->ejecutar(
+                (int) $compra_id,
+                'linea_compra_agregada',
+                Auth::id(),
+                function (Compra $compra) use ($request, $compra_id) {
+                    Log::info('=== START addItem CompraDetalle ===', ['compra_id' => $compra_id, 'user_id' => Auth::id()]);
+                    Log::info('Request data:', $request->all());
 
-            $validated = $request->validate([
-                'producto_id' => 'required|exists:productos,id',
-            ]);
+                    // Verificar que la compra exista y pertenezca al usuario
+                    if ((int) $compra->usuario_id !== (int) Auth::id()) {
+                        Log::warning('Compra no encontrada o no pertenece al usuario');
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Compra no encontrada o no tienes permiso'
+                        ], 404);
+                    }
 
-            Log::info('Validated data:', $validated);
+                    $validated = $request->validate([
+                        'producto_id' => 'required|exists:productos,id',
+                    ]);
 
-            // Verificar si el producto ya existe en la compra
-            $existente = CompraDetalle::where('compra_id', $compra_id)
-                ->where('producto_id', $validated['producto_id'])
-                ->first();
+                    Log::info('Validated data:', $validated);
 
-            if ($existente) {
-                Log::warning('Producto ya existe en la compra');
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Este producto ya está en la compra'
-                ], 422);
-            }
+                    // Verificar si el producto ya existe en la compra
+                    $existente = CompraDetalle::where('compra_id', $compra_id)
+                        ->where('producto_id', $validated['producto_id'])
+                        ->first();
 
-            $item = CompraDetalle::create([
-                'compra_id' => $compra_id,
-                'producto_id' => $validated['producto_id'],
-                'cantidad' => 0,
-                'precio_compra_unidad' => 0,
-                'precio_venta_unidad' => 0,
-                'porcentaje_ganancia_unidad' => 0,
-            ]);
+                    if ($existente) {
+                        Log::warning('Producto ya existe en la compra');
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Este producto ya está en la compra'
+                        ], 422);
+                    }
 
-            $totalCompra = $this->actualizarTotalCompra($compra);
+                    $item = CompraDetalle::create([
+                        'compra_id' => $compra_id,
+                        'producto_id' => $validated['producto_id'],
+                        'cantidad' => 0,
+                        'precio_compra_unidad' => 0,
+                        'precio_venta_unidad' => 0,
+                        'porcentaje_ganancia_unidad' => 0,
+                    ]);
 
-            Log::info('Item creado:', ['id' => $item->id, 'item' => $item->toArray()]);
+                    $totalCompra = $this->actualizarTotalCompra($compra);
 
+                    Log::info('Item creado:', ['id' => $item->id, 'item' => $item->toArray()]);
+
+                    return response()->json([
+                        'success' => true,
+                        'item_id' => $item->id,
+                        'total' => $totalCompra,
+                        'message' => 'Producto agregado'
+                    ], 201);
+                },
+            );
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'success' => true,
-                'item_id' => $item->id,
-                'total' => $totalCompra,
-                'message' => 'Producto agregado'
-            ], 201);
-
+                'success' => false,
+                'message' => 'Compra no encontrada o no tienes permiso',
+            ], 404);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('ValidationException en addItem:', $e->errors());
             return response()->json([
@@ -108,90 +120,97 @@ class CompraDetalleController extends Controller
     public function updateItem(Request $request, $compra_id, $item_id)
     {
         try {
-            Log::info('=== START updateItem CompraDetalle ===', ['compra_id' => $compra_id, 'itemId' => $item_id, 'user_id' => Auth::id()]);
-            Log::info('Request data:', $request->all());
-            
-            // Verificar que la compra exista y pertenezca al usuario
-            $compra = Compra::where('id', $compra_id)
-                ->where('usuario_id', Auth::id())
-                ->first();
-            
-            if (!$compra) {
-                Log::warning('Compra no encontrada o no pertenece al usuario');
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Compra no encontrada o no tienes permiso'
-                ], 404);
-            }
+            return $this->historialStock->ejecutar(
+                (int) $compra_id,
+                'linea_compra_editada',
+                Auth::id(),
+                function (Compra $compra) use ($request, $compra_id, $item_id) {
+                    Log::info('=== START updateItem CompraDetalle ===', ['compra_id' => $compra_id, 'itemId' => $item_id, 'user_id' => Auth::id()]);
+                    Log::info('Request data:', $request->all());
 
-            $validated = $request->validate([
-                'cantidad' => 'nullable|numeric|min:0',
-                'precio_compra_unidad' => 'nullable|numeric|min:0',
-                'precio_venta_unidad' => 'nullable|numeric|min:0',
-                'porcentaje_ganancia_unidad' => 'nullable|numeric',
-                'lote_id' => 'nullable|exists:lotes,id',
-                'ubicacion_fisica_id' => 'nullable|exists:ubicacion_fisicas,id',
-            ]);
+                    // Verificar que la compra exista y pertenezca al usuario
+                    if ((int) $compra->usuario_id !== (int) Auth::id()) {
+                        Log::warning('Compra no encontrada o no pertenece al usuario');
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Compra no encontrada o no tienes permiso'
+                        ], 404);
+                    }
 
-            Log::info('Validated data:', $validated);
+                    $validated = $request->validate([
+                        'cantidad' => 'nullable|numeric|min:0',
+                        'precio_compra_unidad' => 'nullable|numeric|min:0',
+                        'precio_venta_unidad' => 'nullable|numeric|min:0',
+                        'porcentaje_ganancia_unidad' => 'nullable|numeric',
+                        'lote_id' => 'nullable|exists:lotes,id',
+                        'ubicacion_fisica_id' => 'nullable|exists:ubicacion_fisicas,id',
+                    ]);
 
-            $item = CompraDetalle::where('id', $item_id)
-                ->where('compra_id', $compra_id)
-                ->first();
-            
-            if (!$item) {
-                Log::warning('Item no encontrado:', ['itemId' => $item_id, 'compra_id' => $compra_id]);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Producto no encontrado'
-                ], 404);
-            }
+                    Log::info('Validated data:', $validated);
 
-            $item->update($validated);
+                    $item = CompraDetalle::where('id', $item_id)
+                        ->where('compra_id', $compra_id)
+                        ->first();
 
-            if (!empty($validated['ubicacion_fisica_id']) && !empty($validated['lote_id'])) {
-                $inventario = Inventario::where([
-                    'lote_id' => (int) $validated['lote_id'],
-                    'sucursal_id' => $compra->sucursal_id,
-                    'producto_id' => $item->producto_id,
-                        'compra_id' => $compra->id,
-                    ])->latest('id')->first();
+                    if (!$item) {
+                        Log::warning('Item no encontrado:', ['itemId' => $item_id, 'compra_id' => $compra_id]);
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Producto no encontrado'
+                        ], 404);
+                    }
 
-                    if ($inventario) {
-                        $inventario->ubicacion_fisica_id = (int) $validated['ubicacion_fisica_id'];
-                        $inventario->precio_compra_unidad = (float) ($validated['precio_compra_unidad'] ?? $item->precio_compra_unidad);
-                        $inventario->precio_venta_unidad = (float) ($validated['precio_venta_unidad'] ?? $item->precio_venta_unidad);
-                        $inventario->stock_actual = (int) ($validated['cantidad'] ?? $item->cantidad);
-                        $inventario->fecha_registro = Carbon::now()->toDateString();
-                        $inventario->estado = 'compra';
-                        $inventario->save();
-                    } else {
-                        Inventario::create([
+                    $item->update($validated);
+
+                    if ($compra->estado === 'completada' && !empty($validated['ubicacion_fisica_id']) && !empty($validated['lote_id'])) {
+                        $inventario = Inventario::where([
                             'lote_id' => (int) $validated['lote_id'],
-                            'ubicacion_fisica_id' => (int) $validated['ubicacion_fisica_id'],
                             'sucursal_id' => $compra->sucursal_id,
                             'producto_id' => $item->producto_id,
-                            'compra_id' => $compra->id,
-                            'precio_compra_unidad' => (float) ($validated['precio_compra_unidad'] ?? $item->precio_compra_unidad),
-                            'precio_venta_unidad' => (float) ($validated['precio_venta_unidad'] ?? $item->precio_venta_unidad),
-                            'stock_actual' => (int) ($validated['cantidad'] ?? $item->cantidad),
-                            'stock_minimo' => 0,
-                            'stock_maximo' => 0,
-                            'fecha_registro' => Carbon::now()->toDateString(),
-                            'estado' => 'compra',
-                    ]);
-                }
-            }
+                                'compra_id' => $compra->id,
+                            ])->latest('id')->first();
 
-            $totalCompra = $this->actualizarTotalCompra($compra);
-            Log::info('Item actualizado:', $item->toArray());
+                            if ($inventario) {
+                                $inventario->ubicacion_fisica_id = (int) $validated['ubicacion_fisica_id'];
+                                $inventario->precio_compra_unidad = (float) ($validated['precio_compra_unidad'] ?? $item->precio_compra_unidad);
+                                $inventario->precio_venta_unidad = (float) ($validated['precio_venta_unidad'] ?? $item->precio_venta_unidad);
+                                $inventario->stock_actual = (int) ($validated['cantidad'] ?? $item->cantidad);
+                                $inventario->fecha_registro = Carbon::now()->toDateString();
+                                $inventario->estado = 'compra';
+                                $inventario->save();
+                            } else {
+                                Inventario::create([
+                                    'lote_id' => (int) $validated['lote_id'],
+                                    'ubicacion_fisica_id' => (int) $validated['ubicacion_fisica_id'],
+                                    'sucursal_id' => $compra->sucursal_id,
+                                    'producto_id' => $item->producto_id,
+                                    'compra_id' => $compra->id,
+                                    'precio_compra_unidad' => (float) ($validated['precio_compra_unidad'] ?? $item->precio_compra_unidad),
+                                    'precio_venta_unidad' => (float) ($validated['precio_venta_unidad'] ?? $item->precio_venta_unidad),
+                                    'stock_actual' => (int) ($validated['cantidad'] ?? $item->cantidad),
+                                    'stock_minimo' => 0,
+                                    'stock_maximo' => 0,
+                                    'fecha_registro' => Carbon::now()->toDateString(),
+                                    'estado' => 'compra',
+                            ]);
+                        }
+                    }
 
+                    $totalCompra = $this->actualizarTotalCompra($compra);
+                    Log::info('Item actualizado:', $item->toArray());
+
+                    return response()->json([
+                        'success' => true,
+                        'total' => $totalCompra,
+                        'message' => 'Producto actualizado'
+                    ], 200);
+                },
+            );
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'success' => true,
-                'total' => $totalCompra,
-                'message' => 'Producto actualizado'
-            ], 200);
-
+                'success' => false,
+                'message' => 'Compra no encontrada o no tienes permiso',
+            ], 404);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('ValidationException en updateItem:', $e->errors());
             return response()->json([
@@ -218,52 +237,52 @@ class CompraDetalleController extends Controller
     public function removeItem($compra_id, $item_id)
     {
         try {
-            Log::info('RemoveItem CompraDetalle llamado:', ['compra_id' => $compra_id, 'itemId' => $item_id, 'usuario' => Auth::id()]);
-            
-            // Verificar que la compra exista y pertenezca al usuario
-            $compra = Compra::where('id', $compra_id)
-                ->where('usuario_id', Auth::id())
-                ->first();
-            
-            if (!$compra) {
-                Log::warning('Compra no encontrada o no pertenece al usuario');
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Compra no encontrada o no tienes permiso'
-                ], 404);
-            }
+            return $this->historialStock->ejecutar(
+                (int) $compra_id,
+                'linea_compra_eliminada',
+                Auth::id(),
+                function (Compra $compra) use ($compra_id, $item_id) {
+                    Log::info('RemoveItem CompraDetalle llamado:', ['compra_id' => $compra_id, 'itemId' => $item_id, 'usuario' => Auth::id()]);
 
-            $item = CompraDetalle::where('id', $item_id)
-                ->where('compra_id', $compra_id)
-                ->first();
-            
-            if (!$item) {
-                Log::warning('Item no encontrado en compra');
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Producto no encontrado en esta compra',
-                ], 404);
-            }
+                    // Verificar que la compra exista y pertenezca al usuario
+                    if ((int) $compra->usuario_id !== (int) Auth::id()) {
+                        Log::warning('Compra no encontrada o no pertenece al usuario');
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Compra no encontrada o no tienes permiso'
+                        ], 404);
+                    }
 
-            $item->delete();
+                    $item = CompraDetalle::where('id', $item_id)
+                        ->where('compra_id', $compra_id)
+                        ->first();
 
-            Inventario::where('compra_id', $compra_id)
-                ->where('producto_id', $item->producto_id)
-                ->when(
-                    $item->lote_id === null,
-                    fn ($query) => $query->whereNull('lote_id'),
-                    fn ($query) => $query->where('lote_id', $item->lote_id)
-                )
-                ->delete();
+                    if (!$item) {
+                        Log::warning('Item no encontrado en compra');
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Producto no encontrado en esta compra',
+                        ], 404);
+                    }
 
-            $totalCompra = $this->actualizarTotalCompra($compra);
+                    $item->delete();
 
+                    $this->retirarPartidaSinDetalle($compra, $item);
+
+                    $totalCompra = $this->actualizarTotalCompra($compra);
+
+                    return response()->json([
+                        'success' => true,
+                        'total' => $totalCompra,
+                        'message' => 'Producto eliminado'
+                    ], 200);
+                },
+            );
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'success' => true,
-                'total' => $totalCompra,
-                'message' => 'Producto eliminado'
-            ], 200);
-
+                'success' => false,
+                'message' => 'Compra no encontrada o no tienes permiso',
+            ], 404);
         } catch (\Exception $e) {
             Log::error('Error en removeItem CompraDetalle: ' . $e->getMessage());
             return response()->json([
@@ -279,36 +298,47 @@ class CompraDetalleController extends Controller
     public function clearItems(Request $request, $compra_id)
     {
         try {
-            // Verificar que la compra exista y pertenezca al usuario
-            $compra = Compra::where('id', $compra_id)
-                ->where('usuario_id', Auth::id())
-                ->first();
-            
-            if (!$compra) {
-                Log::warning('Compra no encontrada o no pertenece al usuario');
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Compra no encontrada o no tienes permiso'
-                ], 404);
-            }
+            return $this->historialStock->ejecutar(
+                (int) $compra_id,
+                'lineas_compra_eliminadas',
+                Auth::id(),
+                function (Compra $compra) use ($request, $compra_id) {
+                    // Verificar que la compra exista y pertenezca al usuario
+                    if ((int) $compra->usuario_id !== (int) Auth::id()) {
+                        Log::warning('Compra no encontrada o no pertenece al usuario');
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Compra no encontrada o no tienes permiso'
+                        ], 404);
+                    }
 
-            $validated = $request->validate([
-                'item_ids' => 'required|array|min:1',
-                'item_ids.*' => 'integer|min:1',
-            ]);
+                    $validated = $request->validate([
+                        'item_ids' => 'required|array|min:1',
+                        'item_ids.*' => 'integer|min:1',
+                    ]);
 
-            $deleted = CompraDetalle::where('compra_id', $compra_id)
-                ->whereIn('id', $validated['item_ids'])
-                ->delete();
+                    $detalles = $compra->detalles()->whereIn('id', $validated['item_ids'])->get();
+                    $deleted = $compra->detalles()->whereIn('id', $detalles->modelKeys())->delete();
 
-            $totalCompra = $this->actualizarTotalCompra($compra);
+                    foreach ($detalles as $detalle) {
+                        $this->retirarPartidaSinDetalle($compra, $detalle);
+                    }
 
+                    $totalCompra = $this->actualizarTotalCompra($compra);
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Carrito limpiado correctamente',
+                        'deleted_count' => $deleted,
+                        'total' => $totalCompra,
+                    ], 200);
+                },
+            );
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'success' => true,
-                'message' => 'Carrito limpiado correctamente',
-                'deleted_count' => $deleted,
-                'total' => $totalCompra,
-            ], 200);
+                'success' => false,
+                'message' => 'Compra no encontrada o no tienes permiso',
+            ], 404);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -372,6 +402,22 @@ class CompraDetalleController extends Controller
     public function destroy(CompraDetalle $compraDetalle)
     {
         //
+    }
+
+    private function retirarPartidaSinDetalle(Compra $compra, CompraDetalle $detalle): void
+    {
+        $quedaDetalle = $compra->detalles()
+            ->where('producto_id', $detalle->producto_id)
+            ->where('lote_id', $detalle->lote_id)
+            ->exists();
+
+        if (!$quedaDetalle) {
+            Inventario::query()
+                ->where('compra_id', $compra->id)
+                ->where('producto_id', $detalle->producto_id)
+                ->where('lote_id', $detalle->lote_id)
+                ->delete();
+        }
     }
 
     private function actualizarTotalCompra(Compra $compra): float
