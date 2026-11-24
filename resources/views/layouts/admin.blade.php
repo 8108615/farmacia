@@ -80,6 +80,10 @@
             box-shadow: none;
         }
 
+        .sidebar-menu .sidebar-ventas .submenu .sidebar-link::after {
+            content: none;
+        }
+
         .sidebar-menu .submenu .sidebar-link:hover {
             background: rgba(66, 99, 235, .08);
             color: #1d4ed8;
@@ -349,6 +353,29 @@
                                             class="sidebar-link {{ request()->routeIs('admin.compras.*') ? 'active' : '' }}">
                                             <i class="bi bi-cart-check"></i>
                                             <span>Compras</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+
+
+                            <li class="sidebar-item has-sub sidebar-ventas">
+                                <a href="#" class="sidebar-link has-arrow">
+                                    <i class="bi bi-cart" aria-hidden="true"></i>
+                                    <span>Ventas</span>
+                                </a>
+                                <ul class="submenu">
+                                    <li class="submenu-item {{ request()->routeIs('admin.ventas.create') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.ventas.create') }}" class="sidebar-link">
+                                            <i class="bi bi-cart-plus" aria-hidden="true"></i>
+                                            <span>Nueva venta</span>
+                                        </a>
+                                    </li>
+                                    <li class="submenu-item {{ request()->routeIs('admin.ventas.index', 'admin.ventas.show', 'admin.ventas.comprobante') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.ventas.index') }}" class="sidebar-link">
+                                            <i class="bi bi-list-ul" aria-hidden="true"></i>
+                                            <span>Listado</span>
                                         </a>
                                     </li>
                                 </ul>

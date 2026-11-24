@@ -131,6 +131,12 @@ Route::delete('/admin/compras/{id}', [App\Http\Controllers\CompraController::cla
 // Rutas para ventas
 Route::get('/admin/ventas/create', [App\Http\Controllers\VentaController::class, 'create'])->name('admin.ventas.create')->middleware('auth');
 Route::post('/admin/ventas', [App\Http\Controllers\VentaController::class, 'store'])->name('admin.ventas.store')->middleware('auth');
+Route::get('/admin/ventas', [App\Http\Controllers\VentaController::class, 'index'])->name('admin.ventas.index')->middleware('auth');
+Route::get('/admin/ventas/{venta}', [App\Http\Controllers\VentaController::class, 'show'])->name('admin.ventas.show')->middleware('auth');
+Route::get('/admin/ventas/{venta}/comprobante', [App\Http\Controllers\VentaController::class, 'comprobante'])->name('admin.ventas.comprobante')->middleware('auth');
+Route::patch('/admin/ventas/{venta}/cancelar', [App\Http\Controllers\VentaController::class, 'cancelar'])->name('admin.ventas.cancelar')->middleware('auth');
+
+
 
 // Rutas para inventarios
 Route::get('/admin/inventarios', [App\Http\Controllers\InventarioController::class, 'index'])->name('admin.inventarios.index')->middleware('auth');
