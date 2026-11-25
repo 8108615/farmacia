@@ -31,21 +31,28 @@
                 </div>
                 <div class="col-md-8">
                     <label for="buscar-producto" class="form-label">Buscar producto</label>
-                    <input id="buscar-producto" type="search" class="form-control" placeholder="Nombre, código, código de barras o lote">
+                    <input id="buscar-producto" type="search" class="form-control" placeholder="Nombre, código, laboratorio, categoría, forma, presentación o lote">
                 </div>
             </div>
 
             <div class="table-responsive mt-3">
-                <table class="table table-hover align-middle">
-                    <thead><tr>
-                        <th>Producto</th><th>Lote</th><th>Vencimiento</th>
-                        <th class="text-end">Stock</th><th class="text-end">Precio unitario</th>
-                    </tr></thead>
+                <table id="tabla-catalogo-venta" class="table table-hover table-sm align-middle small">
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Código / Barra</th><th>Nombre comercial</th><th>Nombre genérico</th>
+                            <th>Concentración</th><th>Laboratorio</th><th>Categoría</th><th>Acción terapéutica</th>
+                            <th>Receta</th><th>Forma / Presentación</th><th class="text-end">Precio de venta</th>
+                            <th class="text-end">Stock</th><th>Sucursal / Ubicación</th>
+                            <th>Lote / Partida</th><th>Vencimiento</th><th>Días</th>
+                        </tr>
+                    </thead>
                     <tbody>
                     <?php $hoy = today(); ?>
                     @foreach ($partidas as $partida)
                         @php
+                            $producto = $partida->producto;
                             $vencimiento = $partida->lote?->fecha_vencimiento;
+                            $diasVencimiento = $vencimiento ? (int) $hoy->diffInDays($vencimiento, false) : null;
                             $estado = !$vencimiento ? 'sin-fecha' : ($vencimiento->lt($hoy) ? 'vencido' : 'vigente');
                         @endphp
                         <tr @class(['table-danger' => $estado === 'vencido']) style="cursor: pointer"
@@ -53,46 +60,108 @@
                             data-partida="{{ $partida->id }}" data-sucursal="{{ $partida->sucursal_id }}"
                             data-stock="{{ $partida->stock_actual }}" data-precio="{{ $partida->precio_venta_unidad }}"
                             data-producto="{{ $partida->producto?->nombre_comercial }}"
+                            data-codigo="{{ $partida->producto?->codigo_producto }}"
+                            data-barra="{{ $partida->producto?->codigo_barra }}"
+                            data-generico="{{ $partida->producto?->nombre_generico }}"
+                            data-concentracion="{{ trim(($partida->producto?->concentracion ?? '') . ' ' . ($partida->producto?->unidad_medida ?? '')) }}"
+                            data-laboratorio="{{ $partida->producto?->laboratorio?->nombre }}"
+                            data-forma="{{ $partida->producto?->formaFarmaceutica?->nombre }}"
+                            data-presentacion="{{ $partida->producto?->presentacion?->nombre }}"
                             data-lote="{{ $partida->lote?->numero_lote }}"
-                            data-busqueda="{{ $partida->producto?->nombre_comercial }} {{ $partida->producto?->nombre_generico }} {{ $partida->producto?->codigo_producto }} {{ $partida->producto?->codigo_barra }} {{ $partida->lote?->numero_lote }}" hidden>
-                            <td>
-                                <button type="button" class="btn btn-link p-0 text-start text-reset"
-                                    aria-label="Seleccionar {{ $partida->producto?->nombre_comercial }}, partida {{ $partida->id }}">
-                                    {{ $partida->producto?->nombre_comercial }}
-                                </button><br>
-                                <small>{{ $partida->producto?->codigo_producto }}</small>
+                            data-busqueda="{{ $partida->producto?->nombre_comercial }} {{ $partida->producto?->nombre_generico }} {{ $partida->producto?->codigo_producto }} {{ $partida->producto?->codigo_barra }} {{ $partida->lote?->numero_lote }} {{ $producto?->laboratorio?->nombre }} {{ $producto?->categoria?->nombre }} {{ $producto?->formaFarmaceutica?->nombre }} {{ $producto?->presentacion?->nombre }}" hidden>
+                            <td class="numero-catalogo"></td>
+                            <td class="text-nowrap">
+                                <span class="badge bg-info text-dark">{{ $producto?->codigo_producto ?? '—' }}</span>
+                                <small class="d-block text-muted">{{ $producto?->codigo_barra ?: '—' }}</small>
                             </td>
-                            <td>{{ $partida->lote?->numero_lote }} <small>(#{{ $partida->id }})</small></td>
                             <td>
-                                {{ $vencimiento?->format('d/m/Y') ?? 'Sin fecha' }}
-                                @if ($estado === 'vencido')
-                                    <span class="badge bg-danger ms-1">Vencido</span>
+                                <button type="button" class="btn btn-link p-0 text-start text-reset fw-semibold"
+                                    aria-label="Agregar {{ $producto?->nombre_comercial }}, partida {{ $partida->id }}">
+                                    {{ $producto?->nombre_comercial ?? '—' }}
+                                </button>
+                            </td>
+                            <td>{{ $producto?->nombre_generico ?: '—' }}</td>
+                            <td>{{ trim(($producto?->concentracion ?? '') . ' ' . ($producto?->unidad_medida ?? '')) ?: '—' }}</td>
+                            <td>{{ $producto?->laboratorio?->nombre ?? '—' }}</td>
+                            <td>{{ $producto?->categoria?->nombre ?? '—' }}</td>
+                            <td>{{ $producto?->accion_terapeutica ?: '—' }}</td>
+                            <td class="text-nowrap">
+                                @if (!$producto)
+                                    —
+                                @elseif ($producto->usa_receta)
+                                    <span class="badge bg-warning text-dark">Con receta</span>
+                                @else
+                                    <span class="badge bg-success">Sin receta</span>
                                 @endif
                             </td>
+                            <td>{{ collect([$producto?->formaFarmaceutica?->nombre, $producto?->presentacion?->nombre])->filter()->implode(' / ') ?: '—' }}</td>
+                            <td class="text-end text-nowrap">{{ $divisa }} {{ $partida->precio_venta_unidad }}</td>
                             <td class="text-end">{{ $partida->stock_actual }}</td>
-                            <td class="text-end">{{ $divisa }} {{ $partida->precio_venta_unidad }}</td>
+                            <td>{{ $partida->sucursal?->nombre ?? '—' }}<small class="d-block">{{ $partida->ubicacionFisica?->nombre ?? 'Sin ubicación' }}</small></td>
+                            <td class="text-nowrap">{{ $partida->lote?->numero_lote ?? '—' }} <small>(#{{ $partida->id }})</small></td>
+                            <td class="text-nowrap">{{ $vencimiento?->format('d/m/Y') ?? 'Sin fecha' }}</td>
+                            <td class="text-nowrap">
+                                @if ($estado === 'vencido')
+                                    <span class="badge bg-danger">Vencido hace {{ abs($diasVencimiento) }} d</span>
+                                @elseif ($diasVencimiento !== null)
+                                    {{ $diasVencimiento === 0 ? 'Vence hoy' : $diasVencimiento . ' d' }}
+                                @else
+                                    —
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
-                    <tr id="sin-resultados"><td colspan="5" class="text-muted">Elige una sucursal para consultar sus existencias.</td></tr>
+                    <tr id="sin-resultados"><td colspan="16" class="text-muted">Elige una sucursal para consultar sus existencias.</td></tr>
                     </tbody>
                 </table>
+            </div>
+            <div id="paginacion-catalogo" class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-2">
+                <span id="resumen-catalogo" class="small text-muted" role="status"></span>
+                <nav id="controles-catalogo" aria-label="Páginas de productos" hidden>
+                    <button id="catalogo-anterior" type="button" class="btn btn-sm btn-outline-primary">Anterior</button>
+                    <span id="pagina-catalogo" class="small mx-2"></span>
+                    <button id="catalogo-siguiente" type="button" class="btn btn-sm btn-outline-primary">Siguiente</button>
+                </nav>
             </div>
         </div>
     </section>
 
     <section class="card">
         <div class="card-body">
-            <h4 class="card-title">Carrito</h4>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <h4 class="card-title mb-0">Carrito</h4>
+                <button id="limpiar-carrito" type="button" class="btn btn-outline-danger" disabled>
+                    <i class="bi bi-trash me-1" aria-hidden="true"></i> Limpiar carrito
+                </button>
+            </div>
             <p id="carrito-vacio" class="text-muted">Agrega una partida para comenzar.</p>
             <div class="table-responsive">
-                <table id="tabla-carrito" class="table align-middle" hidden>
-                    <thead><tr><th>Producto y partida</th><th>Cantidad</th><th class="text-end">Subtotal</th><th>Acción</th></tr></thead>
+                <table id="tabla-carrito" class="table table-sm align-middle" hidden>
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Código / Barra</th>
+                            <th scope="col">Nombre comercial</th>
+                            <th scope="col">Nombre genérico</th>
+                            <th scope="col">Concentración</th>
+                            <th scope="col">Laboratorio</th>
+                            <th scope="col">Forma / Presentación</th>
+                            <th scope="col">Lote / Partida</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col" class="text-end">Precio unitario</th>
+                            <th scope="col" class="text-end">Subtotal</th>
+                            <th scope="col">Acción</th>
+                        </tr>
+                    </thead>
                     <tbody id="lineas-carrito"></tbody>
                 </table>
             </div>
             <div class="d-flex justify-content-between align-items-center">
                 <strong>Total <output id="total-venta">{{ $divisa }} 0.00</output></strong>
-                <button id="revisar-venta" type="button" class="btn btn-primary" disabled>Siguiente</button>
+                <div class="d-flex flex-wrap gap-2">
+                    <a id="cancelar-venta" href="{{ route('admin.ventas.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button id="revisar-venta" type="button" class="btn btn-primary" disabled>Siguiente</button>
+                </div>
             </div>
         </div>
     </section>
@@ -137,9 +206,23 @@
 
 <template id="plantilla-linea">
     <tr>
-        <td class="detalle-partida"><input type="hidden" class="id-partida"></td>
+        <td class="numero-linea"></td>
+        <td class="text-nowrap">
+            <span class="badge bg-info text-dark" data-campo="codigo"></span>
+            <small class="d-block text-muted" data-campo="barra"></small>
+        </td>
+        <td class="fw-semibold" data-campo="producto"></td>
+        <td data-campo="generico"></td>
+        <td data-campo="concentracion"></td>
+        <td data-campo="laboratorio"></td>
+        <td data-campo="formaPresentacion"></td>
+        <td class="text-nowrap">
+            <input type="hidden" class="id-partida">
+            <span data-campo="lotePartida"></span>
+        </td>
         <td><input type="number" min="1" class="form-control cantidad-partida" required></td>
-        <td class="subtotal text-end"></td>
+        <td class="precio-unitario text-end text-nowrap"></td>
+        <td class="subtotal text-end text-nowrap"></td>
         <td><button type="button" class="btn btn-outline-danger btn-sm quitar-partida">Quitar</button></td>
     </tr>
 </template>
@@ -151,6 +234,8 @@
     const buscar = document.querySelector('#buscar-producto');
     const filas = [...form.querySelectorAll('[data-partida]')];
     const lineas = document.querySelector('#lineas-carrito');
+    const limpiarCarrito = document.querySelector('#limpiar-carrito');
+    const cancelarVenta = document.querySelector('#cancelar-venta');
     const siguiente = document.querySelector('#revisar-venta');
     const confirmacion = document.querySelector('#confirmacion-venta');
     const guardar = document.querySelector('#guardar-venta');
@@ -199,18 +284,50 @@
     }
 
 
+    const porPagina = 10;
+    const anteriorCatalogo = document.querySelector('#catalogo-anterior');
+    const siguienteCatalogo = document.querySelector('#catalogo-siguiente');
+    let paginaCatalogo = 1;
+    const normalizarBusqueda = texto => texto.trim().toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
     function filtrar() {
-        const texto = buscar.value.trim().toLocaleLowerCase();
-        for (const fila of filas) {
-            fila.hidden = fila.dataset.sucursal !== sucursal.value ||
-                !fila.dataset.busqueda.toLocaleLowerCase().includes(texto);
-        }
+        const texto = normalizarBusqueda(buscar.value);
+        const coincidencias = filas.filter(fila => fila.dataset.sucursal === sucursal.value &&
+            normalizarBusqueda(fila.dataset.busqueda).includes(texto));
+        const paginas = Math.max(1, Math.ceil(coincidencias.length / porPagina));
+        paginaCatalogo = Math.min(Math.max(1, paginaCatalogo), paginas);
+        const inicio = (paginaCatalogo - 1) * porPagina;
+        const visibles = coincidencias.slice(inicio, inicio + porPagina);
+
+        filas.forEach(fila => { fila.hidden = true; });
+        visibles.forEach((fila, indice) => {
+            fila.hidden = false;
+            fila.querySelector('.numero-catalogo').textContent = inicio + indice + 1;
+        });
+
         const aviso = document.querySelector('#sin-resultados');
-        aviso.hidden = filas.some(fila => !fila.hidden);
+        aviso.hidden = coincidencias.length > 0;
         aviso.firstElementChild.textContent = sucursal.value
             ? 'No hay partidas disponibles para esta búsqueda.'
             : 'Elige una sucursal para consultar sus existencias.';
+        document.querySelector('#resumen-catalogo').textContent = coincidencias.length
+            ? 'Mostrando ' + (inicio + 1) + '–' + (inicio + visibles.length) + ' de ' + coincidencias.length + ' partidas'
+            : '';
+        document.querySelector('#controles-catalogo').hidden = paginas <= 1;
+        document.querySelector('#pagina-catalogo').textContent = paginaCatalogo + ' de ' + paginas;
+        anteriorCatalogo.disabled = paginaCatalogo === 1;
+        siguienteCatalogo.disabled = paginaCatalogo === paginas;
     }
+
+    anteriorCatalogo.addEventListener('click', () => {
+        paginaCatalogo--;
+        filtrar();
+    });
+    siguienteCatalogo.addEventListener('click', () => {
+        paginaCatalogo++;
+        filtrar();
+    });
+
 
     function moneda(centavos) {
         return form.dataset.divisa + ' ' + (centavos / 100).toFixed(2);
@@ -220,6 +337,7 @@
         let total = 0;
         let valido = lineas.rows.length > 0;
         for (const linea of lineas.rows) {
+            linea.querySelector('.numero-linea').textContent = linea.sectionRowIndex + 1;
             const cantidad = linea.querySelector('.cantidad-partida');
             const subtotal = cantidad.validity.valid ? Number(cantidad.value) * Number(linea.dataset.centavos) : 0;
             valido = valido && cantidad.validity.valid;
@@ -229,6 +347,7 @@
         document.querySelector('#total-venta').textContent = moneda(total);
         document.querySelector('#carrito-vacio').hidden = lineas.rows.length > 0;
         document.querySelector('#tabla-carrito').hidden = lineas.rows.length === 0;
+        limpiarCarrito.disabled = lineas.rows.length === 0;
         siguiente.disabled = !valido;
         const pagoValido = actualizarPago(total);
         guardar.disabled = !valido || confirmacion.hidden || !pagoValido || !cliente.value;
@@ -239,9 +358,15 @@
         const linea = document.querySelector('#plantilla-linea').content.firstElementChild.cloneNode(true);
         linea.dataset.id = datos.partida;
         linea.dataset.centavos = Math.round(Number(datos.precio) * 100);
-        linea.querySelector('.detalle-partida').append(
-            datos.producto + ' · ' + datos.lote + ' (#' + datos.partida + ')'
-        );
+        const campos = {
+            ...datos,
+            formaPresentacion: [datos.forma, datos.presentacion].filter(Boolean).join(' / '),
+            lotePartida: (datos.lote || '—') + ' (#' + datos.partida + ')',
+        };
+        for (const celda of linea.querySelectorAll('[data-campo]')) {
+            celda.textContent = campos[celda.dataset.campo] || '—';
+        }
+        linea.querySelector('.precio-unitario').textContent = moneda(Number(linea.dataset.centavos));
         const prefijo = 'items[' + datos.partida + ']';
         const id = linea.querySelector('.id-partida');
         id.name = prefijo + '[inventario_id]';
@@ -313,12 +438,62 @@
             return;
         }
         sucursalAnterior = sucursal.value;
+        paginaCatalogo = 1;
         lineas.replaceChildren();
         confirmacion.hidden = true;
         filtrar();
         actualizar();
     });
-    buscar.addEventListener('input', filtrar);
+    buscar.addEventListener('input', () => {
+        paginaCatalogo = 1;
+        filtrar();
+    });
+
+    async function confirmarDescarte(titulo, mensaje, boton) {
+        if (typeof Swal === 'undefined') {
+            return window.confirm(titulo + '\n' + mensaje);
+        }
+
+        const resultado = await Swal.fire({
+            titleText: titulo,
+            text: mensaje,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: boton,
+            cancelButtonText: 'Volver',
+            focusCancel: true,
+            reverseButtons: true,
+            confirmButtonColor: '#dc3545'
+        });
+        return resultado.isConfirmed;
+    }
+
+    limpiarCarrito.addEventListener('click', async () => {
+        const confirmado = await confirmarDescarte(
+            '¿Limpiar el carrito?',
+            'Se quitarán todas las partidas seleccionadas.',
+            'Sí, limpiar'
+        );
+        if (!confirmado) return;
+
+        lineas.replaceChildren();
+        recibido.value = '';
+        mostrarConfirmacion(false);
+        buscar.focus();
+    });
+
+    cancelarVenta.addEventListener('click', async event => {
+        if (!lineas.rows.length) return;
+
+        event.preventDefault();
+        const confirmado = await confirmarDescarte(
+            '¿Cancelar esta venta?',
+            'Se descartará el carrito y volverás al listado de ventas.',
+            'Sí, cancelar venta'
+        );
+        if (confirmado) window.location.assign(cancelarVenta.href);
+    });
+
 
     siguiente.addEventListener('click', () => {
         mostrarConfirmacion(true);
@@ -353,6 +528,46 @@
 @push('styles')
 <link rel="stylesheet" href="{{ asset('assets/extensions/choices.js/public/assets/styles/choices.min.css') }}">
 <style>
+@media (min-width: 1200px) {
+    #tabla-catalogo-venta {
+        width: 100%;
+        table-layout: fixed;
+        font-size: .76rem;
+        line-height: 1.3;
+    }
+
+    #tabla-catalogo-venta > :not(caption) > * > * {
+        padding: .4rem .32rem;
+        overflow-wrap: anywhere;
+        white-space: normal !important;
+    }
+
+    #tabla-catalogo-venta .badge,
+    #tabla-catalogo-venta .btn-link {
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        font-size: inherit;
+    }
+
+    #tabla-catalogo-venta th:nth-child(1) { width: 2%; }
+    #tabla-catalogo-venta th:nth-child(2) { width: 8%; }
+    #tabla-catalogo-venta th:nth-child(3) { width: 8%; }
+    #tabla-catalogo-venta th:nth-child(4) { width: 8%; }
+    #tabla-catalogo-venta th:nth-child(5) { width: 6%; }
+    #tabla-catalogo-venta th:nth-child(6) { width: 7%; }
+    #tabla-catalogo-venta th:nth-child(7) { width: 6%; }
+    #tabla-catalogo-venta th:nth-child(8) { width: 8%; }
+    #tabla-catalogo-venta th:nth-child(9) { width: 6%; }
+    #tabla-catalogo-venta th:nth-child(10) { width: 8%; }
+    #tabla-catalogo-venta th:nth-child(11) { width: 6%; }
+    #tabla-catalogo-venta th:nth-child(12) { width: 4%; }
+    #tabla-catalogo-venta th:nth-child(13) { width: 7%; }
+    #tabla-catalogo-venta th:nth-child(14) { width: 6%; }
+    #tabla-catalogo-venta th:nth-child(15) { width: 6%; }
+    #tabla-catalogo-venta th:nth-child(16) { width: 4%; }
+}
+
     .cliente-venta {
         --cliente-fondo: #fff;
         --cliente-texto: #25334d;

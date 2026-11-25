@@ -51,5 +51,11 @@
         </tbody>
     </table>
     <p class="importe"><strong>Total {{ $divisa }} {{ number_format($venta->total_venta, 2) }}</strong></p>
+    @if ($venta->monto_recibido !== null && $venta->cambio !== null)
+        <p class="importe">
+            Monto recibido {{ $divisa }} {{ number_format($venta->monto_recibido, 2) }}<br>
+            Cambio {{ $divisa }} {{ number_format($venta->cambio, 2) }}
+        </p>
+    @endif
 </body>
 </html>

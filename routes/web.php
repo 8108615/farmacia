@@ -132,6 +132,7 @@ Route::delete('/admin/compras/{id}', [App\Http\Controllers\CompraController::cla
 Route::get('/admin/ventas/create', [App\Http\Controllers\VentaController::class, 'create'])->name('admin.ventas.create')->middleware('auth');
 Route::post('/admin/ventas', [App\Http\Controllers\VentaController::class, 'store'])->name('admin.ventas.store')->middleware('auth');
 Route::get('/admin/ventas', [App\Http\Controllers\VentaController::class, 'index'])->name('admin.ventas.index')->middleware('auth');
+Route::get('/admin/ventas/reportes', [App\Http\Controllers\VentaReporteController::class, 'index'])->name('admin.ventas.reportes')->middleware('auth');
 Route::get('/admin/ventas/{venta}', [App\Http\Controllers\VentaController::class, 'show'])->name('admin.ventas.show')->middleware('auth');
 Route::get('/admin/ventas/{venta}/comprobante', [App\Http\Controllers\VentaController::class, 'comprobante'])->name('admin.ventas.comprobante')->middleware('auth');
 Route::patch('/admin/ventas/{venta}/cancelar', [App\Http\Controllers\VentaController::class, 'cancelar'])->name('admin.ventas.cancelar')->middleware('auth');
@@ -154,6 +155,10 @@ Route::get('/admin/cajas', [App\Http\Controllers\CajaController::class, 'index']
 Route::post('/admin/cajas/create', [App\Http\Controllers\CajaController::class, 'store'])->name('admin.cajas.store')->middleware('auth');
 Route::put('/admin/cajas/{id}', [App\Http\Controllers\CajaController::class, 'update'])->name('admin.cajas.update')->middleware('auth');
 Route::delete('/admin/cajas/{id}', [App\Http\Controllers\CajaController::class, 'destroy'])->name('admin.cajas.destroy')->middleware('auth');
+
+Route::post('/admin/cajas/{caja}/abrir', [App\Http\Controllers\CajaController::class, 'abrir'])->name('admin.cajas.abrir')->middleware('auth');
+Route::post('/admin/cajas/arqueos/{arqueo}/movimientos', [App\Http\Controllers\CajaController::class, 'movimiento'])->whereNumber('arqueo')->name('admin.cajas.movimiento')->middleware('auth');
+Route::post('/admin/cajas/arqueos/{arqueo}/cerrar', [App\Http\Controllers\CajaController::class, 'cerrar'])->whereNumber('arqueo')->name('admin.cajas.cerrar')->middleware('auth');
 
 // Rutas para arqueos
 Route::get('/admin/arqueos', [App\Http\Controllers\ArqueoController::class, 'index'])->name('admin.arqueos.index')->middleware('auth');

@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Caja extends Model
 {
     protected $fillable = [
-        'sucuarsal_id',
-        'nombre',,
+        'sucursal_id',
+        'nombre',
         'estado',
     ];
 

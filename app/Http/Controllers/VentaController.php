@@ -9,6 +9,7 @@ use App\Models\MovimientoInventario;
 use App\Models\Sucursal;
 use App\Models\Venta;
 use App\Models\VentaDetalle;
+use App\Services\CajaDeVenta;
 use App\Services\RegistroMovimientoInventario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -176,11 +177,13 @@ class VentaController extends Controller
         ]);
     }
 
-    public function cancelar(Request $request, Venta $venta, RegistroMovimientoInventario $registro)
+    public function cancelar(Request $request, Venta $venta, RegistroMovimientoInventario $registro, CajaDeVenta $caja)
     {
-        $usuarioId = (int) $request->user()->id;
+        $usuario = $request->user();
+        $usuarioId = (int) $usuario->id;
 
-        $cancelada = DB::transaction(function () use ($venta, $usuarioId, $registro) {
+        $cancelada = DB::transaction(function () use ($venta, $usuario, $usuarioId, $registro, $caja) {
+            $usuario->newQuery()->lockForUpdate()->findOrFail($usuarioId);
             $actual = Venta::query()->lockForUpdate()->findOrFail($venta->id);
             abort_unless((int) $actual->usuario_id === $usuarioId, 403);
 
@@ -213,6 +216,10 @@ class VentaController extends Controller
                     || (int) $partida->sucursal_id !== (int) $salida->sucursal_id) {
                     return false;
                 }
+            }
+
+            if ($actual->tipo_pago === 'efectivo') {
+                $caja->registrarDevolucion($actual->id, $actual->sucursal_id, $usuarioId);
             }
 
             foreach ($salidas as $salida) {
@@ -254,7 +261,15 @@ class VentaController extends Controller
             ->leftJoin('inventarios', 'inventarios.id', '=', 'venta_detalles.inventario_id')
             ->leftJoin('productos', 'productos.id', '=', 'inventarios.producto_id')
             ->leftJoin('lotes', 'lotes.id', '=', 'inventarios.lote_id')
-            ->select('venta_detalles.*', 'productos.nombre_comercial as producto', 'lotes.numero_lote as lote')
+            ->select(
+                'venta_detalles.*',
+                'productos.nombre_comercial as producto',
+                'productos.codigo_producto',
+                'productos.nombre_generico',
+                'productos.concentracion',
+                'productos.unidad_medida',
+                'lotes.numero_lote as lote',
+            )
             ->orderBy('venta_detalles.id')
             ->get();
         $divisa = Ajuste::query()->value('divisa') ?: 'Bs';
@@ -268,7 +283,7 @@ class VentaController extends Controller
         $clientes = Cliente::query()->orderBy('nombres_apellidos')->get();
         $sucursales = Sucursal::query()->orderBy('nombre')->get();
         $divisa = Ajuste::query()->value('divisa') ?: 'Bs';
-        $partidas = Inventario::query()->with(['producto', 'lote'])
+        $partidas = Inventario::query()->with(['producto.laboratorio', 'producto.formaFarmaceutica', 'producto.presentacion', 'producto.categoria', 'lote', 'sucursal', 'ubicacionFisica'])
             ->where('stock_actual', '>', 0)
             ->orderBy('id')->get();
         $operacion = (string) Str::uuid();
@@ -276,7 +291,7 @@ class VentaController extends Controller
         return view('admin.ventas.create', compact('clientes', 'sucursales', 'partidas', 'divisa', 'operacion'));
     }
 
-    public function store(Request $request, RegistroMovimientoInventario $registro)
+    public function store(Request $request, RegistroMovimientoInventario $registro, CajaDeVenta $caja)
     {
         $datos = $request->validate([
             'cliente_id' => ['required', 'integer', 'exists:clientes,id'],
@@ -294,7 +309,7 @@ class VentaController extends Controller
         $clave = 'venta:' . $usuario->id . ':' . $datos['operacion'];
         $items = collect($datos['items'])->keyBy('inventario_id')->sortKeys();
 
-        DB::transaction(function () use ($datos, $usuario, $clave, $items, $registro) {
+        DB::transaction(function () use ($datos, $usuario, $clave, $items, $registro, $caja) {
             // Serializa los reenvíos de la misma venta, incluso si cambia el carrito.
             $usuario->newQuery()->lockForUpdate()->findOrFail($usuario->id);
 
@@ -302,6 +317,7 @@ class VentaController extends Controller
                 return;
             }
 
+            $turno = $caja->turnoAbierto($datos['sucursal_id'], $usuario->id);
             $partidas = Inventario::query()->whereKey($items->keys()->all())
                 ->where('sucursal_id', $datos['sucursal_id'])
                 ->orderBy('id')->lockForUpdate()->get();
@@ -331,6 +347,7 @@ class VentaController extends Controller
                 $totalCentavos += $centavos * $cantidad;
             }
 
+            $recibidoCentavos = null;
             if ($datos['tipo_pago'] === 'efectivo') {
                 $recibidoCentavos = (int) str_replace('.', '', number_format((float) $datos['monto_recibido'], 2, '.', ''));
                 if ($recibidoCentavos < $totalCentavos) {
@@ -349,7 +366,16 @@ class VentaController extends Controller
             $venta->estado = 'emitida';
             $venta->tipo_pago = $datos['tipo_pago'];
             $venta->notas = '';
+            if ($recibidoCentavos !== null) {
+                $cambioCentavos = $recibidoCentavos - $totalCentavos;
+                $venta->monto_recibido = sprintf('%d.%02d', intdiv($recibidoCentavos, 100), $recibidoCentavos % 100);
+                $venta->cambio = sprintf('%d.%02d', intdiv($cambioCentavos, 100), $cambioCentavos % 100);
+            }
             $venta->save();
+
+            if ($datos['tipo_pago'] === 'efectivo') {
+                $caja->registrarCobro($turno, $venta->id, $totalCentavos);
+            }
 
             foreach ($partidas as $indice => $partida) {
                 $cantidad = (int) $items[$partida->id]['cantidad'];

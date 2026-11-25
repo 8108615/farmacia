@@ -7,6 +7,18 @@
     $maximo = max(1, $dias->max('importe'));
     $totalPagos = $pagos->sum();
     $tipos = ['efectivo' => 'Efectivo', 'tarjeta' => 'Tarjeta', 'transferencia' => 'Transferencia', 'mixto' => 'Mixto'];
+    $coloresPago = ['efectivo' => '#3478e5', 'tarjeta' => '#16875f', 'transferencia' => '#cf790d', 'mixto' => '#d43356'];
+    $segmentosPago = [];
+    $acumuladoPago = 0;
+    foreach ($coloresPago as $tipo => $colorPago) {
+        $cantidadPago = (int) ($pagos[$tipo] ?? 0);
+        if ($totalPagos > 0 && $cantidadPago > 0) {
+            $inicioPago = 100 * $acumuladoPago / $totalPagos;
+            $acumuladoPago += $cantidadPago;
+            $finPago = 100 * $acumuladoPago / $totalPagos;
+            $segmentosPago[] = sprintf('%s %.6F%% %.6F%%', $colorPago, $inicioPago, $finPago);
+        }
+    }
     $colores = ['emitida' => 'success', 'cancelada' => 'danger', 'pendiente' => 'warning', 'devuelta' => 'secondary'];
 @endphp
 
@@ -17,17 +29,22 @@
 
 <div class="row g-3 mb-4">
     @foreach ([
-        ['Ventas de hoy', $resumenHoy->cantidad, $moneda($resumenHoy->importe), 'primary'],
-        ['Ventas del mes', $resumenMes->cantidad, $moneda($resumenMes->importe), 'success'],
-        ['Total recaudado', $moneda($recaudado), 'Ventas emitidas', 'info'],
-        ['Canceladas', $canceladas, 'Ventas canceladas', 'danger'],
-    ] as [$titulo, $valor, $detalle, $color])
+        ['Ventas de hoy', $resumenHoy->cantidad, $moneda($resumenHoy->importe), 'primary', 'bi-cart-check'],
+        ['Ventas del mes', $resumenMes->cantidad, $moneda($resumenMes->importe), 'success', 'bi-calendar-check'],
+        ['Total recaudado', $moneda($recaudado), 'Ventas emitidas', 'info', 'bi-wallet2'],
+        ['Canceladas', $canceladas, 'Ventas canceladas', 'danger', 'bi-x-circle'],
+    ] as [$titulo, $valor, $detalle, $color, $icono])
         <div class="col-6 col-xl-3">
             <div class="card h-100 mb-0 border-start border-3 border-{{ $color }}">
-                <div class="card-body">
-                    <h4 class="h6">{{ $titulo }}</h4>
-                    <div class="fs-5 fw-bold">{{ $valor }}</div>
-                    <small class="text-muted">{{ $detalle }}</small>
+                <div class="card-body d-flex flex-wrap flex-sm-nowrap align-items-center gap-3">
+                    <span class="ventas-icono bg-{{ $color }} {{ $color === 'info' ? 'text-dark' : 'text-white' }}" aria-hidden="true">
+                        <i class="bi {{ $icono }}"></i>
+                    </span>
+                    <div class="text-break">
+                        <h4 class="h6 mb-1">{{ $titulo }}</h4>
+                        <div class="fs-5 fw-bold">{{ $valor }}</div>
+                        <small class="text-muted">{{ $detalle }}</small>
+                    </div>
                 </div>
             </div>
         </div>
@@ -55,18 +72,23 @@
         <section class="card h-100 mb-0">
             <div class="card-body">
                 <h4 class="h5">Ventas emitidas por forma de pago</h4>
-                @if (!$totalPagos)
-                    <p class="text-muted">Todavía no hay ventas emitidas.</p>
+                @if ($totalPagos > 0)
+                    <div class="ventas-dona mx-auto my-3"
+                        style="--ventas-segmentos: {{ implode(', ', $segmentosPago) }}" aria-hidden="true">
+                        <strong>{{ $totalPagos }}</strong>
+                        <small class="text-muted">{{ $totalPagos == 1 ? 'venta' : 'ventas' }}</small>
+                    </div>
+                    <ul class="list-unstyled d-flex flex-wrap justify-content-center gap-3 small mb-0">
+                        @foreach ($tipos as $tipo => $etiqueta)
+                            <li class="d-flex align-items-center gap-1">
+                                <span class="ventas-punto" style="--ventas-color: {{ $coloresPago[$tipo] }}" aria-hidden="true"></span>
+                                {{ $etiqueta }} <strong>{{ $pagos[$tipo] ?? 0 }}</strong>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-muted mb-0">Todavía no hay ventas emitidas.</p>
                 @endif
-                @foreach ($tipos as $tipo => $etiqueta)
-                    @php($cantidad = $pagos[$tipo] ?? 0)
-                    <div class="d-flex justify-content-between mt-3">
-                        <span>{{ $etiqueta }}</span><strong>{{ $cantidad }}</strong>
-                    </div>
-                    <div class="progress" aria-hidden="true">
-                        <div class="progress-bar bg-success" style="width: {{ $totalPagos ? 100 * $cantidad / $totalPagos : 0 }}%"></div>
-                    </div>
-                @endforeach
             </div>
         </section>
     </div>
@@ -216,4 +238,57 @@
         });
     });
 </script>
+@endpush
+
+@push('styles')
+<style>
+    .ventas-icono {
+        display: grid;
+        flex: 0 0 2.75rem;
+        width: 2.75rem;
+        height: 2.75rem;
+        place-items: center;
+        border-radius: .75rem;
+        font-size: 1.2rem;
+    }
+
+    .ventas-icono > .bi {
+        display: block;
+        line-height: 1;
+    }
+
+    .ventas-icono > .bi::before {
+        display: block;
+        vertical-align: baseline;
+    }
+
+    .ventas-dona {
+        position: relative;
+        display: flex;
+        width: 8.5rem;
+        height: 8.5rem;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        font-size: 1.4rem;
+        line-height: 1.1;
+    }
+
+    .ventas-dona::before {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: conic-gradient(var(--ventas-segmentos));
+        mask-image: radial-gradient(circle, transparent 53%, #000 54%);
+        content: '';
+    }
+
+    .ventas-dona small { font-size: .75rem; }
+    .ventas-punto {
+        width: .65rem;
+        height: .65rem;
+        border-radius: 50%;
+        background: var(--ventas-color);
+    }
+</style>
 @endpush

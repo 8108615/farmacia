@@ -360,6 +360,13 @@
 
 
 
+                            <li class="sidebar-item {{ request()->routeIs('admin.cajas.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.cajas.index') }}" class="sidebar-link">
+                                    <i class="bi bi-cash-stack" aria-hidden="true"></i>
+                                    <span>Caja y arqueos</span>
+                                </a>
+                            </li>
+
                             <li class="sidebar-item has-sub sidebar-ventas">
                                 <a href="#" class="sidebar-link has-arrow">
                                     <i class="bi bi-cart" aria-hidden="true"></i>
@@ -376,6 +383,12 @@
                                         <a href="{{ route('admin.ventas.index') }}" class="sidebar-link">
                                             <i class="bi bi-list-ul" aria-hidden="true"></i>
                                             <span>Listado</span>
+                                        </a>
+                                    </li>
+                                    <li class="submenu-item {{ request()->routeIs('admin.ventas.reportes') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.ventas.reportes') }}" class="sidebar-link">
+                                            <i class="bi bi-bar-chart" aria-hidden="true"></i>
+                                            <span>Reportes</span>
                                         </a>
                                     </li>
                                 </ul>
