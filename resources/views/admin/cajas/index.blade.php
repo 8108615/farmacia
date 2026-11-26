@@ -1,11 +1,12 @@
 @extends('layouts.admin')
 
 @section('content')
-<h3 class="page-heading">Caja y arqueos</h3>
-@php
-    $simbolo = $divisa ?? 'Bs';
-    $moneda = fn ($valor) => $simbolo . ' ' . number_format($valor, 2);
-@endphp
+<div class="page-heading d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <h3 class="mb-0">Cajas</h3>
+    <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#nueva-caja">
+        <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Nueva caja
+    </button>
+</div>
 
 @if ($errors->any())
     <div class="alert alert-danger" role="alert">{{ $errors->first() }}</div>
@@ -13,146 +14,168 @@
 
 <section class="card">
     <div class="card-body">
-        <h5>Registrar caja</h5>
-        <form method="POST" action="{{ route('admin.cajas.store') }}" class="row g-2 align-items-end">
+        <h5 class="mb-3">Cajas registradas</h5>
+        <form action="{{ route('admin.cajas.index') }}" method="GET" class="row g-2 align-items-end mb-3">
+            <div class="col">
+                <label for="buscar-caja" class="form-label">Buscar por nombre de caja</label>
+                <input id="buscar-caja" name="buscar" type="search" maxlength="100" value="{{ $buscar }}" class="form-control">
+            </div>
+            <div class="col-auto"><button class="btn btn-primary">Buscar</button></div>
+            <div class="col-auto"><a href="{{ route('admin.cajas.index') }}" class="btn btn-outline-secondary">Limpiar</a></div>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead><tr><th scope="col">#</th><th scope="col">Nombre</th><th scope="col">Sucursal</th><th scope="col">Estado</th><th scope="col" class="text-end">Acciones</th></tr></thead>
+                <tbody>
+                    @forelse ($cajas as $caja)
+                        <tr>
+                            <td>{{ $cajas->firstItem() + $loop->index }}</td>
+                            <td>{{ $caja->nombre }}</td>
+                            <td>{{ $caja->sucursal?->nombre ?? '—' }}</td>
+                            <td><span class="badge {{ $caja->estado === 'abierta' ? 'bg-success' : 'bg-secondary' }}">{{ ucfirst($caja->estado) }}</span></td>
+                            <td class="text-end text-nowrap">
+                                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#editar-caja-{{ $caja->id }}" title="Editar caja" aria-label="Editar {{ $caja->nombre }}">
+                                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                </button>
+                                @if ($caja->estado === 'cerrada' && !$caja->arqueos_exists)
+                                    <form class="d-inline" method="POST" action="{{ route('admin.cajas.destroy', $caja->id) }}"
+                                        data-eliminar-caja="{{ $caja->nombre }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-danger btn-sm" title="Eliminar caja" aria-label="Eliminar {{ $caja->nombre }}">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
+                                @else
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" disabled aria-label="Eliminación bloqueada">
+                                        <i class="bi bi-lock" aria-hidden="true"></i>
+                                    </button>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="5">{{ $buscar === '' ? 'Todavía no hay cajas registradas.' : 'No se encontraron cajas con ese nombre.' }}</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        {{ $cajas->links('pagination::bootstrap-5') }}
+    </div>
+</section>
+
+<div class="modal fade" id="nueva-caja" tabindex="-1" aria-labelledby="nueva-caja-titulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" action="{{ route('admin.cajas.store') }}" class="modal-content">
             @csrf
-            <div class="col-md-5">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nueva-caja-titulo">Registrar caja</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                @if ($errors->any())
+                    <p class="text-danger small" role="alert">{{ $errors->first() }}</p>
+                @endif
                 <label for="caja-sucursal" class="form-label">Sucursal</label>
-                <select name="sucursal_id" id="caja-sucursal" class="form-select" required>
+                <select id="caja-sucursal" name="sucursal_id" class="form-select mb-3" required>
                     <option value="">Seleccionar sucursal</option>
                     @foreach ($sucursales as $sucursal)
                         <option value="{{ $sucursal->id }}" @selected(old('sucursal_id') == $sucursal->id)>{{ $sucursal->nombre }}</option>
                     @endforeach
                 </select>
-            </div>
-            <div class="col-md-5">
                 <label for="caja-nombre" class="form-label">Nombre de la caja</label>
-                <input name="nombre" id="caja-nombre" class="form-control" value="{{ old('nombre') }}" maxlength="255" required>
+                <input id="caja-nombre" name="nombre" class="form-control" value="{{ old('nombre') }}" maxlength="255" required>
             </div>
-            <div class="col-md-2"><button class="btn btn-primary w-100">Registrar</button></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
         </form>
     </div>
-</section>
-
-<div class="row g-3 mb-4">
-    @foreach ($cajas as $caja)
-        <div class="col-md-6 col-xl-4">
-            <section class="card h-100 mb-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between gap-2">
-                        <h5>{{ $caja->nombre }}</h5>
-                        <span class="badge align-self-start {{ $caja->estado === 'abierta' ? 'bg-success' : 'bg-secondary' }}">{{ ucfirst($caja->estado) }}</span>
-                    </div>
-                    <p>{{ $caja->sucursal?->nombre }}</p>
-                    @if ($caja->estado === 'cerrada')
-                        <form method="POST" action="{{ route('admin.cajas.abrir', $caja) }}">
-                            @csrf
-                            <label class="form-label" for="inicial-{{ $caja->id }}">Monto inicial ({{ $divisa }})</label>
-                            <div class="input-group">
-                                <input type="number" name="monto_inicial" id="inicial-{{ $caja->id }}" class="form-control" min="0" max="9999999999.99" step="0.01" value="0" required>
-                                <button class="btn btn-outline-primary">Abrir caja</button>
-                            </div>
-                        </form>
-                    @endif
-                </div>
-            </section>
-        </div>
-    @endforeach
 </div>
-
-@if ($detalle)
-    @php
-        $abiertoPorMi = $detalle->estado === 'abierto' && (int) $detalle->usuario_id === (int) auth()->id();
-        $esperado = $detalle->monto_inicial + $detalle->total_ingresos - $detalle->total_egresos;
-    @endphp
-    <section id="arqueo" class="card">
-        <div class="card-body">
-            <h5>Arqueo #{{ $detalle->id }}</h5>
-            <p class="small">El saldo incluye el monto inicial, los cobros y devoluciones en efectivo y los movimientos manuales.</p>
-            <dl class="row">
-                <div class="col-sm-3"><dt>Inicial</dt><dd>{{ $moneda($detalle->monto_inicial) }}</dd></div>
-                <div class="col-sm-3"><dt>Ingresos</dt><dd>{{ $moneda($detalle->total_ingresos) }}</dd></div>
-                <div class="col-sm-3"><dt>Egresos</dt><dd>{{ $moneda($detalle->total_egresos) }}</dd></div>
-                <div class="col-sm-3"><dt>Efectivo esperado</dt><dd>{{ $moneda($esperado) }}</dd></div>
-                @if ($detalle->estado === 'cerrado')
-                    <div class="col-sm-3"><dt>Efectivo contado</dt><dd>{{ $moneda($detalle->monto_contado) }}</dd></div>
-                    <div class="col-sm-3"><dt>Diferencia</dt><dd>{{ $moneda($detalle->diferencia) }}</dd></div>
-                    @if ($detalle->observaciones)
-                        <div class="col-sm-6"><dt>Observaciones</dt><dd>{{ $detalle->observaciones }}</dd></div>
-                    @endif
-                @endif
-            </dl>
-            @if ($abiertoPorMi)
-                <div class="row g-4 mb-4">
-                    <form class="col-lg-6" method="POST" action="{{ route('admin.cajas.movimiento', $detalle->id) }}">
-                        @csrf
-                        <h6>Registrar movimiento</h6>
-                        <label class="form-label" for="movimiento-tipo">Tipo</label>
-                        <select name="tipo" id="movimiento-tipo" class="form-select mb-2"><option value="ingreso">Ingreso</option><option value="egreso">Retiro</option></select>
-                        <label class="form-label" for="movimiento-concepto">Concepto</label>
-                        <input name="concepto" id="movimiento-concepto" class="form-control mb-2" maxlength="255" required>
-                        <label class="form-label" for="movimiento-monto">Monto ({{ $divisa }})</label>
-                        <input type="number" name="monto" id="movimiento-monto" class="form-control mb-3" min="0.01" max="9999999999.99" step="0.01" required>
-                        <button class="btn btn-primary">Registrar movimiento</button>
-                    </form>
-                    <form class="col-lg-6" method="POST" action="{{ route('admin.cajas.cerrar', $detalle->id) }}">
-                        @csrf
-                        <h6>Cerrar arqueo</h6>
-                        <label class="form-label" for="arqueo-contado">Efectivo contado ({{ $divisa }})</label>
-                        <input type="number" name="monto_contado" id="arqueo-contado" class="form-control mb-2" min="0" max="9999999999.99" step="0.01" required>
-                        <label class="form-label" for="arqueo-observaciones">Observaciones</label>
-                        <textarea name="observaciones" id="arqueo-observaciones" class="form-control mb-3" rows="3" maxlength="2000"></textarea>
-                        <button class="btn btn-outline-danger" onclick="return confirm('¿Cerrar este arqueo?')">Cerrar arqueo</button>
-                    </form>
+@foreach ($cajas as $caja)
+    <div class="modal fade" id="editar-caja-{{ $caja->id }}" tabindex="-1" aria-hidden="true"
+        aria-labelledby="editar-caja-titulo-{{ $caja->id }}">
+        <div class="modal-dialog modal-dialog-centered">
+            <form method="POST" action="{{ route('admin.cajas.update', $caja->id) }}" class="modal-content">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="caja_edicion" value="{{ $caja->id }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editar-caja-titulo-{{ $caja->id }}">Editar caja</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-            @endif
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead><tr><th>Fecha y hora</th><th>Tipo</th><th>Concepto</th><th class="text-end">Monto</th></tr></thead>
-                    <tbody>
-                        @forelse ($movimientos as $movimiento)
-                            <tr>
-                                <td>{{ \Illuminate\Support\Carbon::parse($movimiento->created_at)->format('d/m/Y H:i') }}</td>
-                                <td>{{ ucfirst($movimiento->tipo) }}</td>
-                                <td>
-                                    {{ $movimiento->concepto }}
-                                    @if ($movimiento->referencia)
-                                        <small class="d-block text-muted">{{ $movimiento->referencia }}</small>
-                                    @endif
-                                </td>
-                                <td class="text-end">{{ $moneda($movimiento->monto) }}</td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="4">Todavía no hay movimientos.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                <div class="modal-body">
+                    <p class="text-muted">{{ $caja->sucursal?->nombre }}</p>
+                    <label for="editar-nombre-{{ $caja->id }}" class="form-label">Nombre de la caja</label>
+                    <input id="editar-nombre-{{ $caja->id }}" name="nombre" class="form-control" maxlength="255" required
+                        value="{{ (string) old('caja_edicion') === (string) $caja->id ? old('nombre') : $caja->nombre }}">
+                    @if ((string) old('caja_edicion') === (string) $caja->id && $errors->editarCaja->has('nombre'))
+                        <p class="text-danger small mt-2" role="alert">{{ $errors->editarCaja->first('nombre') }}</p>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary">Guardar cambios</button>
+                </div>
+            </form>
         </div>
-    </section>
+    </div>
+@endforeach
+@endsection
+
+@if ($errors->editarCaja->any())
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const modal = document.getElementById('editar-caja-' + @json((int) old('caja_edicion')));
+                if (modal) bootstrap.Modal.getOrCreateInstance(modal).show();
+            });
+        </script>
+    @endpush
 @endif
 
-<section class="card">
-    <div class="card-body">
-        <h5>Historial de arqueos</h5>
-        <div class="table-responsive">
-            <table class="table table-striped align-middle">
-                <thead><tr><th>Caja</th><th>Sucursal</th><th>Responsable</th><th>Apertura</th><th>Estado</th><th class="text-end">Acción</th></tr></thead>
-                <tbody>
-                    @forelse ($arqueos as $arqueo)
-                        <tr>
-                            <td>{{ $arqueo->caja }}</td><td>{{ $arqueo->sucursal }}</td><td>{{ $arqueo->usuario }}</td>
-                            <td>{{ \Illuminate\Support\Carbon::parse($arqueo->fecha_apertura)->format('d/m/Y H:i') }}</td>
-                            <td>{{ ucfirst($arqueo->estado) }}</td>
-                            <td class="text-end"><a class="btn btn-outline-primary btn-sm" href="{{ route('admin.cajas.index', ['arqueo' => $arqueo->id]) }}#arqueo">Ver arqueo #{{ $arqueo->id }}</a></td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="6">Todavía no hay arqueos.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        {{ $arqueos->links('pagination::bootstrap-5') }}
-    </div>
-</section>
-@endsection
+@if ($errors->has('sucursal_id') || $errors->has('nombre'))
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('nueva-caja')).show();
+            });
+        </script>
+    @endpush
+@endif
+
+@push('scripts')
+    <script>
+        document.querySelectorAll('form[data-eliminar-caja]').forEach(formulario => {
+            let confirmacionPendiente = false;
+            formulario.addEventListener('submit', async evento => {
+                evento.preventDefault();
+                if (confirmacionPendiente) return;
+
+                confirmacionPendiente = true;
+                const titulo = '¿Eliminar esta caja?';
+                const mensaje = 'Se eliminará «' + formulario.dataset.eliminarCaja + '».';
+                try {
+                    const confirmada = typeof Swal === 'undefined'
+                        ? window.confirm(titulo + '\n' + mensaje)
+                        : (await Swal.fire({
+                            titleText: titulo,
+                            text: mensaje,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sí, eliminar',
+                            cancelButtonText: 'Cancelar',
+                            confirmButtonColor: '#dc3545',
+                            focusCancel: true,
+                            reverseButtons: true
+                        })).isConfirmed;
+
+                    if (confirmada) formulario.submit();
+                } finally {
+                    confirmacionPendiente = false;
+                }
+            });
+        });
+    </script>
+@endpush

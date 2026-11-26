@@ -3,12 +3,26 @@
 @section('content')
 <div class="page-heading"><h3>Nueva venta</h3></div>
 
+@if ($sucursales->isEmpty())
+    <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-3" role="alert">
+        <div>
+            <strong>No puedes crear una venta todavía.</strong>
+            <div>Abre una caja a tu nombre en la sucursal donde vas a vender.</div>
+        </div>
+        <a href="{{ route('admin.arqueos.index', ['abrir' => 1]) }}" class="btn btn-primary">
+            <i class="bi bi-cash-stack me-1" aria-hidden="true"></i>Abrir caja
+        </a>
+    </div>
+@else
 @if ($errors->any())
     <ul class="alert alert-danger" role="alert">
         @foreach ($errors->all() as $error)
             <li>{{ $error }}</li>
         @endforeach
     </ul>
+    @if ($errors->has('caja'))
+        <a href="{{ route('admin.arqueos.index', ['abrir' => 1]) }}" class="btn btn-outline-primary mb-3">Abrir caja</a>
+    @endif
 @endif
 
 <noscript><p class="alert alert-warning">Activa JavaScript para usar el carrito.</p></noscript>
@@ -523,6 +537,7 @@
     actualizar();
 })();
 </script>
+@endif
 @endsection
 
 @push('styles')
@@ -627,6 +642,7 @@
 </style>
 @endpush
 
+@if ($sucursales->isNotEmpty())
 @push('scripts')
 <script src="{{ asset('assets/extensions/choices.js/public/assets/scripts/choices.min.js') }}"></script>
 <script>
@@ -646,3 +662,4 @@
     }
 </script>
 @endpush
+@endif

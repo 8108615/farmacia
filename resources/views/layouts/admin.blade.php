@@ -80,6 +80,7 @@
             box-shadow: none;
         }
 
+        .sidebar-menu .sidebar-cajas .submenu .sidebar-link::after,
         .sidebar-menu .sidebar-ventas .submenu .sidebar-link::after {
             content: none;
         }
@@ -360,11 +361,19 @@
 
 
 
-                            <li class="sidebar-item {{ request()->routeIs('admin.cajas.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.cajas.index') }}" class="sidebar-link">
+                            <li class="sidebar-item has-sub sidebar-cajas">
+                                <a href="#" class="sidebar-link has-arrow">
                                     <i class="bi bi-cash-stack" aria-hidden="true"></i>
                                     <span>Caja y arqueos</span>
                                 </a>
+                                <ul class="submenu">
+                                    <li class="submenu-item {{ request()->routeIs('admin.cajas.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.cajas.index') }}" class="sidebar-link"><span>Cajas</span></a>
+                                    </li>
+                                    <li class="submenu-item {{ request()->routeIs('admin.arqueos.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.arqueos.index') }}" class="sidebar-link"><span>Arqueos</span></a>
+                                    </li>
+                                </ul>
                             </li>
 
                             <li class="sidebar-item has-sub sidebar-ventas">
@@ -445,6 +454,37 @@
         <script src="{{ asset('assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
 
 
+        <script>
+            (() => {
+                const menu = document.querySelector('.sidebar-cajas');
+                if (!menu) return;
+
+                const clave = 'farmacia:destino-menu-cajas';
+                try {
+                    const destino = sessionStorage.getItem(clave);
+                    sessionStorage.removeItem(clave);
+                    const navegacion = performance.getEntriesByType('navigation')[0];
+
+                    if (destino === location.href && navegacion?.type !== 'reload') {
+                        menu.classList.add('active');
+                    }
+
+                    menu.querySelectorAll('.submenu a').forEach(enlace => {
+                        enlace.addEventListener('click', evento => {
+                            if (evento.defaultPrevented || evento.button !== 0 || evento.ctrlKey ||
+                                evento.metaKey || evento.shiftKey || evento.altKey) return;
+                            try {
+                                sessionStorage.setItem(clave, enlace.href);
+                            } catch {
+                                // La navegación sigue disponible si el navegador bloquea el almacenamiento.
+                            }
+                        });
+                    });
+                } catch {
+                    // El submenú conserva su comportamiento normal sin almacenamiento.
+                }
+            })();
+        </script>
         <script src="{{ asset('assets/compiled/js/app.js') }}"></script>
 
 

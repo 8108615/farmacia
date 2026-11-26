@@ -278,12 +278,22 @@ class VentaController extends Controller
     }
 
 
-    public function create()
+    public function create(Request $request)
     {
+        $sucursalesConCaja = DB::table('arqueos')->select('sucursal_id')
+            ->where('usuario_id', $request->user()->id)->where('estado', 'abierto')
+            ->groupBy('sucursal_id')->havingRaw('COUNT(*) = 1');
+
+        $sucursales = Sucursal::query()->whereIn('id', $sucursalesConCaja)->orderBy('nombre')->get();
+
+        if ($sucursales->isEmpty()) {
+            return view('admin.ventas.create', compact('sucursales'));
+        }
+
         $clientes = Cliente::query()->orderBy('nombres_apellidos')->get();
-        $sucursales = Sucursal::query()->orderBy('nombre')->get();
         $divisa = Ajuste::query()->value('divisa') ?: 'Bs';
         $partidas = Inventario::query()->with(['producto.laboratorio', 'producto.formaFarmaceutica', 'producto.presentacion', 'producto.categoria', 'lote', 'sucursal', 'ubicacionFisica'])
+            ->whereIn('sucursal_id', $sucursales->modelKeys())
             ->where('stock_actual', '>', 0)
             ->orderBy('id')->get();
         $operacion = (string) Str::uuid();

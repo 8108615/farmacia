@@ -161,11 +161,13 @@ Route::post('/admin/cajas/arqueos/{arqueo}/movimientos', [App\Http\Controllers\C
 Route::post('/admin/cajas/arqueos/{arqueo}/cerrar', [App\Http\Controllers\CajaController::class, 'cerrar'])->whereNumber('arqueo')->name('admin.cajas.cerrar')->middleware('auth');
 
 // Rutas para arqueos
-Route::get('/admin/arqueos', [App\Http\Controllers\ArqueoController::class, 'index'])->name('admin.arqueos.index')->middleware('auth');
-Route::post('/admin/arqueos/create', [App\Http\Controllers\ArqueoController::class, 'store'])->name('admin.arqueos.store')->middleware('auth');
-Route::put('/admin/arqueos/{id}', [App\Http\Controllers\ArqueoController::class, 'update'])->name('admin.arqueos.update')->middleware('auth');
-Route::delete('/admin/arqueos/{id}', [App\Http\Controllers\ArqueoController::class, 'destroy'])->name('admin.arqueos.destroy')->middleware('auth');
-Route::get('/admin/arqueos/{id}/reporte', [App\Http\Controllers\ArqueoController::class, 'reporte'])->name('admin.arqueos.reporte')->middleware('auth');
+Route::get('/admin/arqueos', [App\Http\Controllers\CajaController::class, 'arqueos'])->name('admin.arqueos.index')->middleware('auth');
+Route::get('/admin/arqueos/{arqueo}', [App\Http\Controllers\CajaController::class, 'verArqueo'])->whereNumber('arqueo')->name('admin.arqueos.show')->middleware('auth');
+Route::get('/admin/arqueos/{arqueo}/cerrar', [App\Http\Controllers\CajaController::class, 'formularioCierre'])->whereNumber('arqueo')->name('admin.arqueos.cierre')->middleware('auth');
+Route::post('/admin/arqueos/create', [App\Http\Controllers\CajaController::class, 'abrirTurno'])->name('admin.arqueos.store')->middleware('auth');
+Route::put('/admin/arqueos/{id}', [App\Http\Controllers\CajaController::class, 'editarArqueo'])->whereNumber('id')->name('admin.arqueos.update')->middleware('auth');
+Route::delete('/admin/arqueos/{id}', [App\Http\Controllers\CajaController::class, 'eliminarArqueo'])->whereNumber('id')->name('admin.arqueos.destroy')->middleware('auth');
+Route::get('/admin/arqueos/{id}/reporte', [App\Http\Controllers\CajaController::class, 'reporteArqueo'])->whereNumber('id')->name('admin.arqueos.reporte')->middleware('auth');
 
 // Rutas para arqueo detalles
 Route::post('/admin/arqueos/{arqueo_id}/detalles/create', [App\Http\Controllers\ArqueoDetalleController::class, 'store'])->name('admin.arqueos.detalles.store')->middleware('auth');
