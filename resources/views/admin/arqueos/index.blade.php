@@ -3,9 +3,16 @@
 @section('content')
 <div class="page-heading d-flex flex-wrap align-items-center justify-content-between gap-2">
     <h3 class="mb-0">Arqueos</h3>
-    <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#abrir-turno">
-        <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Abrir turno
-    </button>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ route('admin.arqueos.reporte-cierres') }}" class="btn btn-outline-primary">
+            <i class="bi bi-bar-chart me-1" aria-hidden="true"></i>Reporte de cierres
+        </a>
+        @if ($puedeOperar)
+        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#abrir-turno">
+            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Abrir turno
+        </button>
+        @endif
+    </div>
 </div>
 
 @if ($errors->any() || $errors->editarArqueo->any())
@@ -58,7 +65,7 @@
                                     title="Ver detalle" aria-label="Ver detalle del turno {{ $arqueo->id }}">
                                     <i class="bi bi-eye" aria-hidden="true"></i>
                                 </a>
-                                @if (!$cerrado && (int) $arqueo->usuario_id === (int) auth()->id())
+                                @if ($puedeOperar && !$cerrado && (int) $arqueo->usuario_id === (int) auth()->id())
                                     <a class="btn btn-primary btn-sm" href="{{ route('admin.arqueos.cierre', $arqueo->id) }}"
                                         title="Cerrar turno" aria-label="Cerrar turno {{ $arqueo->id }}">
                                         <i class="bi bi-check-circle" aria-hidden="true"></i>
@@ -101,6 +108,7 @@
 </section>
 
 
+@if ($puedeOperar)
 <div class="modal fade" id="abrir-turno" tabindex="-1" aria-labelledby="abrir-turno-titulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <form method="POST" action="{{ route('admin.arqueos.store') }}" class="modal-content">
@@ -136,6 +144,8 @@
         </form>
     </div>
 </div>
+@endif
+
 @foreach ($arqueos as $arqueo)
     @continue(!$arqueo->puedeModificar)
     <div class="modal fade" id="editar-arqueo-{{ $arqueo->id }}" tabindex="-1" aria-hidden="true" aria-labelledby="titulo-editar-{{ $arqueo->id }}">
@@ -210,7 +220,7 @@
     </script>
 @endpush
 
-@if (request()->boolean('abrir') || $errors->has('caja_id') || ($errors->any() && session()->hasOldInput('caja_id')))
+@if ($puedeOperar && (request()->boolean('abrir') || $errors->has('caja_id') || ($errors->any() && session()->hasOldInput('caja_id'))))
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', () => {

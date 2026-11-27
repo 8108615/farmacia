@@ -47,7 +47,7 @@
                     @if ($cerrado)
                         <dt class="col-7">Efectivo contado</dt><dd class="col-5 text-end">{{ $moneda($detalle->monto_contado) }}</dd>
                         <dt class="col-7">Diferencia</dt><dd class="col-5 text-end">{{ $moneda($detalle->diferencia) }}</dd>
-                        @if ($detalle->observaciones)
+                        @if (filled($detalle->observaciones))
                             <dt class="col-12 mt-2">Observaciones</dt><dd class="col-12">{{ $detalle->observaciones }}</dd>
                         @endif
                     @endif
@@ -67,7 +67,12 @@
                         <input id="monto-contado" class="form-control mb-3" type="number" name="monto_contado"
                             min="0" max="9999999999.99" step="0.01" value="{{ old('monto_contado') }}" required>
                         <label for="observaciones" class="form-label">Observaciones</label>
-                        <textarea id="observaciones" class="form-control mb-3" name="observaciones" rows="3" maxlength="2000">{{ old('observaciones') }}</textarea>
+                        <textarea id="observaciones" class="form-control @error('observaciones') is-invalid @enderror"
+                            name="observaciones" rows="3" maxlength="2000" aria-describedby="observaciones-ayuda">{{ old('observaciones') }}</textarea>
+                        @error('observaciones')
+                            <div class="invalid-feedback" id="observaciones-error">{{ $message }}</div>
+                        @enderror
+                        <div id="observaciones-ayuda" class="form-text mb-3">Obligatoria si el efectivo contado es distinto del esperado.</div>
                         <button class="btn btn-success">Confirmar cierre</button>
                     </form>
                 </div>

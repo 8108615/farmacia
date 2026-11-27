@@ -17,16 +17,16 @@ Route::get('/admin/ajustes', [App\Http\Controllers\AjusteController::class, 'ind
 Route::post('/admin/ajustes/create', [App\Http\Controllers\AjusteController::class, 'store'])->name('admin.ajustes.store')->middleware('auth');
 
 // Rutas para roles
-Route::get('/admin/roles', [App\Http\Controllers\RoleController::class, 'index'])->name('admin.roles.index')->middleware('auth');
-Route::post('/admin/roles/create', [App\Http\Controllers\RoleController::class, 'store'])->name('admin.roles.store')->middleware('auth');
-Route::put('/admin/roles/{id}', [App\Http\Controllers\RoleController::class, 'update'])->name('admin.roles.update')->middleware('auth');
-Route::delete('/admin/roles/{id}', [App\Http\Controllers\RoleController::class, 'destroy'])->name('admin.roles.destroy')->middleware('auth');
+Route::get('/admin/roles', [App\Http\Controllers\RoleController::class, 'index'])->name('admin.roles.index')->middleware(['auth', \Spatie\Permission\Middleware\RoleMiddleware::class . ':SUPER ADMIN']);
+Route::post('/admin/roles/create', [App\Http\Controllers\RoleController::class, 'store'])->name('admin.roles.store')->middleware(['auth', \Spatie\Permission\Middleware\RoleMiddleware::class . ':SUPER ADMIN']);
+Route::put('/admin/roles/{id}', [App\Http\Controllers\RoleController::class, 'update'])->name('admin.roles.update')->middleware(['auth', \Spatie\Permission\Middleware\RoleMiddleware::class . ':SUPER ADMIN']);
+Route::delete('/admin/roles/{id}', [App\Http\Controllers\RoleController::class, 'destroy'])->name('admin.roles.destroy')->middleware(['auth', \Spatie\Permission\Middleware\RoleMiddleware::class . ':SUPER ADMIN']);
 
 // Rutas para usuarios
-Route::get('/admin/users', [App\Http\Controllers\UserController::class, 'index'])->name('admin.users.index')->middleware('auth');
-Route::post('/admin/users/create', [App\Http\Controllers\UserController::class, 'store'])->name('admin.users.store')->middleware('auth');
-Route::put('/admin/users/{id}', [App\Http\Controllers\UserController::class, 'update'])->name('admin.users.update')->middleware('auth');
-Route::delete('/admin/users/{id}', [App\Http\Controllers\UserController::class, 'destroy'])->name('admin.users.destroy')->middleware('auth');
+Route::get('/admin/users', [App\Http\Controllers\UserController::class, 'index'])->name('admin.users.index')->middleware(['auth', \Spatie\Permission\Middleware\RoleMiddleware::class . ':SUPER ADMIN']);
+Route::post('/admin/users/create', [App\Http\Controllers\UserController::class, 'store'])->name('admin.users.store')->middleware(['auth', \Spatie\Permission\Middleware\RoleMiddleware::class . ':SUPER ADMIN']);
+Route::put('/admin/users/{id}', [App\Http\Controllers\UserController::class, 'update'])->name('admin.users.update')->middleware(['auth', \Spatie\Permission\Middleware\RoleMiddleware::class . ':SUPER ADMIN']);
+Route::delete('/admin/users/{id}', [App\Http\Controllers\UserController::class, 'destroy'])->name('admin.users.destroy')->middleware(['auth', \Spatie\Permission\Middleware\RoleMiddleware::class . ':SUPER ADMIN']);
 
 // Rutas para sucursales
 Route::get('/admin/sucursales', [App\Http\Controllers\SucursalController::class, 'index'])->name('admin.sucursales.index')->middleware('auth');
@@ -65,10 +65,10 @@ Route::put('/admin/presentaciones/{id}', [App\Http\Controllers\PresentacionContr
 Route::delete('/admin/presentaciones/{id}', [App\Http\Controllers\PresentacionController::class, 'destroy'])->name('admin.presentaciones.destroy')->middleware('auth');
 
 // Rutas para empleados
-Route::get('/admin/empleados', [App\Http\Controllers\EmpleadoController::class, 'index'])->name('admin.empleados.index')->middleware('auth');
-Route::post('/admin/empleados/create', [App\Http\Controllers\EmpleadoController::class, 'store'])->name('admin.empleados.store')->middleware('auth');
-Route::put('/admin/empleados/{id}', [App\Http\Controllers\EmpleadoController::class, 'update'])->name('admin.empleados.update')->middleware('auth');
-Route::delete('/admin/empleados/{id}', [App\Http\Controllers\EmpleadoController::class, 'destroy'])->name('admin.empleados.destroy')->middleware('auth');
+Route::get('/admin/empleados', [App\Http\Controllers\EmpleadoController::class, 'index'])->name('admin.empleados.index')->middleware(['auth', \Spatie\Permission\Middleware\RoleMiddleware::class . ':SUPER ADMIN']);
+Route::post('/admin/empleados/create', [App\Http\Controllers\EmpleadoController::class, 'store'])->name('admin.empleados.store')->middleware(['auth', \Spatie\Permission\Middleware\RoleMiddleware::class . ':SUPER ADMIN']);
+Route::put('/admin/empleados/{id}', [App\Http\Controllers\EmpleadoController::class, 'update'])->name('admin.empleados.update')->middleware(['auth', \Spatie\Permission\Middleware\RoleMiddleware::class . ':SUPER ADMIN']);
+Route::delete('/admin/empleados/{id}', [App\Http\Controllers\EmpleadoController::class, 'destroy'])->name('admin.empleados.destroy')->middleware(['auth', \Spatie\Permission\Middleware\RoleMiddleware::class . ':SUPER ADMIN']);
 
 // Rutas para productos
 Route::get('/admin/productos', [App\Http\Controllers\ProductoController::class, 'index'])->name('admin.productos.index')->middleware('auth');
@@ -162,6 +162,7 @@ Route::post('/admin/cajas/arqueos/{arqueo}/cerrar', [App\Http\Controllers\CajaCo
 
 // Rutas para arqueos
 Route::get('/admin/arqueos', [App\Http\Controllers\CajaController::class, 'arqueos'])->name('admin.arqueos.index')->middleware('auth');
+Route::get('/admin/arqueos/reporte-cierres', [App\Http\Controllers\CierreCajaReporteController::class, 'index'])->name('admin.arqueos.reporte-cierres')->middleware('auth');
 Route::get('/admin/arqueos/{arqueo}', [App\Http\Controllers\CajaController::class, 'verArqueo'])->whereNumber('arqueo')->name('admin.arqueos.show')->middleware('auth');
 Route::get('/admin/arqueos/{arqueo}/cerrar', [App\Http\Controllers\CajaController::class, 'formularioCierre'])->whereNumber('arqueo')->name('admin.arqueos.cierre')->middleware('auth');
 Route::post('/admin/arqueos/create', [App\Http\Controllers\CajaController::class, 'abrirTurno'])->name('admin.arqueos.store')->middleware('auth');

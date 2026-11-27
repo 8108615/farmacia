@@ -194,6 +194,7 @@
                                             <span>Ajustes</span>
                                         </a>
                                     </li>
+                                    @role('SUPER ADMIN')
                                     <li class="submenu-item {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
                                         <a href="{{ route('admin.roles.index') }}"
                                             class="sidebar-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
@@ -216,6 +217,7 @@
                                             <span>Empleados</span>
                                         </a>
                                     </li>
+                                    @endrole
                                 </ul>
                             </li>
 
@@ -361,20 +363,25 @@
 
 
 
+                            @hasanyrole('SUPER ADMIN|ADMINISTRADOR|CONTADOR|VENDEDOR')
                             <li class="sidebar-item has-sub sidebar-cajas">
                                 <a href="#" class="sidebar-link has-arrow">
                                     <i class="bi bi-cash-stack" aria-hidden="true"></i>
                                     <span>Caja y arqueos</span>
                                 </a>
                                 <ul class="submenu">
+                                    @role('SUPER ADMIN')
                                     <li class="submenu-item {{ request()->routeIs('admin.cajas.*') ? 'active' : '' }}">
                                         <a href="{{ route('admin.cajas.index') }}" class="sidebar-link"><span>Cajas</span></a>
                                     </li>
+                                    @endrole
                                     <li class="submenu-item {{ request()->routeIs('admin.arqueos.*') ? 'active' : '' }}">
                                         <a href="{{ route('admin.arqueos.index') }}" class="sidebar-link"><span>Arqueos</span></a>
                                     </li>
                                 </ul>
                             </li>
+
+                            @endhasanyrole
 
                             <li class="sidebar-item has-sub sidebar-ventas">
                                 <a href="#" class="sidebar-link has-arrow">

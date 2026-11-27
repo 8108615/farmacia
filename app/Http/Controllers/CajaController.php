@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ajuste;
 use App\Models\Caja;
 use App\Models\Sucursal;
+use App\Services\AccesoCaja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -13,6 +14,8 @@ class CajaController extends Controller
 {
     public function index(Request $request)
     {
+        abort_unless(auth()->user()->hasRole('SUPER ADMIN'), 403);
+
         if ($request->filled('arqueo')) {
             return redirect()->route('admin.arqueos.show', $request->integer('arqueo'));
         }
@@ -28,17 +31,20 @@ class CajaController extends Controller
 
     public function arqueos(Request $request)
     {
+        $acceso = new AccesoCaja($request->user());
         if ($request->filled('arqueo')) {
             return redirect()->route('admin.arqueos.show', $request->integer('arqueo'));
         }
 
         $buscar = $this->busqueda($request);
-        $cajas = Caja::with('sucursal')->where('estado', 'cerrada')
+        $cajas = $acceso->limitarSucursal(Caja::with('sucursal'), 'sucursal_id')->where('estado', 'cerrada')
             ->whereDoesntHave('arqueos', fn ($query) => $query->where('estado', 'abierto'))
             ->whereNotIn('sucursal_id', DB::table('arqueos')->select('sucursal_id')
                 ->where('usuario_id', $request->user()->id)->where('estado', 'abierto'))
-            ->orderBy('nombre')->orderBy('id')->get();
-        $arqueos = DB::table('arqueos')
+            ->orderBy('nombre')->orderBy('id');
+        $puedeOperar = $acceso->puedeOperar;
+        $cajas = $puedeOperar ? $cajas->get() : collect();
+        $arqueos = $acceso->limitarArqueos(DB::table('arqueos'))
             ->join('cajas', 'cajas.id', '=', 'arqueos.caja_id')
             ->join('sucursals', 'sucursals.id', '=', 'arqueos.sucursal_id')
             ->join('users', 'users.id', '=', 'arqueos.usuario_id')
@@ -51,7 +57,7 @@ class CajaController extends Controller
 
         $arqueos = $arqueos->orderByDesc('arqueos.id')->paginate(10)->appends(['buscar' => $buscar]);
         foreach ($arqueos as $arqueo) {
-            $arqueo->puedeModificar = $arqueo->estado === 'abierto'
+            $arqueo->puedeModificar = $puedeOperar && $arqueo->estado === 'abierto'
                 && (int) $arqueo->usuario_id === (int) $request->user()->id
                 && !$arqueo->tiene_movimientos && !$arqueo->tiene_ventas
                 && (float) $arqueo->total_ingresos === 0.0 && (float) $arqueo->total_egresos === 0.0;
@@ -59,7 +65,7 @@ class CajaController extends Controller
 
         $divisa = Ajuste::query()->value('divisa') ?: 'Bs';
 
-        return view('admin.arqueos.index', compact('cajas', 'arqueos', 'divisa', 'buscar'));
+        return view('admin.arqueos.index', compact('cajas', 'arqueos', 'divisa', 'buscar', 'puedeOperar'));
     }
 
     public function verArqueo(Request $request, int $arqueo)
@@ -74,9 +80,10 @@ class CajaController extends Controller
 
     private function detalleArqueo(Request $request, int $arqueo, bool $cerrando)
     {
-        $detalle = $this->consultarArqueo($arqueo);
+        $detalle = $this->consultarArqueo($request, $arqueo);
 
-        $esResponsable = (int) $detalle->usuario_id === (int) $request->user()->id;
+        $esResponsable = (int) $detalle->usuario_id === (int) $request->user()->id
+            && (new AccesoCaja($request->user()))->puedeOperarEn((int) $detalle->sucursal_id);
         if ($cerrando) {
             abort_unless($esResponsable, 403);
             if ($detalle->estado !== 'abierto') {
@@ -96,7 +103,7 @@ class CajaController extends Controller
 
     public function reporteArqueo(Request $request, int $id)
     {
-        $detalle = $this->consultarArqueo($id);
+        $detalle = $this->consultarArqueo($request, $id);
         abort_unless($detalle->estado === 'cerrado', 404);
 
         $esperado = $this->saldo($detalle) / 100;
@@ -115,9 +122,9 @@ class CajaController extends Controller
         ]);
     }
 
-    private function consultarArqueo(int $arqueo): object
+    private function consultarArqueo(Request $request, int $arqueo): object
     {
-        $detalle = DB::table('arqueos')
+        $detalle = (new AccesoCaja($request->user()))->limitarArqueos(DB::table('arqueos'))
             ->join('cajas', 'cajas.id', '=', 'arqueos.caja_id')
             ->join('sucursals', 'sucursals.id', '=', 'arqueos.sucursal_id')
             ->join('users', 'users.id', '=', 'arqueos.usuario_id')
@@ -142,6 +149,8 @@ class CajaController extends Controller
 
     public function store(Request $request)
     {
+        abort_unless(auth()->user()->hasRole('SUPER ADMIN'), 403);
+
         $datos = $request->validate([
             'sucursal_id' => ['required', 'integer', 'exists:sucursals,id'],
             'nombre' => ['required', 'string', 'max:255'],
@@ -160,6 +169,8 @@ class CajaController extends Controller
 
     public function update(Request $request, int $id)
     {
+        abort_unless(auth()->user()->hasRole('SUPER ADMIN'), 403);
+
         $datos = $request->validateWithBag('editarCaja', [
             'nombre' => ['required', 'string', 'max:255'],
         ]);
@@ -184,6 +195,8 @@ class CajaController extends Controller
 
     public function destroy(int $id)
     {
+        abort_unless(auth()->user()->hasRole('SUPER ADMIN'), 403);
+
         $eliminada = DB::transaction(function () use ($id) {
             $caja = Caja::lockForUpdate()->findOrFail($id);
 
@@ -210,6 +223,7 @@ class CajaController extends Controller
         $id = DB::transaction(function () use ($caja, $datos, $usuario) {
             $usuario->newQuery()->lockForUpdate()->findOrFail($usuario->id);
             $caja = Caja::lockForUpdate()->findOrFail($caja->id);
+            abort_unless((new AccesoCaja($usuario))->puedeOperarEn((int) $caja->sucursal_id), 403);
             if ($caja->estado !== 'cerrada' || DB::table('arqueos')->where('caja_id', $caja->id)->where('estado', 'abierto')->exists()) {
                 throw ValidationException::withMessages(['caja' => 'La caja ya tiene un arqueo abierto.']);
             }
@@ -274,10 +288,18 @@ class CajaController extends Controller
 
         DB::transaction(function () use ($request, $arqueo, $datos) {
             [$caja, $turno] = $this->turnoAbierto($request, $arqueo);
+            $diferencia = $this->centavos($datos['monto_contado']) - $this->saldo($turno);
+
+            if ($diferencia !== 0 && blank($datos['observaciones'] ?? null)) {
+                throw ValidationException::withMessages([
+                    'observaciones' => 'Escribe una observación para explicar la diferencia de caja.',
+                ]);
+            }
+
             $ahora = now();
             DB::table('arqueos')->where('id', $arqueo)->update($datos + [
                 'fecha_cierre' => $ahora, 'estado' => 'cerrado', 'updated_at' => $ahora,
-                'diferencia' => $this->decimal($this->centavos($datos['monto_contado']) - $this->saldo($turno)),
+                'diferencia' => $this->decimal($diferencia),
             ]);
             $caja->update(['estado' => 'cerrada']);
         }, 3);
@@ -349,7 +371,8 @@ class CajaController extends Controller
     {
         $turno = DB::table('arqueos')->find($id);
         abort_unless($turno, 404);
-        abort_unless((int) $turno->usuario_id === (int) $request->user()->id, 403);
+        abort_unless((int) $turno->usuario_id === (int) $request->user()->id
+            && (new AccesoCaja($request->user()))->puedeOperarEn((int) $turno->sucursal_id), 403);
         $caja = Caja::lockForUpdate()->findOrFail($turno->caja_id);
         $turno = DB::table('arqueos')->lockForUpdate()->find($id);
         abort_unless($turno, 404);

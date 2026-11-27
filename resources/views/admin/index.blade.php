@@ -1,433 +1,344 @@
 @extends('layouts.admin')
 
 @push('styles')
-    <style>
-        @import url('https://fonts.bunny.net/css?family=space-grotesk:400,500,600,700&display=swap');
+<style>
+    .inicio-panel {
+        --inicio-borde: #d8dff0;
+        --inicio-superficie: #edf2fc;
+        --inicio-secundario: #475569;
+        --inicio-barra: #3656c5;
+    }
 
-        :root {
-            --dash-ink: #0f172a;
-            --dash-muted: #64748b;
-            --dash-soft: #e2e8f0;
-            --dash-glow: rgba(15, 23, 42, 0.08);
-            --dash-indigo: #1d4ed8;
-            --dash-emerald: #10b981;
-            --dash-amber: #f59e0b;
-            --dash-rose: #f43f5e;
-            --dash-sky: #38bdf8;
-        }
+    [data-bs-theme="dark"] .inicio-panel {
+        --inicio-borde: #3a415a;
+        --inicio-superficie: #222842;
+        --inicio-secundario: #b3bdd4;
+        --inicio-barra: #7f9bff;
+    }
 
-        .dashboard-shell {
-            font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
-        }
+    .inicio-cabecera {
+        border: 1px solid var(--inicio-borde);
+        background: var(--inicio-superficie);
+    }
 
-        .dash-hero {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .hero-card {
-            border-radius: 1.5rem;
-            border: 1px solid rgba(15, 23, 42, 0.08);
-            background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 55%),
-                linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-            box-shadow: 0 24px 45px var(--dash-glow);
-            padding: 1.75rem;
-        }
-
-        .hero-card h2 {
-            font-weight: 700;
-            color: var(--dash-ink);
-            margin-bottom: 0.5rem;
-        }
-
-        .hero-card p {
-            color: var(--dash-muted);
-            margin-bottom: 1.25rem;
-        }
-
-        .hero-metrics {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .hero-chip {
-            padding: 0.45rem 0.9rem;
-            border-radius: 999px;
-            border: 1px solid rgba(15, 23, 42, 0.1);
-            background: #fff;
-            font-size: 0.85rem;
-            color: var(--dash-ink);
-        }
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-card {
-            border-radius: 1.25rem;
-            border: none;
-            box-shadow: 0 18px 40px var(--dash-glow);
-            overflow: hidden;
-        }
-
-        .stat-card-body {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1.4rem;
-        }
-
-        .stat-icon {
-            width: 58px;
-            height: 58px;
-            border-radius: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            flex-shrink: 0;
-            line-height: 1;
-        }
-
-        .stat-title {
-            margin-bottom: 0.25rem;
-            font-size: 0.9rem;
-            color: var(--dash-muted);
-        }
-
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dash-ink);
-            margin-bottom: 0.15rem;
-        }
-
-        .stat-desc {
-            margin: 0;
-            color: var(--dash-muted);
-            font-size: 0.85rem;
-        }
-
-        .dash-panel {
-            border-radius: 1.5rem;
-            border: 1px solid rgba(148, 163, 184, 0.3);
-            box-shadow: 0 18px 45px var(--dash-glow);
-        }
-
-        .dash-panel .card-body {
-            padding: 1.6rem;
-        }
-
-        .dash-progress {
-            height: 12px;
-            border-radius: 999px;
-            background: #e2e8f0;
-            overflow: hidden;
-        }
-
-        .dash-progress span {
-            display: block;
-            height: 100%;
-            background: linear-gradient(90deg, #f97316, #f43f5e);
-        }
-
-        .dash-table {
-            display: grid;
-            gap: 0.75rem;
-        }
-
-        .dash-table-row {
-            padding: 0.75rem 1rem;
-            border-radius: 1rem;
-            background: #f8fafc;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-        }
-
-        .dash-table-row small {
-            color: var(--dash-muted);
-        }
-
-        .dash-tag {
-            padding: 0.25rem 0.6rem;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background: rgba(37, 99, 235, 0.12);
-            color: var(--dash-indigo);
-        }
-
-        .dash-tag.pending {
-            background: rgba(249, 115, 22, 0.12);
-            color: #c2410c;
-        }
-
-        .dash-card-muted {
-            background: #f8fafc;
-            border-radius: 1rem;
-            padding: 1rem;
-        }
-    </style>
+    .inicio-secundario { color: var(--inicio-secundario); }
+    .inicio-actividad { background: var(--inicio-superficie); border-radius: .7rem; }
+    .inicio-icono {
+        flex: 0 0 2.8rem;
+        height: 2.8rem;
+        display: grid;
+        place-items: center;
+        border-radius: .7rem;
+        font-size: 1.2rem;
+    }
+    .inicio-icono > .bi {
+        display: block;
+        line-height: 1;
+    }
+    .inicio-icono > .bi::before {
+        display: block;
+        line-height: 1;
+        vertical-align: baseline;
+    }
+    .inicio-avatar { background: #344bb7; color: white; font-weight: 700; border-radius: 50%; }
+    .inicio-grafico {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: .45rem;
+    }
+    .inicio-pista {
+        height: 8rem;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        background: var(--inicio-superficie);
+        border-radius: .5rem;
+        overflow: hidden;
+    }
+    .inicio-barra {
+        width: min(62%, 2.4rem);
+        height: var(--altura);
+        background: var(--inicio-barra);
+        border-radius: .25rem .25rem 0 0;
+    }
+    .inicio-anillo {
+        width: 8rem;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: var(--pagos);
+        display: grid;
+        place-items: center;
+    }
+    .inicio-anillo-centro {
+        display: grid;
+        place-content: center;
+        text-align: center;
+        width: 70%;
+        height: 70%;
+        border-radius: 50%;
+        background: var(--inicio-superficie);
+        line-height: 1.1;
+    }
+    .inicio-punto {
+        display: inline-block;
+        width: .65rem;
+        height: .65rem;
+        border-radius: 50%;
+        background: var(--pago-color);
+    }
+</style>
 @endpush
 
 @section('content')
-    <div class="dashboard-shell">
-        <div class="page-heading">
-            <div class="dash-hero">
-                <div class="hero-card">
-                    <h2>Dashboard Farmacia</h2>
-                    <p>Panorama general de operaciones, compras y stock en tiempo real.</p>
-                    <div class="hero-metrics">
-                        <span class="hero-chip">Compras hoy: {{ $stats['compras_hoy'] }}</span>
-                        <span class="hero-chip">Compras del mes: {{ $stats['compras_mes'] }}</span>
-                        <span class="hero-chip">Items registrados: {{ $stats['items_compra'] }}</span>
-                    </div>
+@php
+    $simbolo = $divisa ?? 'Bs';
+    $moneda = fn ($importe) => $simbolo . ' ' . number_format($importe, 2);
+    $maximo = max(1, $semana->max('importe'));
+    $totalPagos = (int) $pagos->sum();
+    $colores = ['#3e62db', '#148661', '#c87710', '#9a52c7', '#a94667'];
+    $etiquetas = ['efectivo' => 'Efectivo', 'tarjeta' => 'Tarjeta', 'transferencia' => 'Transferencia', 'mixto' => 'Mixto'];
+    $tramos = [];
+    $leyenda = [];
+    $acumulado = 0;
+    foreach ($pagos as $tipo => $cantidad) {
+        $color = $colores[count($leyenda) % count($colores)];
+        $desde = $acumulado * 100 / $totalPagos;
+        $acumulado += $cantidad;
+        $hasta = $acumulado * 100 / $totalPagos;
+        $tramos[] = "$color $desde% $hasta%";
+        $leyenda[] = ['nombre' => $etiquetas[$tipo] ?? ($tipo ? ucfirst($tipo) : 'Sin clasificar'), 'cantidad' => $cantidad, 'color' => $color];
+    }
+    $gradiente = $tramos ? 'conic-gradient(' . implode(', ', $tramos) . ')' : 'var(--inicio-borde)';
+@endphp
+
+<div class="inicio-panel">
+    <div class="row g-3 mb-4">
+        <div class="col-lg-7">
+            <header class="card inicio-cabecera h-100 mb-0">
+                <div class="card-body p-4">
+                    <p class="small inicio-secundario mb-2">{{ $global ? 'Todas las sucursales' : ($sucursal?->nombre ?? 'Sin sucursal activa asignada') }}</p>
+                    <h3 class="mb-3">Panel de {{ $config?->nombre ?: 'Farmacia' }}</h3>
+                    <a href="{{ route('admin.ventas.index') }}" class="btn btn-outline-primary btn-sm">Ver ventas</a>
+                    <a href="{{ route('admin.compras.index') }}" class="btn btn-outline-secondary btn-sm">Ver compras</a>
                 </div>
-                <div class="hero-card">
-                    <h2>Estado del sistema</h2>
-                    <p>Configuracion general y estado operativo actual.</p>
-                    <div class="dash-card-muted">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <strong>Configuracion</strong>
-                            <span class="badge bg-{{ $stats['configuracion'] ? 'success' : 'danger' }}">
-                                {{ $stats['configuracion'] ? 'Cargada' : 'Faltante' }}
-                            </span>
-                        </div>
-                        @if ($config)
-                            <div class="mb-1"><strong>Nombre:</strong> {{ $config->nombre }}</div>
-                            <div class="mb-1"><strong>Email:</strong> {{ $config->email }}</div>
-                            <div><strong>Divisa:</strong> {{ $config->divisa }}</div>
-                        @else
-                            <div class="alert alert-warning mb-0">Aun no hay configuracion general.</div>
-                        @endif
-                    </div>
-                </div>
-            </div>
+            </header>
         </div>
-
-        <section class="section">
-            <div class="stat-grid">
-                <div class="card stat-card">
-                    <div class="stat-card-body">
-                        <div class="stat-icon" style="background: var(--dash-indigo);">
-                            <i class="bi bi-people-fill fs-4"></i>
-                        </div>
-                        <div>
-                            <p class="stat-title">Usuarios</p>
-                            <p class="stat-value">{{ $stats['usuarios'] }}</p>
-                            <p class="stat-desc">Usuarios activos en plataforma</p>
-                        </div>
+        <div class="col-lg-5">
+            <section class="card h-100 mb-0">
+                <div class="card-body d-flex align-items-center gap-3 p-4">
+                    <span class="inicio-icono inicio-avatar" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($usuario->name, 0, 1)) }}</span>
+                    <div class="text-break">
+                        <h5 class="mb-1">{{ $usuario->name }}</h5>
+                        <div class="small inicio-secundario mb-2">{{ $usuario->email }}</div>
+                        <span class="badge bg-primary">{{ $usuario->getRoleNames()->implode(' · ') ?: 'Sin rol asignado' }}</span>
                     </div>
                 </div>
-
-                <div class="card stat-card">
-                    <div class="stat-card-body">
-                        <div class="stat-icon" style="background: var(--dash-emerald);">
-                            <i class="bi bi-person-badge-fill fs-4"></i>
-                        </div>
-                        <div>
-                            <p class="stat-title">Empleados</p>
-                            <p class="stat-value">{{ $stats['empleados'] }}</p>
-                            <p class="stat-desc">Equipo operativo total</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card stat-card">
-                    <div class="stat-card-body">
-                        <div class="stat-icon" style="background: var(--dash-amber);">
-                            <i class="bi bi-box-seam fs-4"></i>
-                        </div>
-                        <div>
-                            <p class="stat-title">Productos</p>
-                            <p class="stat-value">{{ $stats['productos'] }}</p>
-                            <p class="stat-desc">Catalogo disponible</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card stat-card">
-                    <div class="stat-card-body">
-                        <div class="stat-icon" style="background: var(--dash-sky);">
-                            <i class="bi bi-truck fs-4"></i>
-                        </div>
-                        <div>
-                            <p class="stat-title">Proveedores</p>
-                            <p class="stat-value">{{ $stats['proveedores'] }}</p>
-                            <p class="stat-desc">Red de suministro</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card stat-card">
-                    <div class="stat-card-body">
-                        <div class="stat-icon" style="background: var(--dash-rose);">
-                            <i class="bi bi-archive-fill fs-4"></i>
-                        </div>
-                        <div>
-                            <p class="stat-title">Lotes</p>
-                            <p class="stat-value">{{ $stats['lotes'] }}</p>
-                            <p class="stat-desc">Control de vencimientos</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card stat-card">
-                    <div class="stat-card-body">
-                        <div class="stat-icon" style="background: #0ea5e9;">
-                            <i class="bi bi-stack fs-4"></i>
-                        </div>
-                        <div>
-                            <p class="stat-title">Inventarios</p>
-                            <p class="stat-value">{{ $stats['inventarios'] }}</p>
-                            <p class="stat-desc">Registros de stock</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-3">
-                <div class="col-12 col-xl-5">
-                    <div class="card dash-panel">
-                        <div class="card-body">
-                            <h5 class="card-title">Compras en foco</h5>
-                            <div class="row">
-                                <div class="col-6">
-                                    <p class="text-muted mb-1">Total</p>
-                                    <h3 class="mb-0">{{ $stats['compras_total'] }}</h3>
-                                </div>
-                                <div class="col-6">
-                                    <p class="text-muted mb-1">Completadas</p>
-                                    <h3 class="mb-0">{{ $stats['compras_completadas'] }}</h3>
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-6">
-                                    <p class="text-muted mb-1">Pendientes</p>
-                                    <h3 class="mb-0">{{ $stats['compras_pendientes'] }}</h3>
-                                </div>
-                                <div class="col-6">
-                                    <p class="text-muted mb-1">Sucursales</p>
-                                    <h3 class="mb-0">{{ $stats['sucursales'] }}</h3>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <small class="text-muted">Pendientes vs total</small>
-                                    <small class="text-muted">{{ $comprasPendientesRatio }}%</small>
-                                </div>
-                                <div class="dash-progress">
-                                    <span style="width: {{ $comprasPendientesRatio }}%"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-xl-7">
-                    <div class="card dash-panel">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title mb-0">Compras recientes</h5>
-                                <span class="dash-tag">Ultimas 6</span>
-                            </div>
-                            <div class="dash-table">
-                                @forelse ($latestCompras as $compra)
-                                    <div class="dash-table-row">
-                                        <div>
-                                            <strong>#{{ $compra->id }}</strong>
-                                            <small class="d-block">
-                                                {{ $compra->proveedor?->nombre ?? 'Proveedor' }} -
-                                                {{ $compra->sucursal?->nombre ?? 'Sucursal' }}
-                                            </small>
-                                        </div>
-                                        <div class="text-end">
-                                            <small class="d-block">{{ $compra->fecha_compra?->format('d/m/Y') }}</small>
-                                            <span class="dash-tag {{ $compra->estado === 'pendiente' ? 'pending' : '' }}">
-                                                {{ ucfirst($compra->estado) }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="dash-table-row">
-                                        <small class="text-muted">Aun no hay compras registradas.</small>
-                                    </div>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-3 mt-1">
-                <div class="col-12 col-xl-6">
-                    <div class="card dash-panel">
-                        <div class="card-body">
-                            <h5 class="card-title">Actividad de empleados</h5>
-                            <div class="row">
-                                <div class="col-6">
-                                    <p class="text-muted mb-1">Activos</p>
-                                    <h3 class="mb-0">{{ $stats['empleados_activos'] }}</h3>
-                                </div>
-                                <div class="col-6">
-                                    <p class="text-muted mb-1">Inactivos</p>
-                                    <h3 class="mb-0">{{ $stats['empleados_inactivos'] }}</h3>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <small class="text-muted">Participacion activa</small>
-                                    <small class="text-muted">{{ $activeRatio }}%</small>
-                                </div>
-                                <div class="dash-progress">
-                                    <span
-                                        style="width: {{ $activeRatio }}%; background: linear-gradient(90deg, #22c55e, #14b8a6);"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-xl-6">
-                    <div class="card dash-panel">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title mb-0">Ultimos empleados</h5>
-                                <span class="dash-tag">Ultimos 5</span>
-                            </div>
-                            <div class="dash-table">
-                                @forelse ($latestEmployees as $empleado)
-                                    <div class="dash-table-row">
-                                        <div>
-                                            <strong>{{ $empleado->usuario?->name ?? 'Empleado' }}</strong>
-                                            <small
-                                                class="d-block">{{ $empleado->sucursal?->nombre ?? 'Sucursal' }}</small>
-                                        </div>
-                                        <div class="text-end">
-                                            <small class="d-block">{{ $empleado->usuario?->email }}</small>
-                                            <span class="dash-tag {{ $empleado->estado === 'activo' ? '' : 'pending' }}">
-                                                {{ ucfirst($empleado->estado) }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="dash-table-row">
-                                        <small class="text-muted">Aun no hay empleados registrados.</small>
-                                    </div>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </div>
+
+    @php
+        $tarjetas = [
+            ['Ventas de hoy', number_format($ventasHoy->cantidad), $moneda($ventasHoy->importe), 'cart-check', 'success'],
+            ['Ventas del mes', number_format($ventasMes->cantidad), $moneda($ventasMes->importe), 'calendar3', 'primary'],
+            ['Productos', number_format($stats['productos']), null, 'box-seam', 'warning'],
+            ['Recaudado del mes', $moneda($ventasMes->importe), 'Ventas emitidas', 'wallet2', 'danger'],
+            ['Partidas de inventario', number_format($stats['inventarios']), null, 'boxes', 'info'],
+        ];
+        if (!$global) {
+            $tarjetas[] = ['Compras del mes', number_format($stats['compras_mes']), null, 'bag-check', 'primary'];
+        }
+        foreach (['usuarios' => ['Usuarios', 'people'], 'empleados' => ['Empleados', 'person-badge'], 'proveedores' => ['Proveedores', 'truck']] as $clave => [$etiqueta, $icono]) {
+            if (isset($stats[$clave])) {
+                $tarjetas[] = [$etiqueta, number_format($stats[$clave]), null, $icono, 'secondary'];
+            }
+        }
+    @endphp
+    <div class="row g-3 mb-4">
+        @foreach ($tarjetas as [$titulo, $valor, $subtitulo, $icono, $color])
+            <div class="col-sm-6 col-xl-3">
+                <section class="card h-100 mb-0">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <span class="inicio-icono bg-{{ $color }} text-{{ in_array($color, ['warning', 'info'], true) ? 'dark' : 'white' }}">
+                            <i class="bi bi-{{ $icono }}" aria-hidden="true"></i>
+                        </span>
+                        <div class="text-break">
+                            <div class="inicio-secundario small">{{ $titulo }}</div>
+                            <div class="fs-4 fw-bold">{{ $valor }}</div>
+                            @if ($subtitulo !== null)
+                                <div class="inicio-secundario small">{{ $subtitulo }}</div>
+                            @endif
+                        </div>
+                    </div>
+                </section>
+            </div>
+        @endforeach
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+            <section class="card h-100 mb-0">
+                <div class="card-body">
+                    <h5>Ventas recientes</h5>
+                    @forelse ($recientes as $venta)
+                        <div class="d-flex justify-content-between gap-2 inicio-actividad p-3 mb-2">
+                            <div class="text-break">
+                                <a href="{{ route('admin.ventas.show', $venta->id) }}">Venta #{{ $venta->id }}</a>
+                                <div class="small inicio-secundario">{{ $venta->cliente ?? 'Sin cliente' }} · {{ $venta->sucursal ?? 'Sin sucursal' }}</div>
+                            </div>
+                            <div class="small text-end text-nowrap">
+                                {{ $moneda($venta->total_venta) }}
+                                <div class="inicio-secundario">{{ ucfirst($venta->estado) }} · {{ \Illuminate\Support\Carbon::parse($venta->fecha_venta)->format('d/m/Y') }}</div>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="inicio-secundario mb-0">No hay ventas para mostrar.</p>
+                    @endforelse
+                </div>
+            </section>
+        </div>
+        <div class="col-lg-6">
+            <section class="card h-100 mb-0">
+                <div class="card-body">
+                    <h5>Compras recientes</h5>
+                    @forelse ($latestCompras as $compra)
+                        <div class="d-flex justify-content-between gap-2 inicio-actividad p-3 mb-2">
+                            <div class="text-break">
+                                <strong>Compra #{{ $compra->id }}</strong>
+                                <div class="small inicio-secundario">{{ $compra->proveedor?->nombre ?? 'Sin proveedor' }} · {{ $compra->sucursal?->nombre ?? 'Sin sucursal' }}</div>
+                            </div>
+                            <div class="small text-end text-nowrap">
+                                {{ \Illuminate\Support\Carbon::parse($compra->fecha_compra)->format('d/m/Y') }}
+                                <div class="inicio-secundario">{{ ucfirst($compra->estado) }}</div>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="inicio-secundario mb-0">No hay compras para mostrar.</p>
+                    @endforelse
+                </div>
+            </section>
+        </div>
+    </div>
+    <div class="row g-3 mb-3">
+        <div class="col-12">
+            <section class="card h-100 mb-0">
+                <div class="card-body">
+                    <h5>Ventas de los últimos 7 días</h5>
+                    <p class="small inicio-secundario mb-3">Importe y cantidad de ventas emitidas por día</p>
+                    <div id="inicio-ventas-semana"></div>
+                    <div id="inicio-ventas-tabla" class="inicio-grafico">
+                        @foreach ($semana as $dia)
+                            <div class="text-center">
+                                <div class="inicio-pista" aria-hidden="true">
+                                    <span class="inicio-barra" style="--altura: {{ $dia['importe'] / $maximo * 100 }}%"></span>
+                                </div>
+                                <div class="small fw-semibold mt-2">{{ $dia['fecha'] }}</div>
+                                <div class="small text-break">{{ $moneda($dia['importe']) }}</div>
+                                <div class="small inicio-secundario">{{ $dia['cantidad'] }} {{ $dia['cantidad'] === 1 ? 'venta' : 'ventas' }}</div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-xl-5">
+            <section class="card h-100 mb-0">
+                <div class="card-body">
+                    <h5>Formas de pago del mes</h5>
+                    @if ($totalPagos > 0)
+                        <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
+                            <div class="inicio-anillo" style="--pagos: {{ $gradiente }}" aria-hidden="true">
+                                <div class="inicio-anillo-centro"><strong>{{ $totalPagos }}</strong><small>ventas</small></div>
+                            </div>
+                            <ul class="list-unstyled mb-0">
+                                @foreach ($leyenda as $pago)
+                                    <li class="mb-1">
+                                        <span class="inicio-punto me-1" style="--pago-color: {{ $pago['color'] }}" aria-hidden="true"></span>
+                                        {{ $pago['nombre'] }} <strong>{{ $pago['cantidad'] }}</strong>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @else
+                        <p class="inicio-secundario mb-0">Todavía no hay ventas emitidas este mes.</p>
+                    @endif
+                </div>
+            </section>
+        </div>
+        <div class="col-xl-7">
+            <section class="card h-100 mb-0">
+                <div class="card-body">
+                    <h5>Resumen mensual de ventas</h5>
+                    <dl class="row g-2 mt-3 mb-0">
+                        @foreach (['Emitidas' => $ventasMes->cantidad, 'Canceladas' => $canceladas, 'Recaudado' => $moneda($ventasMes->importe)] as $etiqueta => $valor)
+                            <div class="col-sm-4"><dt class="inicio-secundario small">{{ $etiqueta }}</dt><dd class="fs-5 fw-bold mb-0">{{ $valor }}</dd></div>
+                        @endforeach
+                    </dl>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12">
+            <section class="card h-100 mb-0">
+                <div class="card-body">
+                    <h5>Alertas de inventario</h5>
+                    <div class="row g-2">
+                        <div class="col-6"><strong class="fs-4 text-danger">{{ $vencidos }}</strong><div>Lotes vencidos con stock</div></div>
+                        <div class="col-6"><strong class="fs-4">{{ $proximos }}</strong><div>Lotes que vencen en 30 días</div></div>
+                    </div>
+                    <a class="btn btn-outline-primary btn-sm mt-3" href="{{ route('admin.inventarios.existencias', $global || !$sucursal ? [] : ['sucursal_id' => $sucursal->id]) }}">Ver inventario</a>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const destino = document.getElementById('inicio-ventas-semana');
+        if (!destino || typeof ApexCharts === 'undefined') return;
+
+        const dias = {{ \Illuminate\Support\Js::from($semana->values()) }};
+        const divisa = {{ \Illuminate\Support\Js::from($simbolo) }};
+        const moneda = valor => divisa + ' ' + Number(valor).toLocaleString('es-BO', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        const tema = () => document.documentElement.dataset.bsTheme === 'dark' ? 'dark' : 'light';
+        const grafico = new ApexCharts(destino, {
+            chart: {type: 'line', height: 285, background: 'transparent', toolbar: {show: false}},
+            theme: {mode: tema()},
+            colors: ['#6381ef', '#16a985'],
+            series: [
+                {name: 'Ventas', type: 'column', data: dias.map(dia => dia.cantidad)},
+                {name: 'Importe', type: 'line', data: dias.map(dia => dia.importe)}
+            ],
+            stroke: {width: [0, 3], curve: 'straight'},
+            markers: {size: [0, 4]},
+            plotOptions: {bar: {columnWidth: '38%', borderRadius: 4}},
+            xaxis: {categories: dias.map(dia => dia.fecha)},
+            yaxis: [
+                {seriesName: 'Ventas', min: 0, decimalsInFloat: 0, title: {text: 'Ventas'}},
+                {seriesName: 'Importe', min: 0, opposite: true, title: {text: divisa}, labels: {formatter: moneda}}
+            ],
+            tooltip: {shared: true, intersect: false, y: [{formatter: valor => valor}, {formatter: moneda}]},
+            legend: {position: 'top', horizontalAlign: 'right'}
+        });
+
+        try {
+            await grafico.render();
+            document.getElementById('inicio-ventas-tabla').classList.add('visually-hidden');
+        } catch {
+            destino.replaceChildren();
+            return;
+        }
+
+        new MutationObserver(() => grafico.updateOptions({theme: {mode: tema()}}))
+            .observe(document.documentElement, {attributes: true, attributeFilter: ['data-bs-theme']});
+    });
+</script>
+@endpush

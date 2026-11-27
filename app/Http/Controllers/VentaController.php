@@ -9,6 +9,7 @@ use App\Models\MovimientoInventario;
 use App\Models\Sucursal;
 use App\Models\Venta;
 use App\Models\VentaDetalle;
+use App\Services\AccesoCaja;
 use App\Services\CajaDeVenta;
 use App\Services\RegistroMovimientoInventario;
 use Illuminate\Http\Request;
@@ -280,11 +281,14 @@ class VentaController extends Controller
 
     public function create(Request $request)
     {
+        $acceso = new AccesoCaja($request->user());
+        abort_unless($acceso->puedeOperar, 403);
+
         $sucursalesConCaja = DB::table('arqueos')->select('sucursal_id')
             ->where('usuario_id', $request->user()->id)->where('estado', 'abierto')
             ->groupBy('sucursal_id')->havingRaw('COUNT(*) = 1');
 
-        $sucursales = Sucursal::query()->whereIn('id', $sucursalesConCaja)->orderBy('nombre')->get();
+        $sucursales = $acceso->limitarSucursal(Sucursal::query(), 'id')->whereIn('id', $sucursalesConCaja)->orderBy('nombre')->get();
 
         if ($sucursales->isEmpty()) {
             return view('admin.ventas.create', compact('sucursales'));

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -10,6 +11,9 @@ class CajaDeVenta
     // Debe ejecutarse dentro de la transacción de venta o cancelación.
     public function turnoAbierto(int $sucursal, int $usuario): object
     {
+        $acceso = new AccesoCaja(User::findOrFail($usuario));
+        abort_unless($acceso->puedeOperarEn($sucursal), 403);
+
         $turnos = DB::table('arqueos')->where('sucursal_id', $sucursal)
             ->where('usuario_id', $usuario)->where('estado', 'abierto')
             ->orderBy('id')->limit(2)->lockForUpdate()->get();

@@ -146,9 +146,7 @@ class EmpleadoController extends Controller
             $user->update([
                 'name' => trim((string) $request->input('nombres')) . ' ' . trim((string) $request->input('apellidos')),
                 'email' => strtolower(trim((string) $request->input('email'))),
-                'password' => trim((string) $request->input('numero_doc')),
             ]);
-            $user->syncRoles(['EMPLEADO']);
         }
 
         if ($request->hasFile('avatar')) {
